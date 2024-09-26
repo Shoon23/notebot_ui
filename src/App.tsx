@@ -9,7 +9,11 @@ import "./theme/index.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Quiz from "./pages/Quiz";
+// Layout
 import Layout from "./components/layouts/Layout";
+import GenerateQuiz from "./pages/GenerateQuiz";
+import ViewQuiz from "./pages/ViewQuiz";
 
 setupIonicReact();
 
@@ -20,6 +24,15 @@ const App: React.FC = () => (
         <Layout>
           <Route exact path="/home">
             <Home />
+          </Route>
+          <Route exact path="/quiz">
+            <Quiz />
+          </Route>
+          <Route exact path="/quiz/generate">
+            <GenerateQuiz />
+          </Route>
+          <Route exact path="/quiz/view">
+            <ViewQuiz />
           </Route>
         </Layout>
         <Route exact path="/">
