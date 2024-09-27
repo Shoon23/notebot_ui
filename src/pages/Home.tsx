@@ -1,6 +1,6 @@
 const Home: React.FC = () => {
   return (
-    <section className="h-[80vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
+    <section className="h-[85vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
       <div className="flex gap-5 flex-col items-center lg:flex-row">
         <div className="card bg-neutral text-neutral-content h-64">
           <div className="card-body items-center text-center">
