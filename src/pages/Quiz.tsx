@@ -19,11 +19,15 @@ const Quiz: React.FC = () => {
           />
         </svg>
       </label>
-      <div className="flex gap-2">
-        <button className="btn flex-1 btn-info">Quizzes</button>
-        <button className="btn flex-1 btn-outline">Attempted</button>
-      </div>
       <button className="btn btn-warning">Generate Quiz</button>
+
+      <div
+        className="flex p-1 gap-1 
+"
+      >
+        <button className="btn flex-1 bg-base-300">Quizzes</button>
+        <button className="btn flex-1  bg-base-100">Attempted</button>
+      </div>
       <div className="flex flex-col">
         <div className="btn btn-neutral h-16 flex flex-row justify-between text-neutral-content w-96">
           <h2 className="card-title">Lorem</h2>
