@@ -4,8 +4,8 @@ interface BottomNavigationProps {
 }
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ children }) => {
   return (
-    <nav className="md:hidden">
-      <div className="navbar bg-base-100">
+    <>
+      <header className="navbar bg-base-100">
         <div className="flex-1">
           <a className="btn btn-ghost text-xl">NoteBot</a>
         </div>
@@ -42,10 +42,10 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ children }) => {
             </ul>
           </div>
         </div>
-      </div>
+      </header>
       {children}
 
-      <div className="btm-nav">
+      <nav className="btm-nav">
         <button>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -97,8 +97,8 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ children }) => {
           </svg>
           <span className="btm-nav-label">Statics</span>
         </button>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 };
 

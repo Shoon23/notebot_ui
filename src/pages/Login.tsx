@@ -1,5 +1,6 @@
 import React from "react";
 import Input from "../components/Input";
+import logo from "../assets/logo_transparent.png";
 const Login: React.FC = () => {
   // useMutation({
   //   gcTime: Infinity,
@@ -11,7 +12,7 @@ const Login: React.FC = () => {
   return (
     <section className="flex items-center justify-center h-screen">
       <div className="flex flex-col gap-5 items-center card bg-base-100 shadow-xl p-10 md:p-20">
-        <h1>Login</h1>
+        <h1 className="text-2xl">Login</h1>
 
         <form className="flex flex-col gap-3 w-80">
           <Input

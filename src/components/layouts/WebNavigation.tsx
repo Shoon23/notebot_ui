@@ -4,7 +4,7 @@ interface NavbarLayoutProps {
 }
 const WebNavigation: React.FC<NavbarLayoutProps> = ({ children }) => {
   return (
-    <nav className="hidden md:block">
+    <>
       {/* Web Nav */}
       <nav className="bg-base-100 navbar">
         {/* Drawer BTN */}
@@ -83,7 +83,7 @@ const WebNavigation: React.FC<NavbarLayoutProps> = ({ children }) => {
           </ul>
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 
