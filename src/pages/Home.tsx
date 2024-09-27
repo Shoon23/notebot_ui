@@ -1,4 +1,13 @@
+import { useMutation, useMutationState } from "@tanstack/react-query";
+
 const Home: React.FC = () => {
+  // const mutationKey = ;
+
+  const user = useMutationState({
+    filters: { mutationKey: ["user"] },
+    select: (mutation) => mutation.state.data,
+  });
+
   return (
     <section className="h-[85vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
       <div className="flex gap-5 flex-col items-center lg:flex-row">

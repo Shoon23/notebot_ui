@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import authService from "../services/authService";
 import { iLogin, iRegister } from "../types/auth";
 import { Axios, AxiosError } from "axios";
@@ -19,13 +19,16 @@ const Register: React.FC = () => {
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]); // State to hold validation errors
   const [isError, setIsError] = useState(false);
-  const { isPending, isSuccess, mutate } = useMutation({
+  const { isPending, mutate } = useMutation({
     gcTime: Infinity,
     mutationKey: ["user"],
     mutationFn: async () => {
       const { confirm_password, ...others } = formData;
 
       return await authService.register(others);
+    },
+    onSuccess(data, variables, context) {
+      router.push("/");
     },
     onError(error, variables, context) {
       const errorResponse = (error as AxiosError).response?.data as any;
@@ -74,10 +77,6 @@ const Register: React.FC = () => {
     }
 
     mutate();
-
-    if (!isSuccess) return;
-
-    router.push("/");
   };
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
