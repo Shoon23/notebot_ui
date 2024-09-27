@@ -1,12 +1,8 @@
 import { useMutation, useMutationState } from "@tanstack/react-query";
+import useUserSession from "../hooks/useUserSession";
 
 const Home: React.FC = () => {
-  // const mutationKey = ;
-
-  const user = useMutationState({
-    filters: { mutationKey: ["user"] },
-    select: (mutation) => mutation.state.data,
-  });
+  const user = useUserSession();
 
   return (
     <section className="h-[85vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
