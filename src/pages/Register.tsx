@@ -1,13 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import Input from "../components/Input";
+import { useMutation } from "@tanstack/react-query";
+import authService from "../services/authService";
+import { iLogin, iRegister } from "../types/auth";
 
 const Register: React.FC = () => {
+  const [formData, setFormData] = useState<iRegister>({
+    email: "",
+    password: "",
+    user_name: "",
+  });
+  const { isError, isPending, mutate } = useMutation({
+    gcTime: Infinity,
+    mutationKey: ["user"],
+    mutationFn: async () => {
+      return await authService.login(formData);
+    },
+    onError(error, variables, context) {},
+  });
+
+  const handle_register = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    mutate();
+  };
+
   return (
     <section className="flex items-center justify-center h-screen">
       <div className="flex flex-col gap-5 items-center card bg-base-100 shadow-xl p-10 md:p-20">
         <h1>Register</h1>
 
-        <form className="flex flex-col gap-3 w-80">
+        <form onSubmit={handle_register} className="flex flex-col gap-3 w-80">
           <Input
             type="text"
             placeholder="Email"

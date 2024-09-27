@@ -1,6 +1,13 @@
 import React from "react";
 import Input from "../components/Input";
 const Login: React.FC = () => {
+  // useMutation({
+  //   gcTime: Infinity,
+  //   mutationKey: ["user"],
+  //   mutationFn: async () => {
+  //     await authService.register(user_credentials);
+  //   },
+  // });
   return (
     <section className="flex items-center justify-center h-screen">
       <div className="flex flex-col gap-5 items-center card bg-base-100 shadow-xl p-10 md:p-20">

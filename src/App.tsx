@@ -14,30 +14,39 @@ import Quiz from "./pages/Quiz";
 import Layout from "./components/layouts/Layout";
 import GenerateQuiz from "./pages/GenerateQuiz";
 import ViewQuiz from "./pages/ViewQuiz";
+// React Query Init
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 setupIonicReact();
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Layout>
-          <Route exact path="/home">
-            <Home />
-          </Route>
-          <Route exact path="/quiz">
-            <Quiz />
-          </Route>
-          <Route exact path="/quiz/generate">
-            <GenerateQuiz />
-          </Route>
-          <Route exact path="/quiz/view">
-            <ViewQuiz />
-          </Route>
-        </Layout>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
+        <QueryClientProvider client={queryClient}>
+          <Layout>
+            <Route exact path="/home">
+              <Home />
+            </Route>
+            <Route exact path="/">
+              <Redirect to="/home" />
+            </Route>
+            <Route exact path="/quiz">
+              <Quiz />
+            </Route>
+            <Route exact path="/quiz/generate">
+              <GenerateQuiz />
+            </Route>
+            <Route exact path="/quiz/view">
+              <ViewQuiz />
+            </Route>
+          </Layout>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+
         <Route exact path="/login">
           <Login />
         </Route>
