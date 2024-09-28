@@ -16,16 +16,15 @@ const Routes = () => {
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
         <Layout>
-          <AuthMiddleware>
-            <Route exact path="/home" component={Home} />
-            <Route exact path="/" render={() => <Redirect to="/home" />} />{" "}
-            <Route exact path="/quiz" component={Quiz} />
-            <Route exact path="/quiz/generate" component={GenerateQuiz} />{" "}
-            <Route exact path="/quiz/view" component={ViewQuiz} />{" "}
-            {/* Add a fallback 404 route to catch invalid URLs */}
-            <Route render={() => <div>404 - Page Not Found</div>} />
-          </AuthMiddleware>
+          {/* <AuthMiddleware> */}
+          <Route exact path="/home" component={Home} />
+          <Route exact path="/" render={() => <Redirect to="/quiz/view" />} />
+          <Route exact path="/quiz" component={Quiz} />
+          <Route exact path="/quiz/generate" component={GenerateQuiz} />
+          <Route exact path="/quiz/view" component={ViewQuiz} />
+          {/* </AuthMiddleware> */}
         </Layout>
+        <Route render={() => <section>404 - Page Not Found</section>} />
       </Switch>
     </>
   );

@@ -18,7 +18,6 @@ const Login: React.FC = () => {
   const queryClient = useQueryClient();
 
   const { isPending, mutate } = useMutation({
-    gcTime: 0,
     mutationFn: async () => {
       return await authService.login(formData);
     },
@@ -28,9 +27,12 @@ const Login: React.FC = () => {
       router.push("/");
     },
     onError(error, variables, context) {
-      console.log(error);
-      const errorResponse = (error as AxiosError).response?.data as any;
-      setErrorMessages([errorResponse.message as string]);
+      const axiosError = error as AxiosError;
+
+      const errorResponse =
+        (axiosError?.response?.data as any) || axiosError.message;
+
+      setErrorMessages([errorResponse]);
       setIsError(true);
     },
   });
@@ -69,22 +71,23 @@ const Login: React.FC = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-screen">
-      <div className="flex flex-col gap-5 items-center card bg-base-100 shadow-xl p-10 md:p-20">
-        <h1 className="text-2xl">Login</h1>
+    <section className="bg-neutral flex items-center justify-center h-screen">
+      <div className="flex flex-col bg-neutral items-center card shadow-xl p-10 md:p-20">
+        <h1 className="text-2xl mb-5 text-white">Login Notebot</h1>
         {isError && (
-          <div className="border-2 border-error-content card bg-red-500 text-primary-content w-[100%]">
-            <div className="p-3 flex gap-2 text-white flex-wrap">
+          <div className="mb-2 border-2 border-error-content card bg-red-500 text-primary-content w-[100%]">
+            <div className="p-3 flex text-white flex-wrap">
               {errorMessages.map((error, idx) => (
-                <h2 key={idx} className="card-title text-base font-bold ">
-                  {error}
+                <h2 key={idx} className="card-title text-base font-bold mr-3">
+                  {" " + error}
                 </h2>
               ))}
             </div>
           </div>
         )}
-        <form onSubmit={handleLogin} className="flex flex-col gap-3 w-80">
+        <form onSubmit={handleLogin} className="flex flex-col w-80 ">
           <Input
+            className="mb-2"
             name="email"
             type="email"
             placeholder="Email"
@@ -95,7 +98,7 @@ const Login: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
                 <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
@@ -103,6 +106,7 @@ const Login: React.FC = () => {
             }
           />
           <Input
+            className="mb-2"
             name="password"
             type="password"
             placeholder="Password"
@@ -113,7 +117,7 @@ const Login: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path
                   fillRule="evenodd"
@@ -126,7 +130,7 @@ const Login: React.FC = () => {
           <button
             disabled={isPending}
             type="submit"
-            className="btn btn-primary w-full"
+            className="btn btn-success text-white w-full "
           >
             Login
           </button>

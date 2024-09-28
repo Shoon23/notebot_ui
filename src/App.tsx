@@ -3,8 +3,9 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
 /* Core CSS required for Ionic components to work properly */
-import "@ionic/react/css/core.css";
-import "./theme/index.css";
+// import "@ionic/react/css/core.css";
+
+import "./theme/tailwind.css";
 
 // React Query Init
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -21,7 +22,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-document.querySelector("html")?.setAttribute("data-theme", "dim");
 
 const App: React.FC = () => (
   <IonApp>

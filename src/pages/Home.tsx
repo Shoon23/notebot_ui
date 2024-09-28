@@ -26,29 +26,37 @@ const Home: React.FC = () => {
     get_qoutes();
   });
   return (
-    <section className="h-[85vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
-      <div className="flex gap-5 flex-col items-center lg:flex-row">
-        <div className="card bg-neutral text-neutral-content ">
+    <section className="bg-neutral h-[87vh] p-3 overflow-y-scroll flex flex-col items-center ">
+      <div className="flex  flex-col items-center lg:flex-row">
+        <div className="mb-5 card bg-base-content text-neutral-content">
           <div className="card-body items-center text-center">
-            <h2 className="card-title">{qoute}</h2>
+            <h2 className="card-title -">{qoute}</h2>
           </div>
         </div>
-        <div className="grid-cols-2 w-full  grid gap-3">
-          <button className="btn  btn-primary">Create a Quiz</button>
-          <button className="btn btn-secondary">Upload Notes</button>
-          <button className="btn btn-accent">Progress</button>
-          <button className="btn btn-info">Upload Notes</button>
+        <div className="mb-5 grid-cols-2 w-full grid text-white">
+          <button className="btn bg-red-500 rounded-md m-1 h-16 text-neutral-content border-none">
+            Create a Quiz
+          </button>
+          <button className="btn bg-green-500 rounded-md  m-1 h-16 text-neutral-content border-none">
+            Upload Notes
+          </button>
+          <button className="btn bg-blue-500 rounded-md  m-1 h-16 text-neutral-content border-none">
+            Progress
+          </button>
+          <button className="btn bg-orange-500 rounded-md m-1 h-16 text-neutral-content border-none">
+            Upload Notes
+          </button>
         </div>
       </div>
-      <div className=" flex flex-col lg:flex-row gap-5">
-        <div className="flex gap-1 flex-col">
-          <h1>Recent Quiz</h1>
-          <div className="flex flex-col gap-2">
+      <div className="flex flex-col lg:flex-row gap-5 ">
+        <div className="flex mb-1 flex-col">
+          <h1 className="text-white">Recent Quiz</h1>
+          <div className="flex flex-col ">
             {[1, 2, 3, 4, 5].map((val) => {
               return (
                 <div
                   key={val}
-                  className=" btn btn-neutral h-16 flex flex-row justify-between text-neutral-content"
+                  className="border-none mb-2 btn bg-base-content text-neutral-content h-16 flex flex-row justify-between "
                 >
                   <h2 className="card-title">Lorem</h2>
                   <h2 className="card-title">{val}/10</h2>
@@ -57,14 +65,14 @@ const Home: React.FC = () => {
             })}
           </div>
         </div>
-        <div className="flex gap-1 flex-col">
-          <h1>Recent Notes</h1>
-          <div className="flex flex-col gap-2">
+        <div className="flex mb-1 flex-col">
+          <h1 className="text-white mb-2">Recent Notes</h1>
+          <div className="flex flex-col">
             {[1, 2, 3, 4, 5].map((val) => {
               return (
                 <div
                   key={val}
-                  className="btn btn-neutral h-16 flex flex-row justify-between text-neutral-content w-96"
+                  className="border-none mb-2 btn bg-base-content text-neutral-content h-16 flex flex-row justify-between w-96"
                 >
                   <h2 className="card-title">Lorem</h2>
                 </div>

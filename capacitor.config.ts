@@ -1,12 +1,12 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  server: {
-    cleartext: true,
-  },
   appId: "ionic.notebot",
   appName: "notebot",
   webDir: "dist",
+  server: {
+    cleartext: true, // Enable HTTP requests during development
+  },
 };
 
 export default config;

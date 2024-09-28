@@ -86,22 +86,23 @@ const Register: React.FC = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-screen">
-      <div className="flex flex-col gap-5 items-center card bg-base-100 shadow-xl p-10 md:p-20">
-        <h1>Register</h1>
+    <section className="bg-neutral flex items-center justify-center h-screen">
+      <div className="flex flex-col bg-neutral  items-center card  shadow-xl p-10 md:p-20">
+        <h1 className="text-2xl mb-5 text-white">Register</h1>
         {isError && (
-          <div className="border-2 border-error-content card bg-red-500 text-primary-content w-[100%]">
-            <div className="p-3 flex gap-2 text-white flex-wrap">
+          <div className="mb-5 border-2 border-error-content card bg-red-500 text-primary-content w-[100%]">
+            <div className="p-3 flex  text-white flex-wrap">
               {errorMessages.map((error, idx) => (
-                <h2 key={idx} className="card-title text-base font-bold ">
+                <h2 key={idx} className="card-title text-base font-bold mr-3">
                   {error}
                 </h2>
               ))}
             </div>
           </div>
         )}
-        <form onSubmit={handleRegister} className="flex flex-col gap-3 w-80">
+        <form onSubmit={handleRegister} className="flex flex-col  w-80">
           <Input
+            className="mb-3"
             name="email"
             type="text"
             placeholder="Email"
@@ -112,7 +113,7 @@ const Register: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
                 <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
@@ -120,6 +121,7 @@ const Register: React.FC = () => {
             }
           />
           <Input
+            className="mb-3"
             name="user_name"
             type="text"
             placeholder="Username"
@@ -130,13 +132,14 @@ const Register: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
               </svg>
             }
           />
           <Input
+            className="mb-3"
             name="password"
             type="password"
             placeholder="Password"
@@ -147,7 +150,7 @@ const Register: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path
                   fillRule="evenodd"
@@ -158,6 +161,7 @@ const Register: React.FC = () => {
             }
           />
           <Input
+            className="mb-3"
             name="confirm_password"
             type="password"
             placeholder="Confirm Password"
@@ -168,7 +172,7 @@ const Register: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="h-4 w-4 opacity-70"
+                className="h-4 w-4 opacity-70 fill-base-100"
               >
                 <path
                   fillRule="evenodd"
