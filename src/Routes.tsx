@@ -8,6 +8,8 @@ import Register from "./pages/Register";
 import ViewQuiz from "./pages/ViewQuiz";
 import Layout from "./components/layouts/Layout";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
+import AttemptViewQuiz from "./pages/AttemptViewQuiz";
+import _404 from "./pages/_404";
 
 const Routes = () => {
   return (
@@ -18,13 +20,15 @@ const Routes = () => {
         <Layout>
           {/* <AuthMiddleware> */}
           <Route exact path="/home" component={Home} />
-          <Route exact path="/" render={() => <Redirect to="/quiz/view" />} />
+          <Route exact path="/" render={() => <Redirect to="/home" />} />
           <Route exact path="/quiz" component={Quiz} />
           <Route exact path="/quiz/generate" component={GenerateQuiz} />
           <Route exact path="/quiz/view" component={ViewQuiz} />
+          <Route exact path="/quiz/attempt" component={AttemptViewQuiz} />
+
           {/* </AuthMiddleware> */}
+          <Route exact path="*" component={_404} />
         </Layout>
-        <Route render={() => <section>404 - Page Not Found</section>} />
       </Switch>
     </>
   );
