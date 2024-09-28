@@ -1,20 +1,36 @@
 import { useMutation, useMutationState } from "@tanstack/react-query";
 import useUserSession from "../hooks/useUserSession";
+import { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-  const user = useUserSession();
-
+  // const user = useUserSession();
+  const [qoute, setQoute] = useState("");
+  useEffect(() => {
+    const get_qoutes = () => {};
+    fetch("https://gomezmig03.github.io/MotivationalAPI/en.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Unable to retrieve data from the server.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const randomIndex = Math.floor(Math.random() * data.length);
+        const phrase = data[randomIndex].phrase;
+        const author = data[randomIndex].author;
+        setQoute(`"${phrase}" - ${author}`);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    get_qoutes();
+  });
   return (
     <section className="h-[85vh] p-3 overflow-y-scroll flex flex-col  gap-10 items-center">
       <div className="flex gap-5 flex-col items-center lg:flex-row">
-        <div className="card bg-neutral text-neutral-content h-64">
+        <div className="card bg-neutral text-neutral-content ">
           <div className="card-body items-center text-center">
-            <h2 className="card-title">
-              "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit
-              quam error, natus, totam sequi amet aliquam dolorum aperiam animi,
-              dolorem eaque? Nam eaque consequuntur numquam nulla incidunt vel,
-              in facere.!"
-            </h2>
+            <h2 className="card-title">{qoute}</h2>
           </div>
         </div>
         <div className="grid-cols-2 w-full  grid gap-3">

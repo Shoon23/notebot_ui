@@ -1,4 +1,4 @@
-import { Redirect, Route } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -9,11 +9,19 @@ import "./theme/index.css";
 // React Query Init
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import Routes from "./components/Routes";
+import Routes from "./Routes";
 
 setupIonicReact();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      gcTime: Infinity,
+    },
+  },
+});
+document.querySelector("html")?.setAttribute("data-theme", "dim");
 
 const App: React.FC = () => (
   <IonApp>

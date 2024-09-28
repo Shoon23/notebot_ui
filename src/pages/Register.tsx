@@ -16,18 +16,19 @@ const Register: React.FC = () => {
     confirm_password: "",
   });
   const router = useIonRouter();
+  const queryClient = useQueryClient();
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]); // State to hold validation errors
   const [isError, setIsError] = useState(false);
   const { isPending, mutate } = useMutation({
-    gcTime: Infinity,
-    mutationKey: ["user"],
     mutationFn: async () => {
       const { confirm_password, ...others } = formData;
 
       return await authService.register(others);
     },
     onSuccess(data, variables, context) {
+      queryClient.setQueryData(["user"], data);
+
       router.push("/");
     },
     onError(error, variables, context) {

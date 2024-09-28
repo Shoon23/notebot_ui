@@ -15,13 +15,16 @@ const Login: React.FC = () => {
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]); // State to hold validation errors
   const [isError, setIsError] = useState(false);
+  const queryClient = useQueryClient();
+
   const { isPending, mutate } = useMutation({
-    gcTime: Infinity,
-    mutationKey: ["user"],
+    gcTime: 0,
     mutationFn: async () => {
       return await authService.login(formData);
     },
     onSuccess(data, variables, context) {
+      queryClient.setQueryData(["user"], data);
+
       router.push("/");
     },
     onError(error, variables, context) {
