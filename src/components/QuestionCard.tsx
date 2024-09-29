@@ -1,21 +1,31 @@
 import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const QuestionCard = () => {
   return (
-    <div className="card bg-base-content text-neutral-content w-full mb-3">
-      <div className="card-body">
-        <h2 className="font-bold ">
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">
           1. Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus
           quas corrupti tenetur saepe harum repudiandae et
-        </h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <p>a. We are using cookies for no reason.</p>
         <p className=" bg-green-300 text-black p-2">
           b. We are using cookies for no reason.
         </p>
         <p>c. We are using cookies for no reason.</p>
         <p>d. We are using cookies for no reason.</p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

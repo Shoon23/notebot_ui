@@ -4,7 +4,7 @@ import QuestionCard from "../components/QuestionCard";
 
 const AttemptViewQuiz: React.FC = () => {
   return (
-    <section className="h-[87vh] p-3 bg-neutral border-none text-neutral-content ">
+    <section className="h-[93vh] p-3 bg-neutral border-none text-neutral-content ">
       <h2>Score:50</h2>
       <div className="flex flex-col  h-[85vh] overflow-y-scroll">
         <QuestionCard />

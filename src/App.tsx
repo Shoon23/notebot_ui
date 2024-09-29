@@ -11,6 +11,7 @@ import "./theme/tailwind.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Routes from "./Routes";
+import { useEffect } from "react";
 
 setupIonicReact();
 
@@ -23,17 +24,23 @@ const queryClient = new QueryClient({
   },
 });
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools initialIsOpen={false} />
-          <Routes />
-        </QueryClientProvider>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.add("dark");
+  });
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <Routes />
+          </QueryClientProvider>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
