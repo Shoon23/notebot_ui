@@ -4,6 +4,7 @@ const authAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL, // Auth-related base URL
   headers: {
     "Content-Type": "application/json",
+    Accept: "application/json",
   },
   withCredentials: true,
 });
