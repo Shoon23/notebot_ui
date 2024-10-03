@@ -1,14 +1,31 @@
-import { IonSegment, IonSegmentButton, IonLabel } from "@ionic/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
+import { Label } from "@/components/ui/label";
 import Input from "@/components/Input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuestionCard from "@/components/QuestionCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AttemptCard from "@/components/AttemptCard";
+import quizServices from "@/services/quizServices";
+import useUserSession from "@/hooks/useUserSession";
+import { useIonRouter } from "@ionic/react";
 
 const Quiz: React.FC = () => {
+  const user = useUserSession();
+  const [quiz, setQuiz] = useState<any>([]);
+  const router = useIonRouter();
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const res = await quizServices.getQuizzes(user.user_id as any);
+        setQuiz(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchQuizzes();
+  }, []);
   return (
     <section className="flex px-3 flex-col overflow-y-scroll bg-neutral py-3 h-screen">
       <Input
@@ -31,7 +48,12 @@ const Quiz: React.FC = () => {
           </svg>
         }
       />
-      <Button className="bg-yellow-500 mb-5 hover:bg-yellow-500">
+      <Button
+        onClick={() => {
+          router.push("/quiz/generate");
+        }}
+        className="bg-yellow-500 mb-5 hover:bg-yellow-500"
+      >
         Generate Quiz
       </Button>
 
@@ -46,20 +68,33 @@ const Quiz: React.FC = () => {
         </TabsList>
         <TabsContent value="quizzes" className="flex flex-col">
           <ScrollArea className="flex flex-col  h-[70vh] w-full">
-            <QuestionCard />
-            <QuestionCard />
-            <QuestionCard />
-            <QuestionCard />
-            <QuestionCard />
-            <QuestionCard />
+            {quiz.length > 0 ? (
+              quiz.map((val: any) => {
+                return (
+                  <Button
+                    onClick={() => {
+                      router.push(`/quiz/view/${val.quiz_id}`);
+                    }}
+                    key={val.quiz_id}
+                    className="w-full mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                  >
+                    <Label className="font-bold text-white text-xl">
+                      {val.quiz_name}
+                    </Label>
+                    {/* <Label className="font-bold text-white  text-xl">
+                      {val}/10
+                    </Label> */}
+                  </Button>
+                );
+              })
+            ) : (
+              <div>No Generated Quiz Yet</div>
+            )}
           </ScrollArea>
         </TabsContent>
         <TabsContent value="attempts" className="flex flex-col">
           <ScrollArea className="flex flex-col  h-[70vh] w-full">
-            <AttemptCard />
-            <AttemptCard />
-            <AttemptCard />
-            <AttemptCard />
+            <div className="">To be Implemented</div>
           </ScrollArea>
         </TabsContent>
       </Tabs>

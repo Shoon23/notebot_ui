@@ -28,7 +28,7 @@ const Register: React.FC = () => {
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]); // State to hold validation errors
   const [isError, setIsError] = useState(false);
-  const { isPending, mutate } = useMutation({
+  const { isPending, mutate, isSuccess } = useMutation({
     mutationFn: async () => {
       const { confirm_password, ...others } = formData;
 
@@ -37,11 +37,15 @@ const Register: React.FC = () => {
     onSuccess(data, variables, context) {
       queryClient.setQueryData(["user"], data);
 
-      router.push("/");
+      return data;
     },
     onError(error, variables, context) {
-      const errorResponse = (error as AxiosError).response?.data as any;
-      setErrorMessages([errorResponse.message as string]);
+      const axiosError = error as AxiosError;
+
+      const errorResponse =
+        (axiosError?.response?.data as any).message || axiosError.message;
+      console.log(errorResponse);
+      setErrorMessages([errorResponse]);
       setIsError(true);
     },
   });
@@ -84,8 +88,13 @@ const Register: React.FC = () => {
       setIsError(true);
       return;
     }
-
+    console.log("afsa");
     mutate();
+    if (!isSuccess) {
+      return;
+    }
+
+    router.push("/");
   };
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;

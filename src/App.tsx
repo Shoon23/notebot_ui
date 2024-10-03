@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 setupIonicReact();
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: Infinity,

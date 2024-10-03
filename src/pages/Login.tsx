@@ -26,20 +26,20 @@ const Login: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const queryClient = useQueryClient();
 
-  const { isPending, mutate } = useMutation({
+  const { isPending, mutate, isSuccess } = useMutation({
     mutationFn: async () => {
       return await authService.login(formData);
     },
     onSuccess(data, variables, context) {
       queryClient.setQueryData(["user"], data);
 
-      router.push("/");
+      return data;
     },
     onError(error, variables, context) {
       const axiosError = error as AxiosError;
 
       const errorResponse =
-        (axiosError?.response?.data as any) || axiosError.message;
+        (axiosError?.response?.data as any).message || axiosError.message;
 
       setErrorMessages([errorResponse]);
       setIsError(true);
@@ -72,6 +72,11 @@ const Login: React.FC = () => {
     }
 
     mutate();
+
+    if (!isSuccess) {
+      return;
+    }
+    router.push("/");
   };
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;

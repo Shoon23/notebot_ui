@@ -1,12 +1,20 @@
-import { useMutationState } from "@tanstack/react-query";
+import {
+  useMutationState,
+  QueryClient,
+  QueryCache,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { iUserSession } from "../types/auth";
-
+import { queryClient } from "../App";
 const useUserSession = (): iUserSession => {
-  const user = useMutationState({
-    filters: { mutationKey: ["user"] },
-    select: (mutation) => mutation.state.data,
-  });
+  const queryClient = useQueryClient();
 
-  return user[0] as iUserSession;
+  const user = queryClient.getQueryData(["user"]);
+
+  return user as unknown as iUserSession;
+  // const queryCache = new QueryCache();
+  // const query = queryCache.find({ queryKey: ["user"] });
+  // console.log(query);
+  // return query as unknown as iUserSession;
 };
 export default useUserSession;

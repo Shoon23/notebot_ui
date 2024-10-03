@@ -8,22 +8,30 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const QuestionCard = () => {
+interface QuestionCardProps {
+  question: string;
+  options: any[];
+}
+
+const QuestionCard: React.FC<QuestionCardProps> = ({ options, question }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">
-          1. Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus
-          quas corrupti tenetur saepe harum repudiandae et
-        </CardTitle>
+        <CardTitle className="text-lg">{question}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>a. We are using cookies for no reason.</p>
-        <p className=" bg-green-300 text-black p-2">
-          b. We are using cookies for no reason.
-        </p>
-        <p>c. We are using cookies for no reason.</p>
-        <p>d. We are using cookies for no reason.</p>
+        {options.map((opt: any, idx: number) => {
+          return (
+            <p
+              key={idx}
+              className={`${
+                opt.is_answer && "bg-green-300 text-black p-2"
+              } mb-1`}
+            >
+              {`${idx + 1}. `} {opt.content}
+            </p>
+          );
+        })}
       </CardContent>
     </Card>
   );
