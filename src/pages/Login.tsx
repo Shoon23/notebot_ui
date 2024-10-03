@@ -144,8 +144,17 @@ const Login: React.FC = () => {
                 </svg>
               }
             />
+
             <Button disabled={isPending} type="submit" className=" w-full">
               Login
+            </Button>
+            <Button
+              variant={"link"}
+              onClick={() => {
+                router.push("/register");
+              }}
+            >
+              Register
             </Button>
           </form>
         </CardContent>

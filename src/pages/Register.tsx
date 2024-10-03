@@ -310,6 +310,14 @@ const Register: React.FC = () => {
             <Button disabled={isPending} type="submit" className=" w-full">
               Register
             </Button>
+            <Button
+              variant={"link"}
+              onClick={() => {
+                router.push("/login");
+              }}
+            >
+              Login
+            </Button>
           </form>
         </CardContent>
       </Card>
