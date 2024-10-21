@@ -10,7 +10,7 @@ import Layout from "./components/layouts/Layout";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
 import AttemptViewQuiz from "./pages/AttemptViewQuiz";
 import _404 from "./pages/_404";
-// luh
+import Notes from "./pages/Notes";
 
 const Routes = () => {
   return (
@@ -26,6 +26,7 @@ const Routes = () => {
             <Route exact path="/quiz/generate" component={GenerateQuiz} />
             <Route exact path="/quiz/view/:quizId" component={ViewQuiz} />
             <Route exact path="/quiz/attempt" component={AttemptViewQuiz} />
+            <Route exact path="/notes" component={Notes} />
           </Layout>
         </AuthMiddleware>
         <Route exact path="*" component={_404} />

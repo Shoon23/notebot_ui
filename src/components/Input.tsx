@@ -19,9 +19,9 @@ const Input: React.FC<InputProps> = ({
       className={`${className} w-full flex items-center border rounded-md px-3 hover:border-2`}
     >
       {icon && <span className="icon ">{icon}</span>}
-      {/* {label && <Label>{label}</Label>} */}
+
       <ShadcnInput
-        className="w-full focus:border-none border-none focus:ring-0 hover:border-none"
+        className="text-xl w-full focus:border-none border-none focus:ring-0 hover:border-none"
         {...inputProps}
       />
     </div>

@@ -22,7 +22,7 @@ const ViewQuiz: React.FC = () => {
   return (
     <section className="px-3 flex flex-col text-neutral-content h-screen">
       <div className="flex flex-col mb-3">
-        <h1 className="mb-1">Notes</h1>
+        <h1 className="mb-1 md:text-2xl">Notes</h1>
         <div className="card text-neutral-content w-96">
           <div className="card-body items-center text-center">
             <p>*Summarization or View Notes</p>
@@ -33,24 +33,24 @@ const ViewQuiz: React.FC = () => {
       <div className="flex mb-3">
         <Button
           disabled={true}
-          className="mb-2 mr-1 bg-yellow-500 hover:bg-yellow-500 flex-1"
+          className="mb-2 mr-1 bg-yellow-500 hover:bg-yellow-500 flex-1 md:h-12 md:text-2xl"
         >
           Take Quiz
         </Button>
         <Button
           disabled={true}
-          className="bg-indigo-500 hover:bg-indigo-500 flex-1 ml-1"
+          className="bg-indigo-500 hover:bg-indigo-500 flex-1 ml-1 md:h-12 md:text-2xl"
         >
           Study Mode
         </Button>
       </div>
 
       <Tabs defaultValue="question" className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger className="w-full" value="question">
+        <TabsList className="w-full md:h-14">
+          <TabsTrigger className="w-full md:text-2xl" value="question">
             Questions
           </TabsTrigger>
-          <TabsTrigger className="w-full" value="history">
+          <TabsTrigger className="w-full md:text-2xl" value="history">
             History
           </TabsTrigger>
         </TabsList>

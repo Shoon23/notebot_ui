@@ -17,7 +17,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ options, question }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{question}</CardTitle>
+        <CardTitle className="text-lg md:text-xl">{question}</CardTitle>
       </CardHeader>
       <CardContent>
         {options.map((opt: any, idx: number) => {
@@ -26,7 +26,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ options, question }) => {
               key={idx}
               className={`${
                 opt.is_answer && "bg-green-300 text-black p-2"
-              } mb-1`}
+              } mb-1 md:text-lg`}
             >
               {`${idx + 1}. `} {opt.content}
             </p>

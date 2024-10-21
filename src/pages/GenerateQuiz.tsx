@@ -125,11 +125,12 @@ const GenerateQuiz: React.FC = () => {
           name="quiz_name"
           value={formData.quiz_name}
           onChange={handleChange}
+          className="md:p-4"
         />
 
         <Drawer>
           <DrawerTrigger asChild>
-            <Button variant={"outline"} className="w-full">
+            <Button variant={"outline"} className="w-full md:h-14 md:text-2xl">
               Choose Note
             </Button>
           </DrawerTrigger>
@@ -160,24 +161,32 @@ const GenerateQuiz: React.FC = () => {
         <Select
           onValueChange={(value) => handleSelectChange("difficulty", value)}
         >
-          <SelectTrigger className="">
+          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="hard">Hard</SelectItem>
+            <SelectItem className="md:text-2xl" value="easy">
+              Easy
+            </SelectItem>
+            <SelectItem className="md:text-2xl" value="medium">
+              Medium
+            </SelectItem>
+            <SelectItem className="md:text-2xl" value="hard">
+              Hard
+            </SelectItem>
           </SelectContent>
         </Select>
 
         <Select
           onValueChange={(value) => handleSelectChange("question_type", value)}
         >
-          <SelectTrigger className="">
+          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
             <SelectValue placeholder="Question Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="mcq">Multiple Choice</SelectItem>
+            <SelectItem className="md:text-2xl" value="mcq">
+              Multiple Choice
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -186,14 +195,22 @@ const GenerateQuiz: React.FC = () => {
             handleSelectChange("blooms_taxonomy_level", value)
           }
         >
-          <SelectTrigger className="">
+          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
             <SelectValue placeholder="BLOOMS Level" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="remembering">Remembering</SelectItem>
-            <SelectItem value="understanding">Understanding</SelectItem>
-            <SelectItem value="analyzing">Analyzing</SelectItem>
-            <SelectItem value="evaluating">Evaluating</SelectItem>
+            <SelectItem className="md:text-2xl" value="remembering">
+              Remembering
+            </SelectItem>
+            <SelectItem className="md:text-2xl" value="understanding">
+              Understanding
+            </SelectItem>
+            <SelectItem className="md:text-2xl" value="analyzing">
+              Analyzing
+            </SelectItem>
+            <SelectItem className="md:text-2xl" value="evaluating">
+              Evaluating
+            </SelectItem>
           </SelectContent>
         </Select>
 

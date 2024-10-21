@@ -34,79 +34,81 @@ const Home: React.FC = () => {
   }, []);
   return (
     <ScrollArea className="bg-neutral h-[93vh] p-3 flex flex-col items-center ">
-      <div className="flex flex-col items-center w-full lg:flex-row">
-        <div className="mb-5 grid-cols-2 w-full grid text-white">
+      <div className="flex flex-col items-center w-full">
+        <div className="mb-5 grid-cols-2 w-full grid text-white md:w-2/4">
           <Button
             disabled={true}
-            className=" bg-red-500 rounded-md m-1 h-16 text-neutral-content border-none"
+            className=" bg-red-500 rounded-md m-1 h-16 text-neutral-content border-none md:text-xl"
           >
             Create a Quiz
           </Button>
           <Button
             disabled={true}
-            className=" bg-green-500 rounded-md  m-1 h-16 text-neutral-content border-none"
+            className=" bg-green-500 rounded-md  m-1 h-16 text-neutral-content border-none md:text-xl"
           >
             Upload Notes
           </Button>
           <Button
             disabled={true}
-            className=" bg-blue-500 rounded-md  m-1 h-16 text-neutral-content border-none"
+            className=" bg-blue-500 rounded-md  m-1 h-16 text-neutral-content border-none md:text-xl"
           >
             Progress
           </Button>
           <Button
             disabled={true}
-            className=" bg-orange-500 rounded-md m-1 h-16 text-neutral-content border-none"
+            className=" bg-orange-500 rounded-md m-1 h-16 text-neutral-content border-none md:text-xl"
           >
             Upload Notes
           </Button>
         </div>
       </div>
-      <div className="flex flex-col lg:flex-row gap-5 w-full">
-        <div className="flex mb-1 flex-col">
-          <h1 className="text-white mb-1">Recent Quiz</h1>
-          <div className="flex flex-col ">
-            {quiz.length > 0 ? (
-              quiz.map((val: any) => {
-                // {quiz_id, quiz_name, question_type, blooms_taxonomy_level, difficulty}
-                return (
-                  <Button
-                    key={val.quiz_id}
-                    className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
-                  >
-                    <Label className="font-bold text-white text-xl">
-                      {val.quiz_name}
-                    </Label>
-                    {/* <Label className="font-bold text-white  text-xl">
+      <div className="flex flex-col justify-center items-center ">
+        <div className="w-full md:w-2/4">
+          <div className="flex mb-1 flex-col w-full">
+            <h1 className="text-white mb-1 w-full">Recent Quiz</h1>
+            <div className="flex flex-col w-full">
+              {quiz.length > 0 ? (
+                quiz.map((val: any) => {
+                  // {quiz_id, quiz_name, question_type, blooms_taxonomy_level, difficulty}
+                  return (
+                    <Button
+                      key={val.quiz_id}
+                      className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                    >
+                      <Label className="font-bold text-white text-xl">
+                        {val.quiz_name}
+                      </Label>
+                      {/* <Label className="font-bold text-white  text-xl">
                       {val}/10
                     </Label> */}
-                  </Button>
-                );
-              })
-            ) : (
-              <div className="">No Quiz Yet</div>
-            )}
+                    </Button>
+                  );
+                })
+              ) : (
+                <div className="">No Quiz Yet</div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex mb-1 flex-col">
-          <h1 className="text-white mb-2">Recent Notes</h1>
-          <div className="flex flex-col">
-            {note.length > 0 ? (
-              note.map((val: any) => {
-                return (
-                  <Button
-                    key={val.note_id}
-                    className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
-                  >
-                    <Label className="font-bold text-white text-xl">
-                      {val.note_name}
-                    </Label>
-                  </Button>
-                );
-              })
-            ) : (
-              <div className="">No Notes Yet</div>
-            )}
+          <div className="flex mb-1 flex-col w-full">
+            <h1 className="text-white mb-2">Recent Notes</h1>
+            <div className="flex flex-col">
+              {note.length > 0 ? (
+                note.map((val: any) => {
+                  return (
+                    <Button
+                      key={val.note_id}
+                      className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                    >
+                      <Label className="font-bold text-white text-xl">
+                        {val.note_name}
+                      </Label>
+                    </Button>
+                  );
+                })
+              ) : (
+                <div className="">No Notes Yet</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
