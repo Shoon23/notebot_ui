@@ -11,6 +11,7 @@ import AuthMiddleware from "./middlewares/AuthMiddleware";
 import AttemptViewQuiz from "./pages/AttemptViewQuiz";
 import _404 from "./pages/_404";
 import Notes from "./pages/Notes";
+import UploadNote from "./pages/UploadNote";
 
 const Routes = () => {
   return (
@@ -27,6 +28,7 @@ const Routes = () => {
             <Route exact path="/quiz/view/:quizId" component={ViewQuiz} />
             <Route exact path="/quiz/attempt" component={AttemptViewQuiz} />
             <Route exact path="/notes" component={Notes} />
+            <Route exact path="/notes/upload" component={UploadNote} />
           </Layout>
         </AuthMiddleware>
         <Route exact path="*" component={_404} />

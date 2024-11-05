@@ -14,14 +14,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <Sheet>
-        <div className="flex w-full p-3 justify-between">
+        <div className="flex w-full p-3 ">
           <SheetTrigger asChild>
             <Button variant={"outline"}>
               <FaBars size={24} />
             </Button>
           </SheetTrigger>
-
-          <Label className="self-center text-xl md:text-4xl">Notebot</Label>
+          <Label className="mx-auto text-xl md:text-4xl">Notebot</Label>
         </div>
         <SheetContent side={"left"}>
           <div className="flex flex-col text-2xl mt-10">
