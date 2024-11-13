@@ -24,6 +24,7 @@ import quizServices from "@/services/quizServices";
 import useUserSession from "@/hooks/useUserSession";
 import noteService from "@/services/noteService";
 import { useIonRouter } from "@ionic/react";
+import { SelectItemText } from "@radix-ui/react-select";
 
 const GenerateQuiz: React.FC = () => {
   const user = useUserSession();
@@ -125,12 +126,11 @@ const GenerateQuiz: React.FC = () => {
           name="quiz_name"
           value={formData.quiz_name}
           onChange={handleChange}
-          className="md:p-4"
         />
 
         <Drawer>
           <DrawerTrigger asChild>
-            <Button variant={"outline"} className="w-full md:h-14 md:text-2xl">
+            <Button variant={"outline"} className="w-full ">
               Choose Note
             </Button>
           </DrawerTrigger>
@@ -161,32 +161,24 @@ const GenerateQuiz: React.FC = () => {
         <Select
           onValueChange={(value) => handleSelectChange("difficulty", value)}
         >
-          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
+          <SelectTrigger>
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="md:text-2xl" value="easy">
-              Easy
-            </SelectItem>
-            <SelectItem className="md:text-2xl" value="medium">
-              Medium
-            </SelectItem>
-            <SelectItem className="md:text-2xl" value="hard">
-              Hard
-            </SelectItem>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="hard">Hard</SelectItem>
           </SelectContent>
         </Select>
 
         <Select
           onValueChange={(value) => handleSelectChange("question_type", value)}
         >
-          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
+          <SelectTrigger>
             <SelectValue placeholder="Question Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="md:text-2xl" value="mcq">
-              Multiple Choice
-            </SelectItem>
+            <SelectItem value="mcq">Multiple Choice</SelectItem>
           </SelectContent>
         </Select>
 
@@ -195,22 +187,14 @@ const GenerateQuiz: React.FC = () => {
             handleSelectChange("blooms_taxonomy_level", value)
           }
         >
-          <SelectTrigger className="md:p-4 md:text-2xl md:h-12">
+          <SelectTrigger>
             <SelectValue placeholder="BLOOMS Level" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="md:text-2xl" value="remembering">
-              Remembering
-            </SelectItem>
-            <SelectItem className="md:text-2xl" value="understanding">
-              Understanding
-            </SelectItem>
-            <SelectItem className="md:text-2xl" value="analyzing">
-              Analyzing
-            </SelectItem>
-            <SelectItem className="md:text-2xl" value="evaluating">
-              Evaluating
-            </SelectItem>
+            <SelectItem value="remembering">Remembering</SelectItem>
+            <SelectItem value="understanding">Understanding</SelectItem>
+            <SelectItem value="analyzing">Analyzing</SelectItem>
+            <SelectItem value="evaluating">Evaluating</SelectItem>
           </SelectContent>
         </Select>
 
@@ -219,69 +203,11 @@ const GenerateQuiz: React.FC = () => {
         <Button
           disabled={isSubmit}
           type="submit"
-          className="bg-yellow-500 hover:bg-yellow-500 w-full"
+          className="bg-yellow-500 hover:bg-yellow-500 w-full text-white"
         >
           Generate
         </Button>
       </form>
-      {/* <form className="space-y-3">
-        <Input type="text" placeholder="Quiz Name" />
-
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button variant={"outline"} className="w-full">
-              Choose Note
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Notes</DrawerTitle>
-            </DrawerHeader>
-            <DrawerFooter>
-              <Input type="text" placeholder="Search" />
-              <div className="flex flex-col h-[70vh]"></div>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-
-        <Select>
-          <SelectTrigger className="">
-            <SelectValue placeholder="Difficulty" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="Medium">Medium</SelectItem>
-            <SelectItem value="Hard">Hard</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger className="">
-            <SelectValue placeholder="Question Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mcq">Multiple Choice</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger className="">
-            <SelectValue placeholder="BLOOMS Level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="remebering">Remembering</SelectItem>
-            <SelectItem value="understanding">Understanding</SelectItem>
-            <SelectItem value="analyzing">Analyzing</SelectItem>
-            <SelectItem value="remebering">Remembering</SelectItem>
-            <SelectItem value="evaluating">Evaluating</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button
-          type="submit"
-          className="bg-yellow-500 hover:bg-yellow-500 w-full"
-        >
-          Generate
-        </Button>
-      </form> */}
     </section>
   );
 };

@@ -1,6 +1,13 @@
 import React, { ReactNode, useEffect, useState } from "react";
 
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
 import { Button } from "../ui/button";
 import { FaBars } from "react-icons/fa6";
 import { Label } from "../ui/label";
@@ -20,9 +27,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <FaBars size={24} />
             </Button>
           </SheetTrigger>
-          <Label className="mx-auto text-xl md:text-4xl">Notebot</Label>
+          <Label className="self-center text-xl md:text-2xl">Notebot</Label>
         </div>
         <SheetContent side={"left"}>
+          <SheetTitle>Menu</SheetTitle>
           <div className="flex flex-col text-2xl mt-10">
             <SheetClose asChild>
               <Link to={"/"}>Home</Link>

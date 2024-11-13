@@ -19,18 +19,22 @@ const Routes = () => {
       <Switch>
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
-        <AuthMiddleware>
-          <Layout>
-            <Route exact path="/home" component={Home} />
-            <Route exact path="/" render={() => <Redirect to="/home" />} />
-            <Route exact path="/quiz" component={Quiz} />
-            <Route exact path="/quiz/generate" component={GenerateQuiz} />
-            <Route exact path="/quiz/view/:quizId" component={ViewQuiz} />
-            <Route exact path="/quiz/attempt" component={AttemptViewQuiz} />
-            <Route exact path="/notes" component={Notes} />
-            <Route exact path="/notes/upload" component={UploadNote} />
-          </Layout>
-        </AuthMiddleware>
+        {/* <AuthMiddleware> */}
+        <Layout>
+          <Route exact path="/home" component={Home} />
+          <Route
+            exact
+            path="/"
+            render={() => <Redirect to="/notes/upload" />}
+          />
+          <Route exact path="/quiz" component={Quiz} />
+          <Route exact path="/quiz/generate" component={GenerateQuiz} />
+          <Route exact path="/quiz/view/:quizId" component={ViewQuiz} />
+          <Route exact path="/quiz/attempt" component={AttemptViewQuiz} />
+          <Route exact path="/notes" component={Notes} />
+          <Route exact path="/notes/upload" component={UploadNote} />
+        </Layout>
+        {/* </AuthMiddleware> */}
         <Route exact path="*" component={_404} />
       </Switch>
     </>

@@ -32,13 +32,13 @@ const Quiz: React.FC = () => {
         type="text"
         name="search"
         placeholder="Search"
-        className="mb-2 md:p-2 md:text-4xl"
+        className="mb-2"
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
             fill="currentColor"
-            className="h-4 w-4 md:h-6 md:w-6 opacity-70 fill-white"
+            className="h-4 w-4 md:h-4 md:w-4 opacity-70 fill-white"
           >
             <path
               fillRule="evenodd"
@@ -49,21 +49,21 @@ const Quiz: React.FC = () => {
         }
       />
       <Button
-        size={"lg"}
+        size={"sm"}
         onClick={() => {
           router.push("/quiz/generate");
         }}
-        className="bg-yellow-500 mb-5 hover:bg-yellow-500 md:h-12 md:text-2xl text-white"
+        className="bg-yellow-500 mb-3 hover:bg-yellow-500   text-white"
       >
         Generate Quiz
       </Button>
 
       <Tabs defaultValue="quizzes" className="w-full">
-        <TabsList className="w-full md:h-14">
-          <TabsTrigger className="w-full md:h-12 md:text-xl" value="quizzes">
+        <TabsList className="w-full ">
+          <TabsTrigger className="w-full " value="quizzes">
             Quizzes
           </TabsTrigger>
-          <TabsTrigger className="w-full md:h-12 md:text-xl" value="attempts">
+          <TabsTrigger className="w-full " value="attempts">
             Attempts
           </TabsTrigger>
         </TabsList>
@@ -77,9 +77,9 @@ const Quiz: React.FC = () => {
                       router.push(`/quiz/view/${val.quiz_id}`);
                     }}
                     key={val.quiz_id}
-                    className="w-full mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                    className="w-full mb-2 bg-gray-900 px-4 h-14 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
                   >
-                    <Label className="font-bold text-white text-xl">
+                    <Label className="font-bold text-white ">
                       {val.quiz_name}
                     </Label>
                     {/* <Label className="font-bold text-white  text-xl">

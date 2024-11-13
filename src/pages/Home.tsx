@@ -38,25 +38,25 @@ const Home: React.FC = () => {
         <div className="mb-5 grid-cols-2 w-full grid text-white md:w-2/4">
           <Button
             disabled={true}
-            className=" bg-red-500 rounded-md m-1 h-16 text-neutral-content border-none md:text-xl"
+            className=" bg-red-500 rounded-md m-1 h-14 text-neutral-content border-none "
           >
             Create a Quiz
           </Button>
           <Button
             disabled={true}
-            className=" bg-green-500 rounded-md  m-1 h-16 text-neutral-content border-none md:text-xl"
+            className=" bg-green-500 rounded-md  m-1 h-14  text-neutral-content border-none "
           >
             Upload Notes
           </Button>
           <Button
             disabled={true}
-            className=" bg-blue-500 rounded-md  m-1 h-16 text-neutral-content border-none md:text-xl"
+            className=" bg-blue-500 rounded-md  m-1 h-14  text-neutral-content border-none "
           >
             Progress
           </Button>
           <Button
             disabled={true}
-            className=" bg-orange-500 rounded-md m-1 h-16 text-neutral-content border-none md:text-xl"
+            className=" bg-orange-500 rounded-md m-1 h-14  text-neutral-content border-none"
           >
             Upload Notes
           </Button>
@@ -73,9 +73,9 @@ const Home: React.FC = () => {
                   return (
                     <Button
                       key={val.quiz_id}
-                      className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                      className="mb-2 bg-gray-900 px-4 h-14 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
                     >
-                      <Label className="font-bold text-white text-xl">
+                      <Label className="font-bold text-white ">
                         {val.quiz_name}
                       </Label>
                       {/* <Label className="font-bold text-white  text-xl">
@@ -97,9 +97,9 @@ const Home: React.FC = () => {
                   return (
                     <Button
                       key={val.note_id}
-                      className="mb-2 bg-gray-900 px-4 h-16 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
+                      className="mb-2 bg-gray-900 px-4 h-14 items-center flex flex-row justify-between active:bg-gray-950 hover:bg-gray-950"
                     >
-                      <Label className="font-bold text-white text-xl">
+                      <Label className="font-bold text-white">
                         {val.note_name}
                       </Label>
                     </Button>

@@ -22,13 +22,13 @@ const Notes = () => {
         type="text"
         name="search"
         placeholder="Search"
-        className="mb-2 md:p-2 md:text-4xl"
+        className="mb-2"
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
             fill="currentColor"
-            className="h-4 w-4 md:h-6 md:w-6 opacity-70 fill-white"
+            className="h-4 w-4  opacity-70 fill-white"
           >
             <path
               fillRule="evenodd"
@@ -43,17 +43,17 @@ const Notes = () => {
         onClick={() => {
           router.push("/notes/upload");
         }}
-        className="bg-orange-500 mb-5 hover:bg-orange-500 md:h-12 md:text-2xl text-white"
+        className="bg-orange-500 mb-5 hover:bg-orange-600  text-white"
       >
         Add Notes
       </Button>
 
       <Tabs defaultValue="quizzes" className="w-full">
-        <TabsList className="w-full md:h-14">
-          <TabsTrigger className="w-full md:h-12 md:text-xl" value="quizzes">
+        <TabsList className="w-full ">
+          <TabsTrigger className="w-full" value="quizzes">
             Quizzes
           </TabsTrigger>
-          <TabsTrigger className="w-full md:h-12 md:text-xl" value="attempts">
+          <TabsTrigger className="w-full" value="attempts">
             Attempts
           </TabsTrigger>
         </TabsList>

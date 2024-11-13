@@ -83,9 +83,9 @@ const Login: React.FC = () => {
 
   return (
     <section className="flex items-center justify-center h-screen">
-      <Card className="w-[350px] md:w-[500px]">
+      <Card className="w-[350px] ">
         <CardHeader>
-          <CardTitle className="text-center md:text-4xl">Login</CardTitle>
+          <CardTitle className="text-center ">Login</CardTitle>
         </CardHeader>
         {isError && (
           <CardDescription className="mx-3 rounded-md bg-red-500 text-center mb-2">
@@ -101,7 +101,7 @@ const Login: React.FC = () => {
         <CardContent className="w-full">
           <form onSubmit={handleLogin} className="flex flex-col w-full">
             <Input
-              className="mb-2 md:h-[50px]"
+              className="mb-2 "
               name="email"
               type="email"
               placeholder="Email"
@@ -112,7 +112,7 @@ const Login: React.FC = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
                   fill="currentColor"
-                  className="h-4 w-4 md:h-6 md:w-6 opacity-70 fill-base-100"
+                  className="h-4 w-4 opacity-70 fill-base-100"
                 >
                   <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
                   <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
@@ -120,7 +120,7 @@ const Login: React.FC = () => {
               }
             />
             <Input
-              className="mb-2 md:h-[50px]"
+              className="mb-2"
               name="password"
               type="password"
               placeholder="Password"
@@ -131,7 +131,7 @@ const Login: React.FC = () => {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
                   fill="currentColor"
-                  className="h-4 w-4 md:h-6 md:w-6 opacity-70 fill-base-100"
+                  className="h-4 w-4  opacity-70 fill-base-100"
                 >
                   <path
                     fillRule="evenodd"
@@ -142,16 +142,12 @@ const Login: React.FC = () => {
               }
             />
 
-            <Button
-              disabled={isPending}
-              type="submit"
-              className="w-full md:h-[50px] md:text-lg"
-            >
+            <Button disabled={isPending} type="submit" className="w-full ">
               Login
             </Button>
             <Button
               variant={"link"}
-              className="w-full md:h-[50px] md:text-lg"
+              className="w-full "
               onClick={() => {
                 router.push("/register");
               }}

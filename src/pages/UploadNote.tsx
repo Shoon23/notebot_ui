@@ -1,56 +1,173 @@
+import Input from "@/components/Input";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import React from "react";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useRef, useState } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+import { pdfjs, Document, Page } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const UploadNotes = () => {
+  const [currTab, setCurrTab] = useState("text");
+  const [note, setNote] = useState("");
+  const [name, setName] = useState("");
+  const [fileName, setFileName] = useState<string | undefined>("");
+  const [file, setFile] = useState<File | null>(null);
+  const [numPages, setNumPages] = useState<number>();
+  const [pageNumber, setPageNumber] = useState<number>(1);
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+    // const plainText = e.replace(/<[^>]+>/g, "");
+    // console.log(plainText);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+    console.log(file);
+    setFile(file);
+    setFileName(file?.name);
+  };
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
+  // Go to the next page
+  function nextPage(e: React.MouseEvent) {
+    e.preventDefault(); // Prevent page refresh
+    setPageNumber((prev) => (prev < (numPages ?? 1) ? prev + 1 : prev));
+  }
+
+  // Go to the previous page
+  function prevPage(e: React.MouseEvent) {
+    e.preventDefault(); // Prevent page refresh
+    setPageNumber((prev) => (prev > 1 ? prev - 1 : prev));
+  }
+
+  const handleSubmit = () => {};
   return (
-    <section className="px-3 h-screen bg-neutral py-3">
-      <Dialog defaultOpen={true}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            size={"lg"}
-            onClick={() => {}}
-            className=" md:h-12 md:text-2xl text-white"
+    <section className="px-3 h-screen bg-neutral py-3 md:mx-36">
+      <div>Upload Options</div>
+      <Tabs
+        defaultValue="text"
+        className="w-full"
+        onValueChange={(e) => setCurrTab(e)}
+      >
+        <TabsList className="">
+          <TabsTrigger
+            className=" data-[state=active]:bg-orange-500"
+            value="text"
           >
-            Switch:
-          </Button>
-        </DialogTrigger>
-        <DialogContent
-          onInteractOutside={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <div className="w-full flex-col flex justify-center h-full">
-            <DialogClose asChild>
+            Text/Inputted Notes
+          </TabsTrigger>
+          <TabsTrigger
+            className=" data-[state=active]:bg-orange-500"
+            value="file"
+          >
+            Upload PDF
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="text">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label>Note Name</Label>
+              <Input
+                type="text"
+                placeholder="Note Name"
+                className=""
+                value={name}
+                onChange={handleOnChange}
+              />
+            </div>
+            <Label>Notes</Label>
+            <ReactQuill
+              className="h-[400px]"
+              theme="snow"
+              value={note}
+              onChange={setNote}
+            />
+            <div className="flex w-full mt-12 justify-end">
               <Button
-                size={"lg"}
-                onClick={() => {}}
-                className="bg-orange-500 mb-2 w-full hover:bg-orange-500 md:h-12 md:text-2xl text-white"
+                className="self-end bg-orange-500 hover:bg-orange-600 text-white"
+                type="submit"
               >
-                Text/Inputted Notes
+                Save
               </Button>
-            </DialogClose>
-            <DialogClose asChild>
+            </div>
+          </form>
+        </TabsContent>
+        <TabsContent value="file">
+          <form>
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="picture">Note Name</Label>
+              <Input
+                type="text"
+                placeholder="Note Name"
+                value={name}
+                onChange={handleOnChange}
+              />
+            </div>
+            <div className="mt-2 grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="file">Note File</Label>
+              <div className="relative">
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <label
+                  htmlFor="file"
+                  className="w-full h-12 flex items-center justify-center border-2  border-gray-400  cursor-pointer"
+                >
+                  {fileName ? fileName : "Choose a PDF file"}
+                </label>
+              </div>
+            </div>
+
+            {file && (
+              <div style={{ width: "100%", height: "80%" }}>
+                <button onClick={prevPage} disabled={pageNumber <= 1}>
+                  Previous
+                </button>
+                <button
+                  onClick={nextPage}
+                  disabled={pageNumber >= (numPages ?? -1)}
+                >
+                  Next
+                </button>
+                <Document
+                  file={URL.createObjectURL(file)}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  className="my-react-pdf"
+                >
+                  <Page pageNumber={pageNumber} />
+                </Document>
+                <p>
+                  Page {pageNumber} of {numPages}
+                </p>
+              </div>
+            )}
+            <div className="flex w-full mt-2 justify-end">
               <Button
-                size={"lg"}
-                onClick={() => {}}
-                className="bg-orange-500 w-full hover:bg-orange-500 md:h-12 md:text-2xl text-white"
+                className="self-end bg-orange-500 hover:bg-orange-600 text-white"
+                type="submit"
               >
-                Upload PDF
+                Save
               </Button>
-            </DialogClose>
-          </div>
-        </DialogContent>
-      </Dialog>
+            </div>
+          </form>
+        </TabsContent>
+      </Tabs>
     </section>
   );
 };
