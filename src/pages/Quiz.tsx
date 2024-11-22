@@ -19,6 +19,7 @@ const Quiz: React.FC = () => {
     const fetchQuizzes = async () => {
       try {
         const res = await quizServices.getQuizzes(user.user_id as any);
+
         setQuiz(res);
       } catch (error) {
         console.log(error);

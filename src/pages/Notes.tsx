@@ -1,21 +1,30 @@
 import Input from "@/components/Input";
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useUserSession from "@/hooks/useUserSession";
+import noteService from "@/services/noteService";
 import { useIonRouter } from "@ionic/react";
-import React from "react";
+import { useEffect, useState } from "react";
 
 const Notes = () => {
   const router = useIonRouter();
+  const user = useUserSession();
+  const [notes, setNotes] = useState<any>([]);
 
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const res = await noteService.getNotes(user.user_id as any);
+        console.log(res);
+        setNotes(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchNotes();
+  }, []);
   return (
     <section className="flex px-3 flex-col overflow-y-scroll bg-neutral py-3 h-screen">
       <Input
@@ -58,7 +67,15 @@ const Notes = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="quizzes" className="flex flex-col">
-          <ScrollArea className="flex flex-col  h-[70vh] w-full"></ScrollArea>
+          <ScrollArea className="flex flex-col  h-[70vh] w-full">
+            {notes.map((data: any) => {
+              return (
+                <Card className="mb-3">
+                  <CardContent>{data.content_text}</CardContent>
+                </Card>
+              );
+            })}
+          </ScrollArea>
         </TabsContent>
         <TabsContent value="attempts" className="flex flex-col">
           <ScrollArea className="flex flex-col  h-[70vh] w-full">

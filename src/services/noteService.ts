@@ -3,7 +3,7 @@ import authAxiosInstance from "../lib/authAxiosInstance";
 
 async function getNotes(userId: string) {
   const response = await authAxiosInstance.get(`/notes/${userId}`);
-  console.log(response);
+
   return response.data;
 }
 
