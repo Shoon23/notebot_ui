@@ -2,25 +2,43 @@ import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import QuestionCard from "@/components/QuestionCard";
+import MultipleChoiceCard from "@/components/MultipleChoiceCard";
 import { Button } from "@/components/ui/button";
 import quizServices from "@/services/quizServices";
 import { useIonRouter } from "@ionic/react";
+import { iQuestion, iQuizDetails } from "@/types/quiz";
 const ViewQuiz: React.FC = () => {
   const { quizId } = useParams<any>();
-  const [questions, setQuestions] = useState<any>([]);
   const router = useIonRouter();
-  const [quizData, setQuizData] = useState<any>({});
+  const [quizData, setQuizData] = useState<iQuizDetails>({
+    blooms_taxonomy_level: "",
+    difficulty: "",
+    question_type: "",
+    quiz_id: "",
+    quiz_name: "",
+    question: [],
+  });
 
   useEffect(() => {
     const fetchQuiz = async () => {
       const data = await quizServices.getQuiz(quizId as string);
-
       setQuizData(data);
-      setQuestions(data.question);
     };
     fetchQuiz();
   }, []);
+
+  const renderQuestionCard = (question: iQuestion) => {
+    switch (quizData.question_type) {
+      case "mcq":
+        return (
+          <MultipleChoiceCard
+            key={question.question_id}
+            question={question.content}
+            options={question.options}
+          />
+        );
+    }
+  };
   return (
     <section className="px-3 flex flex-col text-neutral-content h-screen">
       <div className="flex flex-col mb-3">
@@ -65,15 +83,7 @@ const ViewQuiz: React.FC = () => {
         </TabsList>
         <TabsContent value="question" className="flex flex-col">
           <ScrollArea className="flex flex-col  h-[70vh] w-full">
-            {questions.map((q: any) => {
-              return (
-                <QuestionCard
-                  key={q.question_id}
-                  question={q.content}
-                  options={q.options}
-                />
-              );
-            })}
+            {quizData.question.map((quiz: any) => renderQuestionCard(quiz))}
             <br />
           </ScrollArea>
         </TabsContent>

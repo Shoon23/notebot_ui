@@ -4,16 +4,17 @@ import { Label } from "@/components/ui/label";
 import Input from "@/components/Input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import QuestionCard from "@/components/QuestionCard";
+import QuestionCard from "@/components/MultipleChoiceCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AttemptCard from "@/components/AttemptCard";
 import quizServices from "@/services/quizServices";
 import useUserSession from "@/hooks/useUserSession";
 import { useIonRouter } from "@ionic/react";
+import { iQuiz } from "@/types/quiz";
 
 const Quiz: React.FC = () => {
   const user = useUserSession();
-  const [quiz, setQuiz] = useState<any>([]);
+  const [quiz, setQuiz] = useState<iQuiz[]>([]);
   const router = useIonRouter();
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -83,9 +84,6 @@ const Quiz: React.FC = () => {
                     <Label className="font-bold text-white ">
                       {val.quiz_name}
                     </Label>
-                    {/* <Label className="font-bold text-white  text-xl">
-                      {val}/10
-                    </Label> */}
                   </Button>
                 );
               })

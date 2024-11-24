@@ -100,7 +100,7 @@ const GenerateQuiz: React.FC = () => {
   const handleUpload = async () => {
     setIsSubmit(true);
     try {
-      const data = await noteService.uploadNote({
+      const data = await noteService.uploadNote("text", {
         user_id: user.user_id,
         content_text: noteText,
         note_name: "note",
@@ -179,6 +179,7 @@ const GenerateQuiz: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="mcq">Multiple Choice</SelectItem>
+            <SelectItem value="true-or-false">True/False</SelectItem>
           </SelectContent>
         </Select>
 
@@ -201,7 +202,7 @@ const GenerateQuiz: React.FC = () => {
         {error && <p className="text-red-500">{error}</p>}
 
         <Button
-          disabled={isSubmit}
+          // disabled={isSubmit}
           type="submit"
           className="bg-yellow-500 hover:bg-yellow-500 w-full text-white"
         >

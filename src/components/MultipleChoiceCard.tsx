@@ -6,7 +6,10 @@ interface QuestionCardProps {
   options: any[];
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ options, question }) => {
+const MultipleChoiceCard: React.FC<QuestionCardProps> = ({
+  options,
+  question,
+}) => {
   return (
     <Card className="mb-3">
       <CardHeader>
@@ -30,4 +33,4 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ options, question }) => {
   );
 };
 
-export default QuestionCard;
+export default MultipleChoiceCard;

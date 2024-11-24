@@ -1,7 +1,9 @@
 import { iFormQuizGeneration } from "@/types/quiz-generation";
 import authAxiosInstance from "../lib/authAxiosInstance";
+import { iQuiz } from "@/types/quiz";
+import { iQuizDetails } from "@/types/quiz";
 
-async function getQuizzes(userId: string) {
+async function getQuizzes(userId: string): Promise<iQuiz[]> {
   const response = await authAxiosInstance.get(
     `/quizzes/${userId}?is_recent=true`
   );
@@ -9,11 +11,11 @@ async function getQuizzes(userId: string) {
   return response.data;
 }
 
-async function getQuiz(quizId: string) {
+async function getQuiz(quizId: string): Promise<iQuizDetails> {
   const response = await authAxiosInstance.get(
     `/quiz/${quizId}?is_recent=true`
   );
-  console.log(response);
+  console.log(response.data);
   return response.data;
 }
 
