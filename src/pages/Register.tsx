@@ -4,15 +4,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import authService from "../services/authService";
 import { iLogin, iRegister } from "../types/auth";
 import { Axios, AxiosError } from "axios";
-import { useIonRouter } from "@ionic/react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
+  IonContent,
+  IonIcon,
+  IonPage,
+  IonRouterLink,
+  useIonRouter,
+} from "@ionic/react";
+import logoGif from "../assets/book.gif";
+import {
+  IonInput,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonButton,
+} from "@ionic/react";
+import { lockClosed, mail, person } from "ionicons/icons";
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<
@@ -93,129 +102,233 @@ const Register: React.FC = () => {
     console.log("afsa");
     mutate();
   };
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
+  const handleOnChange = (e: CustomEvent) => {
+    const name = (e.target as HTMLInputElement).name;
+    const value = (e.target as HTMLInputElement).value;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <section className="flex items-center justify-center h-screen">
-      <Card className="w-[350px] ">
-        <CardHeader>
-          <CardTitle className="text-center ">Register</CardTitle>
-        </CardHeader>
-        {isError && (
-          <CardDescription className="mx-3 rounded-md bg-red-500 text-center mb-2">
-            <div className="p-3 flex text-white flex-wrap">
-              {errorMessages.map((error, idx) => (
-                <h2 key={idx} className=" text-base font-bold mr-3">
-                  {" " + error}
-                </h2>
-              ))}
-            </div>
-          </CardDescription>
-        )}
-        <CardContent className="w-full">
-          <form onSubmit={handleRegister} className="flex flex-col  w-full">
-            <Input
-              className="mb-3 "
-              name="email"
-              type="text"
-              placeholder="Email"
-              onChange={handleOnChange}
-              value={formData.email}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4  opacity-70 fill-base-100"
-                >
-                  <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-                  <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-                </svg>
-              }
-            />
-            <Input
-              className="mb-3 "
-              name="user_name"
-              type="text"
-              placeholder="Username"
-              onChange={handleOnChange}
-              value={formData.user_name}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4  opacity-70 fill-base-100"
-                >
-                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
-                </svg>
-              }
-            />
-            <Input
-              className="mb-3 "
-              name="password"
-              type="password"
-              placeholder="Password"
-              onChange={handleOnChange}
-              value={formData.password}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4 opacity-70 fill-base-100"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              }
-            />
-            <Input
-              className="mb-3 "
-              name="confirm_password"
-              type="password"
-              placeholder="Confirm Password"
-              onChange={handleOnChange}
-              value={formData.confirm_password}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4  opacity-70 fill-base-100"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              }
-            />
+    <IonPage>
+      <IonContent>
+        <div
+          style={{
+            backgroundColor: "white", // Navy blue color
+            height: "100vh",
+          }}
+        >
+          <br />
 
-            <Button disabled={isPending} type="submit" className="w-full">
-              Register
-            </Button>
-            <Button
-              variant={"link"}
-              className="w-full"
-              onClick={() => {
-                router.push("/login");
+          <h1
+            style={{
+              fontSize: "3rem",
+              color: "black",
+              fontWeight: "bold",
+              textAlign: "center",
+            }}
+          >
+            Welcome
+          </h1>
+          <div>
+            <img src={logoGif} alt="Notebot Logo" className="book" />
+          </div>
+
+          <IonCard
+            style={{
+              borderRadius: "3.2rem 3.2rem 0 0", // Rounded only at the top
+              boxShadow: "0 25px 50px rgba(0, 0, 0, .5)",
+              border: "2px solid #333", // Dark border color
+              margin: 0,
+              height: "70%", // Adjust height as required
+              backgroundColor: "white",
+            }}
+          >
+            <IonCardHeader>
+              <IonCardTitle
+                style={{
+                  textAlign: "center",
+                  fontSize: "1.875rem",
+                }}
+              >
+                Register
+              </IonCardTitle>
+            </IonCardHeader>
+            {isError && (
+              <IonCardSubtitle
+                style={{
+                  marginLeft: "0.75rem", // mx-3
+                  marginRight: "0.75rem", // mx-3
+                  borderRadius: "0.375rem", // rounded-md
+                  backgroundColor: "#f87171", // bg-red-500 (red-500 color from Tailwind)
+                  textAlign: "center", // text-center
+                  marginBottom: "0.5rem", // mb-2
+                  border: "2px solid #333", // Dark border color
+                }}
+              >
+                <div
+                  style={{
+                    padding: "0.75rem", // p-3
+                    display: "flex",
+                    color: "white", // text-white
+                    flexWrap: "wrap", // flex-wrap
+                    gap: 5,
+                  }}
+                >
+                  {errorMessages.map((error, idx) => (
+                    <p
+                      key={idx}
+                      style={{
+                        fontSize: "1rem", // text-base
+                        fontWeight: "700", // font-bold
+
+                        margin: 0, // Remove default margin of <p> tag
+                      }}
+                    >
+                      {" " + error + " "}
+                    </p>
+                  ))}
+                </div>
+              </IonCardSubtitle>
+            )}
+            <IonCardContent
+              style={{
+                width: "100%", // w-full
+                paddingLeft: "1.75rem", // px-7 (padding-x is 1.75rem for Tailwind's 7 class)
+                paddingRight: "1.75rem", // px-7
               }}
             >
-              Login
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </section>
+              <form
+                onSubmit={handleRegister}
+                style={{
+                  display: "flex", // flex
+                  flexDirection: "column", // flex-col
+                  width: "100%", // w-full
+                  gap: 20,
+                }}
+              >
+                <IonInput
+                  style={{
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                  }}
+                  color={"dark"}
+                  shape="round"
+                  label="Email"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  placeholder="Enter Email"
+                  name="email"
+                  type="email"
+                  onIonChange={handleOnChange}
+                  value={formData.email}
+                >
+                  <IonIcon
+                    slot="start"
+                    color="warning"
+                    style={{ fontSize: "24px" }}
+                    icon={mail}
+                    aria-hidden="true"
+                  ></IonIcon>
+                </IonInput>
+                <IonInput
+                  style={{
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                  }}
+                  color={"dark"}
+                  shape="round"
+                  label="user_name"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  placeholder="Enter Username"
+                  name="user_name"
+                  type="text"
+                  onIonChange={handleOnChange}
+                  value={formData.user_name}
+                >
+                  <IonIcon
+                    slot="start"
+                    color="warning"
+                    style={{ fontSize: "24px" }}
+                    icon={person}
+                    aria-hidden="true"
+                  ></IonIcon>
+                </IonInput>
+                <IonInput
+                  style={{
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                  }}
+                  color={"dark"}
+                  shape="round"
+                  label="Password"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  placeholder="Enter Password"
+                  name="password"
+                  type="password"
+                  onIonChange={handleOnChange}
+                  value={formData.password}
+                >
+                  <IonIcon
+                    color="warning"
+                    slot="start"
+                    style={{ fontSize: "24px" }}
+                    icon={lockClosed}
+                    aria-hidden="true"
+                  ></IonIcon>
+                </IonInput>
+                <IonInput
+                  style={{
+                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                  }}
+                  color={"dark"}
+                  shape="round"
+                  label="confirm password"
+                  labelPlacement="stacked"
+                  fill="outline"
+                  placeholder="Enter Confirm Password"
+                  name="confirm_password"
+                  type="password"
+                  onIonChange={handleOnChange}
+                  value={formData.confirm_password}
+                >
+                  <IonIcon
+                    color="warning"
+                    slot="start"
+                    style={{ fontSize: "24px" }}
+                    icon={lockClosed}
+                    aria-hidden="true"
+                  ></IonIcon>
+                </IonInput>
+
+                <IonButton
+                  color={"warning"}
+                  shape="round"
+                  disabled={isPending}
+                  type="submit"
+                  style={{
+                    border: "2px solid #333", // Dark border color
+                    borderRadius: "50px", // Ensures the rounded corners are preserved with the border
+                  }}
+                >
+                  Login
+                </IonButton>
+
+                <p
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  Already have an account?{" "}
+                  <IonRouterLink routerDirection="forward" routerLink="/login">
+                    Login
+                  </IonRouterLink>
+                  .
+                </p>
+              </form>
+            </IonCardContent>
+          </IonCard>
+        </div>
+      </IonContent>
+    </IonPage>
   );
 };
 

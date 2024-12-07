@@ -1,0 +1,111 @@
+import Home from "@/pages/Home";
+import {
+  IonTabs,
+  IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonIcon,
+  IonLabel,
+} from "@ionic/react";
+import {
+  playCircle,
+  radio,
+  library,
+  search,
+  home,
+  fileTray,
+  layers,
+} from "ionicons/icons";
+import React, { useState } from "react";
+import { Redirect, Route } from "react-router";
+
+const HomePageLayout = () => {
+  const [selectedTab, setSelectedTab] = useState("home"); // Track the selected tab
+
+  const tabs = [
+    { tab: "home", href: "/home", icon: home, label: "" },
+    { tab: "quiz", href: "/quiz", icon: layers, label: "" },
+    { tab: "note", href: "/note", icon: fileTray, label: "" },
+  ];
+
+  const handleTabClick = (tab: string) => {
+    setSelectedTab(tab);
+  };
+  return (
+    <IonTabs>
+      <IonRouterOutlet>
+        <Redirect exact path="/" to="/home" />
+        {/*
+    Use the render method to reduce the number of renders your component will have due to a route change.
+
+    Use the component prop when your component depends on the RouterComponentProps passed in automatically.
+  */}
+        <Route path="/home" render={() => <Home />} exact={true} />
+      </IonRouterOutlet>
+
+      <IonTabBar
+        color={"warning"}
+        slot="bottom"
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          left: "3%", // Add space from the left side of the screen
+          right: "3%", // Add space from the right side of the screen
+          zIndex: "10",
+          boxShadow: "rgba(0, 0, 0, 0.3)", // Floating effect
+          border: "2px solid black", // Black border around the tab bar
+
+          borderRadius: "15px",
+        }}
+      >
+        {tabs.map((tabItem) => {
+          const isSelected = selectedTab === tabItem.tab;
+
+          return (
+            <IonTabButton
+              key={tabItem.tab}
+              tab={tabItem.tab}
+              href={tabItem.href}
+              onClick={() => handleTabClick(tabItem.tab)}
+              style={{
+                display: "flex",
+                flexDirection: "row", // Position label to the right of the icon
+                alignItems: "center", // Center the icon and label vertically
+                justifyContent: "center", // Center the entire content horizontally
+                padding: "10px",
+                border: isSelected && "2px solid black", // Black border around the tab bar
+
+                backgroundColor: isSelected ? "#87CEEB" : "transparent", // Sky blue for selected
+                borderRadius: "12px", // Add slight rounding for selected tabs
+                transition: "background-color 0.3s ease",
+                transform: isSelected ? "scale(0.8)" : "scale(1)", // Make it smaller when selected
+              }}
+            >
+              <IonIcon
+                icon={tabItem.icon}
+                style={{
+                  fontSize: isSelected ? "20px" : "24px", // Smaller icon size when selected
+                  color: isSelected ? "#FFFFFF" : "#000000",
+                }}
+              />
+              {isSelected && (
+                <IonLabel
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    marginLeft: "8px", // Add space between icon and label
+                    color: "#FFFFFF", // White text for labels on selected
+                  }}
+                >
+                  {tabItem.label}
+                </IonLabel>
+              )}
+            </IonTabButton>
+          );
+        })}
+      </IonTabBar>
+    </IonTabs>
+  );
+};
+
+export default HomePageLayout;
