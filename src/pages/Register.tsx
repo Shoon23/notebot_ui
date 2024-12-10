@@ -22,7 +22,7 @@ import {
   IonButton,
 } from "@ionic/react";
 import { lockClosed, mail, person } from "ionicons/icons";
-
+import welcome_img from "../assets/welcome.png";
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<
     iRegister & { confirm_password: string }
@@ -113,22 +113,14 @@ const Register: React.FC = () => {
       <IonContent>
         <div
           style={{
-            backgroundColor: "white", // Navy blue color
+            backgroundColor: "white",
             height: "100vh",
           }}
         >
           <br />
+          <br />
 
-          <h1
-            style={{
-              fontSize: "3rem",
-              color: "black",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            Welcome
-          </h1>
+          <img src={welcome_img} alt="" />
           <div>
             <img src={logoGif} alt="Notebot Logo" className="book" />
           </div>
@@ -171,7 +163,6 @@ const Register: React.FC = () => {
                     display: "flex",
                     color: "white", // text-white
                     flexWrap: "wrap", // flex-wrap
-                    gap: 5,
                   }}
                 >
                   {errorMessages.map((error, idx) => (
@@ -182,6 +173,7 @@ const Register: React.FC = () => {
                         fontWeight: "700", // font-bold
 
                         margin: 0, // Remove default margin of <p> tag
+                        marginLeft: 5,
                       }}
                     >
                       {" " + error + " "}
@@ -203,18 +195,17 @@ const Register: React.FC = () => {
                   display: "flex", // flex
                   flexDirection: "column", // flex-col
                   width: "100%", // w-full
-                  gap: 20,
                 }}
               >
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
                   shape="round"
                   label="Email"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Email"
                   name="email"
                   type="email"
@@ -231,13 +222,13 @@ const Register: React.FC = () => {
                 </IonInput>
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
                   shape="round"
                   label="user_name"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Username"
                   name="user_name"
                   type="text"
@@ -254,13 +245,13 @@ const Register: React.FC = () => {
                 </IonInput>
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
                   shape="round"
                   label="Password"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Password"
                   name="password"
                   type="password"
@@ -277,13 +268,13 @@ const Register: React.FC = () => {
                 </IonInput>
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
                   shape="round"
-                  label="confirm password"
+                  label="Confirm password"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Confirm Password"
                   name="confirm_password"
                   type="password"

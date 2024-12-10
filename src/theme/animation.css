@@ -1,0 +1,4 @@
+.animated-button:active {
+  transform: scale(0.95); /* Shrinks the button to 95% of its size */
+  box-shadow: 3px 5px 10px rgba(0, 0, 0, 0.4); /* Makes shadow a bit smaller when clicked */
+}

@@ -22,6 +22,7 @@ import {
 } from "@ionic/react";
 import logoGif from "../assets/book.gif";
 import { lockClosed, mail } from "ionicons/icons";
+import wb_img from "../assets/wb.png";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState<iLogin>({
@@ -102,16 +103,8 @@ const Login: React.FC = () => {
           <br />
           <br />
 
-          <h1
-            style={{
-              fontSize: "3rem",
-              color: "black",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            Welcome Back!
-          </h1>
+          <img src={wb_img} alt="" />
+
           <div>
             <img src={logoGif} alt="Notebot Logo" className="book" />
           </div>
@@ -183,18 +176,17 @@ const Login: React.FC = () => {
                   display: "flex", // flex
                   flexDirection: "column", // flex-col
                   width: "100%", // w-full
-                  gap: 20,
                 }}
               >
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
-                  shape="round"
                   label="Email"
+                  shape="round"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Email"
                   name="email"
                   type="email"
@@ -211,13 +203,13 @@ const Login: React.FC = () => {
                 </IonInput>
                 <IonInput
                   style={{
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)", // shadow-sm
+                    marginBottom: 20,
                   }}
                   color={"dark"}
                   shape="round"
                   label="Password"
                   labelPlacement="stacked"
-                  fill="outline"
+                  fill="solid"
                   placeholder="Enter Password"
                   name="password"
                   type="password"

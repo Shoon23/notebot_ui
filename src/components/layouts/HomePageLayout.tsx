@@ -23,9 +23,9 @@ const HomePageLayout = () => {
   const [selectedTab, setSelectedTab] = useState("home"); // Track the selected tab
 
   const tabs = [
-    { tab: "home", href: "/home", icon: home, label: "" },
-    { tab: "quiz", href: "/quiz", icon: layers, label: "" },
-    { tab: "note", href: "/note", icon: fileTray, label: "" },
+    { tab: "home", href: "/home", icon: home, label: "Home" },
+    { tab: "quiz", href: "/quiz", icon: layers, label: "Quiz" },
+    { tab: "note", href: "/note", icon: fileTray, label: "Note" },
   ];
 
   const handleTabClick = (tab: string) => {
@@ -60,7 +60,32 @@ const HomePageLayout = () => {
       >
         {tabs.map((tabItem) => {
           const isSelected = selectedTab === tabItem.tab;
+          const animationStyles = isSelected
+            ? {
+                animationName: "bookOpen",
+                animationDuration: "0.5s",
+                animationTimingFunction: "ease",
+                animationFillMode: "forwards",
+              }
+            : {};
 
+          const keyframes = `
+           @keyframes bookOpen {
+        0% {
+          background-color: transparent;
+          transform: scaleX(0); /* Start from no width */
+        } 
+          25%{
+          transform: scaleX(0.5); /* Slight overshoot for animation effect */
+         
+        }
+        50% {
+          background-color: #87CEEB; /* Blue transition */
+          transform: scaleX(0.8); /* Slight overshoot for animation effect */
+        }
+      
+      }
+        `;
           return (
             <IonTabButton
               key={tabItem.tab}
@@ -79,6 +104,7 @@ const HomePageLayout = () => {
                 borderRadius: "12px", // Add slight rounding for selected tabs
                 transition: "background-color 0.3s ease",
                 transform: isSelected ? "scale(0.8)" : "scale(1)", // Make it smaller when selected
+                ...animationStyles, // Add animation styles
               }}
             >
               <IonIcon
@@ -86,6 +112,7 @@ const HomePageLayout = () => {
                 style={{
                   fontSize: isSelected ? "20px" : "24px", // Smaller icon size when selected
                   color: isSelected ? "#FFFFFF" : "#000000",
+                  display: "flex",
                 }}
               />
               {isSelected && (
@@ -95,11 +122,13 @@ const HomePageLayout = () => {
                     fontWeight: "bold",
                     marginLeft: "8px", // Add space between icon and label
                     color: "#FFFFFF", // White text for labels on selected
+                    marginTop: "8px", // Add slight spacing between icon and label
                   }}
                 >
                   {tabItem.label}
                 </IonLabel>
               )}
+              <style>{keyframes}</style>
             </IonTabButton>
           );
         })}
