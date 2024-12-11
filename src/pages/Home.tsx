@@ -11,6 +11,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonPage,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
@@ -30,29 +31,29 @@ const Home: React.FC = () => {
   const [quiz, setQuiz] = useState<any>([]);
   const [note, setNotes] = useState<any>([]);
 
-  useEffect(() => {
-    const fetchQuizzes = async () => {
-      try {
-        const res = await quizServices.getQuizzes(user.user_id as any);
-        setQuiz(res);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    const fetchNotes = async () => {
-      try {
-        const res = await noteService.getNotes(user.user_id as any);
-        setNotes(res);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchQuizzes();
-    fetchNotes();
-  }, []);
+  // useEffect(() => {
+  //   const fetchQuizzes = async () => {
+  //     try {
+  //       const res = await quizServices.getQuizzes(user.user_id as any);
+  //       setQuiz(res);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   const fetchNotes = async () => {
+  //     try {
+  //       const res = await noteService.getNotes(user.user_id as any);
+  //       setNotes(res);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchQuizzes();
+  //   fetchNotes();
+  // }, []);
 
   return (
-    <>
+    <IonPage>
       <IonContent>
         <IonHeader className="ion-no-border">
           <IonToolbar>
@@ -60,7 +61,6 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">
-          <IonButton routerLink="/login">Login</IonButton>
           <div>
             <h4>Quick Actions</h4>
             <div
@@ -137,7 +137,7 @@ const Home: React.FC = () => {
               }}
             >
               {[1, 2, 3, 4, 5].map((num, index) => {
-                return <QuizCard index={index} />;
+                return <QuizCard key={index} index={index} />;
               })}
               <MoreButton color="#ECC56A" />
 
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
               }}
             >
               {[1, 2, 3, 4, 5].map((num, index) => {
-                return <NoteCard index={index} />;
+                return <NoteCard key={index} index={index} />;
               })}
               <MoreButton color={"#47926B"} />
               <div
@@ -177,7 +177,7 @@ const Home: React.FC = () => {
           </div>
         </section>
       </IonContent>
-    </>
+    </IonPage>
   );
 };
 

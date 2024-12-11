@@ -1,4 +1,5 @@
 import Home from "@/pages/Home";
+import Quiz from "@/pages/Quiz";
 import {
   IonTabs,
   IonRouterOutlet,
@@ -6,7 +7,9 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
+  IonPage,
 } from "@ionic/react";
+import { IonReactRouter } from "@ionic/react-router";
 import {
   playCircle,
   radio,
@@ -34,13 +37,8 @@ const HomePageLayout = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
-        <Redirect exact path="/" to="/home" />
-        {/*
-    Use the render method to reduce the number of renders your component will have due to a route change.
-
-    Use the component prop when your component depends on the RouterComponentProps passed in automatically.
-  */}
-        <Route path="/home" render={() => <Home />} exact={true} />
+        <Route path="/home" render={() => <Home />} exact />
+        <Route path="/quiz" render={() => <Quiz />} exact />
       </IonRouterOutlet>
 
       <IonTabBar

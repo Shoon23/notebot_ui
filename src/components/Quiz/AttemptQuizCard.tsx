@@ -7,16 +7,15 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonIcon,
-  useIonRouter,
 } from "@ionic/react";
 
 import { caretForwardOutline } from "ionicons/icons";
 const colors = [
-  "gray",
-  "#47926B",
   "#ECC56A",
-  "#AC4830",
+  "#47926B",
   "#44819E",
+  "#AC4830",
+  "gray",
   "#D8A7C7",
   "#D98F56",
   "#7E5F92",
@@ -24,17 +23,18 @@ const colors = [
   "#9E7C5E",
 ];
 
-interface QuizCardProps {
+interface AttemptQuizCardProps {
   index: number;
+  width?: string;
 }
 
-const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
+const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ index, width }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
 
   const cardsStyles = {
     flex: "0 0 auto",
-    width: "300px", // Minimum width for the cards,
+    width: width || "300px", // Minimum width for the cards,
     height: "130px",
     border: "2px solid black",
     borderRadius: "1.5rem",
@@ -48,7 +48,6 @@ const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
           display: "flex",
           justifyContent: "space-between", // Ensures elements are spaced out vertically
           flexGrow: 1,
-          height: "100%",
         }}
       >
         <div
@@ -69,23 +68,28 @@ const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
               style={{
                 fontSize: "0.9rem",
                 color: "gray",
+                marginTop: 5,
               }}
             >
-              Last View: 2 days
+              <div
+                style={{
+                  marginBottom: 2,
+                }}
+              >
+                Number of Questions: 20
+              </div>
+              <div
+                style={{
+                  marginBottom: 2,
+                }}
+              >
+                Bloom's Level: Application
+              </div>
+              <div>Question Type: Multiple Choice</div>
             </IonCardSubtitle>
           </IonCardHeader>
-          <IonCardContent>
-            <p
-              style={{
-                fontSize: "0.85rem",
-                wordWrap: "break-word",
-                fontWeight: "600",
-                overflowWrap: "break-word",
-              }}
-            >
-              Key points on deriva...
-            </p>
-          </IonCardContent>
+
+          <IonCardContent></IonCardContent>
         </div>
 
         <div
@@ -119,4 +123,4 @@ const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
   );
 };
 
-export default NoteCard;
+export default AttemptQuizCard;

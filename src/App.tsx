@@ -48,15 +48,12 @@ const App: React.FC = () => {
           <QueryClientProvider client={queryClient}>
             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
             {/* <Routes /> */}
+
             <HomePageLayout />
 
-            <Route exact path="/login">
-              <Login />
-            </Route>
+            <Route exact path="/login" render={() => <Login />} />
 
-            <Route exact path="/register">
-              <Register />
-            </Route>
+            <Route exact path="/register" render={() => <Register />} />
           </QueryClientProvider>
         </IonRouterOutlet>
       </IonReactRouter>
