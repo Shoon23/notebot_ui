@@ -1,3 +1,4 @@
+import Chat from "@/pages/Chat";
 import Home from "@/pages/Home";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
@@ -10,16 +11,7 @@ import {
   IonLabel,
   IonPage,
 } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import {
-  playCircle,
-  radio,
-  library,
-  search,
-  home,
-  fileTray,
-  layers,
-} from "ionicons/icons";
+import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
 import React, { useState } from "react";
 import { Redirect, Route } from "react-router";
 
@@ -30,6 +22,7 @@ const HomePageLayout = () => {
     { tab: "home", href: "/home", icon: home, label: "Home" },
     { tab: "quiz", href: "/quiz", icon: layers, label: "Quiz" },
     { tab: "note", href: "/note", icon: fileTray, label: "Note" },
+    { tab: "chat", href: "/chat", icon: chatbubbles, label: "Chat" },
   ];
 
   const handleTabClick = (tab: string) => {
@@ -43,6 +36,7 @@ const HomePageLayout = () => {
         <Route path="/home" render={() => <Home />} exact />
         <Route path="/quiz" render={() => <Quiz />} exact />
         <Route path="/note" render={() => <Notes />} exact />
+        <Route path="/chat" render={() => <Chat />} exact />
       </IonRouterOutlet>
 
       <IonTabBar

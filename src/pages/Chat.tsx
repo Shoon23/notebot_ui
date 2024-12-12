@@ -1,54 +1,30 @@
-import NoteCard from "@/components/NoteCard";
-import AttemptQuizCard from "@/components/Quiz/AttemptQuizCard";
-import QuizCard from "@/components/QuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
-import useUserSession from "@/hooks/useUserSession";
-import noteService from "@/services/noteService";
 import {
+  IonButton,
+  IonButtons,
   IonContent,
   IonFab,
   IonHeader,
   IonIcon,
-  IonLabel,
   IonPage,
-  IonSegment,
-  IonSegmentButton,
-  IonSegmentContent,
-  IonSegmentView,
   IonTitle,
   IonToolbar,
-  useIonRouter,
 } from "@ionic/react";
-import { createOutline } from "ionicons/icons";
-import { useEffect, useState } from "react";
-import "../styles/note.css";
-const Notes = () => {
-  const router = useIonRouter();
-  const user = useUserSession();
-  const [notes, setNotes] = useState<any>([]);
+import { addOutline } from "ionicons/icons";
+import "../styles/chat.css";
+import "../theme/animation.css";
 
-  // useEffect(() => {
-  //   const fetchNotes = async () => {
-  //     try {
-  //       const res = await noteService.getNotes(user.user_id as any);
-  //       console.log(res);
-  //       setNotes(res);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchNotes();
-  // }, []);
+import ConversationCard from "@/components/Chat/ConversationCard/ConversationCard";
+const Chat = () => {
   return (
     <IonPage>
       <IonContent>
         <IonHeader className="ion-no-border">
           <IonToolbar>
-            <IonTitle>Notes</IonTitle>
+            <IonTitle>Chat</IonTitle>
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">
-          {/* input */}
           <SearchInput />
           <div
             style={{
@@ -62,7 +38,7 @@ const Notes = () => {
             }}
           >
             {[...Array(10)].map((num, index) => {
-              return <NoteCard width="360px" />;
+              return <ConversationCard key={index} />;
             })}
             <br />
             <br />
@@ -70,6 +46,7 @@ const Notes = () => {
           </div>
 
           <IonFab
+            className="generate-btn-container-chat animated-button"
             style={{
               position: "fixed",
               bottom: "100px",
@@ -78,10 +55,9 @@ const Notes = () => {
             }}
             slot="fixed"
             horizontal="end"
-            className="generate-btn-container-note animated-button"
           >
             <IonIcon
-              icon={createOutline}
+              icon={addOutline}
               color="light"
               style={{
                 fontSize: "24px",
@@ -94,4 +70,4 @@ const Notes = () => {
   );
 };
 
-export default Notes;
+export default Chat;

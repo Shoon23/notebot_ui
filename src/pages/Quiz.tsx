@@ -120,16 +120,15 @@ const Quiz: React.FC = () => {
             }}
             slot="fixed"
             horizontal="end"
+            className="generate-btn-container animated-button"
           >
-            <div className="generate-btn-container animated-button">
-              <IonIcon
-                icon={sparklesOutline}
-                color="light"
-                style={{
-                  fontSize: "24px",
-                }}
-              ></IonIcon>
-            </div>
+            <IonIcon
+              icon={sparklesOutline}
+              color="light"
+              style={{
+                fontSize: "24px",
+              }}
+            ></IonIcon>
           </IonFab>
         </section>
       </IonContent>

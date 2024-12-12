@@ -1,0 +1,11 @@
+.conversation-card {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 10px 0px var(--shadow-color);
+}
+
+.conversation-card:active {
+  background-color: var(--shadow-color);
+  transform: translateY(5px); /* Move the card down when clicked */
+  box-shadow: none; /* Removes the shadow when clicked */
+  transition: background-color 0.3s ease;
+}
