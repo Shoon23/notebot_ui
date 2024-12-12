@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import QuestionCard from "@/components/MultipleChoiceCard";
-import AttemptCard from "@/components/AttemptCard";
 import quizServices from "@/services/quizServices";
 import useUserSession from "@/hooks/useUserSession";
 import {
@@ -28,6 +26,7 @@ import "../styles/quiz.css";
 import "../theme/animation.css";
 import QuizCard from "@/components/QuizCard";
 import AttemptQuizCard from "@/components/Quiz/AttemptQuizCard";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const Quiz: React.FC = () => {
   const user = useUserSession();
@@ -54,10 +53,8 @@ const Quiz: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">
-          <div className="input-container">
-            <IonIcon icon={search} color=""></IonIcon>
-            <input className="search-input" placeholder="Search Here..." />
-          </div>
+          {/* input */}
+          <SearchInput />
           <IonSegment
             mode="ios"
             style={{
@@ -79,7 +76,7 @@ const Quiz: React.FC = () => {
             <IonSegmentContent
               id="generated_quiz"
               style={{
-                height: "630px",
+                height: "600px",
                 width: "100%",
                 marginTop: "20px",
                 overflow: "scroll",
@@ -89,8 +86,10 @@ const Quiz: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <AttemptQuizCard index={index} width="360px" />;
+                return <AttemptQuizCard width="360px" />;
               })}
+              <br />
+              <br />
             </IonSegmentContent>
             <IonSegmentContent
               id="attempted_quiz"
@@ -105,13 +104,19 @@ const Quiz: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <QuizCard index={index} width="360px" />;
+                return <QuizCard width="360px" />;
               })}
+              <br />
+              <br />
             </IonSegmentContent>
           </IonSegmentView>
+
           <IonFab
             style={{
-              top: "760px",
+              position: "fixed",
+              bottom: "100px",
+              right: "20px",
+              zIndex: "5px",
             }}
             slot="fixed"
             horizontal="end"

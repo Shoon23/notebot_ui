@@ -24,11 +24,10 @@ const colors = [
 ];
 
 interface QuizCardProps {
-  index: number;
   width?: string;
 }
 
-const QuizCard: React.FC<QuizCardProps> = ({ index, width }) => {
+const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
 

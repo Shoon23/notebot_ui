@@ -137,7 +137,7 @@ const Home: React.FC = () => {
               }}
             >
               {[1, 2, 3, 4, 5].map((num, index) => {
-                return <QuizCard key={index} index={index} />;
+                return <QuizCard key={index} />;
               })}
               <MoreButton color="#ECC56A" />
 
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
               }}
             >
               {[1, 2, 3, 4, 5].map((num, index) => {
-                return <NoteCard key={index} index={index} />;
+                return <NoteCard key={index} />;
               })}
               <MoreButton color={"#47926B"} />
               <div

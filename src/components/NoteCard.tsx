@@ -25,17 +25,17 @@ const colors = [
 ];
 
 interface QuizCardProps {
-  index: number;
+  width?: string;
 }
 
-const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
+const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
 
   const cardsStyles = {
     flex: "0 0 auto",
-    width: "300px", // Minimum width for the cards,
-    height: "130px",
+    width: width || "300px",
+    height: "150px",
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
@@ -61,29 +61,35 @@ const NoteCard: React.FC<QuizCardProps> = ({ index }) => {
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
                 fontWeight: "bold",
+                marginBottom: 0,
               }}
             >
               Math - Algebra
             </IonCardTitle>
             <IonCardSubtitle
               style={{
+                marginTop: 0,
                 fontSize: "0.9rem",
                 color: "gray",
               }}
             >
-              Last View: 2 days
+              Last Viewed: 2 days
             </IonCardSubtitle>
           </IonCardHeader>
           <IonCardContent>
             <p
               style={{
+                width: "100%",
                 fontSize: "0.85rem",
-                wordWrap: "break-word",
                 fontWeight: "600",
-                overflowWrap: "break-word",
+                wordWrap: "break-word", // Ensures long words break correctly
+                overflowWrap: "break-word", // Ensures proper breaking in newer standards
+                whiteSpace: "normal", // Prevents text from staying on a single line
+                lineBreak: "anywhere", // Allows breaking at any point for long words
               }}
             >
-              Key points on deriva...
+              Key points on derivatives is this and this and this this this
+              sdjakjdksjk...
             </p>
           </IonCardContent>
         </div>

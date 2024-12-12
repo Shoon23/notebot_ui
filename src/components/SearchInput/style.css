@@ -1,0 +1,24 @@
+.input-container {
+  display: flex; /* Align input and elements properly */
+  justify-content: center; /* Center the search input horizontally */
+  align-items: center; /* Center the input vertically */
+  padding: 10px; /* Padding around the container */
+  background-color: #f4f4f4; /* Light background color for the container */
+  border-radius: 2rem; /* Rounded corners for the container */
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1); /* Light shadow for container */
+  height: 45px;
+  box-shadow: 5px 5px 0px gray;
+  border: 2px solid black;
+}
+
+.search-input {
+  width: 100%; /* Make input take full width */
+  padding: 10px; /* Padding inside the input */
+  font-size: 16px; /* Font size inside input */
+  border: none; /* Remove border */
+  background: none; /* Remove background */
+  outline: none; /* Remove outline on focus */
+  box-shadow: none; /* Remove shadow */
+  color: #000; /* Text color */
+  transition: none; /* Remove transitions */
+}

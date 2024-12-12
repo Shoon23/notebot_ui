@@ -24,11 +24,10 @@ const colors = [
 ];
 
 interface AttemptQuizCardProps {
-  index: number;
   width?: string;
 }
 
-const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ index, width }) => {
+const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
 

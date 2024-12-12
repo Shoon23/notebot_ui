@@ -1,4 +1,5 @@
 import Home from "@/pages/Home";
+import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
 import {
   IonTabs,
@@ -37,8 +38,11 @@ const HomePageLayout = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
+        <Redirect exact path="/" to="/home" />
+
         <Route path="/home" render={() => <Home />} exact />
         <Route path="/quiz" render={() => <Quiz />} exact />
+        <Route path="/note" render={() => <Notes />} exact />
       </IonRouterOutlet>
 
       <IonTabBar
