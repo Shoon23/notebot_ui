@@ -1,83 +1,68 @@
-import React, { useEffect, useState } from "react";
-import quizServices from "@/services/quizServices";
-import useUserSession from "@/hooks/useUserSession";
+import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
+import QuizCard from "@/components/QuizCard";
 import {
   IonButton,
   IonContent,
-  IonFab,
-  IonFabButton,
   IonHeader,
-  IonIcon,
-  IonInput,
-  IonSegmentContent,
-  IonSegmentView,
   IonLabel,
   IonPage,
   IonSegment,
   IonSegmentButton,
+  IonSegmentContent,
+  IonSegmentView,
   IonTitle,
   IonToolbar,
-  useIonRouter,
 } from "@ionic/react";
-import { iQuiz } from "@/types/quiz";
-import { IonSearchbar } from "@ionic/react";
-import { sparklesOutline, search } from "ionicons/icons";
-import "../styles/quiz.css";
-import "../theme/animation.css";
-import QuizCard from "@/components/QuizCard";
-import AttemptQuizCard from "@/components/Quiz/AttemptQuizCard";
-import SearchInput from "@/components/SearchInput/SearchInput";
-import GenerateQuizModal from "@/components/Quiz/GenerateQuizModal";
-
-const Quiz: React.FC = () => {
-  const user = useUserSession();
-  const [quiz, setQuiz] = useState<iQuiz[]>([]);
-  const router = useIonRouter();
-  // useEffect(() => {
-  //   const fetchQuizzes = async () => {
-  //     try {
-  //       const res = await quizServices.getQuizzes(user.user_id as any);
-
-  //       setQuiz(res);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchQuizzes();
-  // }, []);
+import React from "react";
+import { RouteComponentProps } from "react-router-dom";
+import QuestionCard from "@/components/Quiz/QuestionCard";
+interface QuizProp
+  extends RouteComponentProps<{
+    id: string;
+  }> {}
+const Quiz: React.FC<QuizProp> = ({ match }) => {
+  console.log(match.params.id);
   return (
-    <IonPage>
+    <IonPage
+      style={{
+        height: "100%",
+        overflow: "hidden",
+      }}
+    >
       <IonContent>
         <IonHeader className="ion-no-border">
           <IonToolbar>
-            <IonTitle>Quiz</IonTitle>
+            <IonTitle>Quiz Details</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <section className="ion-padding">
-          {/* input */}
-          <SearchInput />
+        <section
+          className="ion-padding"
+          style={{
+            height: "80%",
+          }}
+        >
           <IonSegment
             mode="ios"
             style={{
               marginTop: "20px",
               height: "40px",
-              boxShadow: "8px 8px 0px #87ceeb",
+              boxShadow: "8px 8px 0px #ECC56A",
               border: "1.5px solid black",
             }}
-            value="generated_quiz"
+            value="questions"
           >
-            <IonSegmentButton value="generated_quiz" contentId="generated_quiz">
-              <IonLabel>Genrated Quiz</IonLabel>
+            <IonSegmentButton value="questions" contentId="questions">
+              <IonLabel>Questions</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="attempted_quiz" contentId="attempted_quiz">
-              <IonLabel>Attempted Quiz</IonLabel>
+            <IonSegmentButton value="history" contentId="history">
+              <IonLabel>History</IonLabel>
             </IonSegmentButton>
           </IonSegment>
           <IonSegmentView>
             <IonSegmentContent
-              id="generated_quiz"
+              id="questions"
               style={{
-                height: "600px",
+                height: "100%",
                 width: "100%",
                 marginTop: "20px",
                 overflow: "scroll",
@@ -87,13 +72,11 @@ const Quiz: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <AttemptQuizCard key={index} width="360px" />;
+                return <QuestionCard key={index} />;
               })}
-              <br />
-              <br />
             </IonSegmentContent>
             <IonSegmentContent
-              id="attempted_quiz"
+              id="history"
               style={{
                 height: "630px",
                 width: "100%",
@@ -104,15 +87,21 @@ const Quiz: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              {[...Array(10)].map((num, index) => {
+              {/* {[...Array(10)].map((num, index) => {
                 return <QuizCard key={index} width="360px" />;
-              })}
-              <br />
-              <br />
+              })} */}
             </IonSegmentContent>
           </IonSegmentView>
 
-          <GenerateQuizModal />
+          <div
+            style={{
+              marginTop: "15px",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <IonButton color={"tertiary"}>Take</IonButton>
+          </div>
         </section>
       </IonContent>
     </IonPage>

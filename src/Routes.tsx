@@ -3,7 +3,7 @@ import { Switch, Route, Redirect, useLocation } from "react-router";
 import GenerateQuiz from "./pages/GenerateQuiz";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Quiz from "./pages/Quiz";
+import Quiz from "./pages/Quizzes";
 import Register from "./pages/Register";
 import ViewQuiz from "./pages/ViewQuiz";
 import Layout from "./components/layouts/Layout";

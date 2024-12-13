@@ -1,43 +1,28 @@
-import React, { useState } from "react";
+import { hexToRgb } from "@/utils";
 import {
-  IonButton,
   IonCard,
-  IonCardContent,
   IonCardHeader,
-  IonCardSubtitle,
   IonCardTitle,
+  IonCardSubtitle,
+  IonButton,
   IonIcon,
 } from "@ionic/react";
-
 import { caretForwardOutline } from "ionicons/icons";
-const colors = [
-  "#ECC56A",
-  "#47926B",
-  "#44819E",
-  "#AC4830",
-  "gray",
-  "#D8A7C7",
-  "#D98F56",
-  "#7E5F92",
-  "#8F7CC4",
-  "#9E7C5E",
-];
+import React from "react";
 
-interface QuizCardProps {
-  width?: string;
-}
+const QuestionCard = () => {
+  const tempoColor = "#47926B";
 
-const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+  const shadowColors = hexToRgb(tempoColor);
 
   const cardsStyles = {
     flex: "0 0 auto",
-    width: width || "300px", // Minimum width for the cards,
-    height: "130px",
-    border: "2px solid black",
+    marginBottom: "10px",
+    width: "98%", // Minimum width for the cards,
+    height: "350px",
+
     borderRadius: "1.5rem",
-    boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
+    boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
 
   return (
@@ -46,7 +31,6 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
         style={{
           display: "flex",
           justifyContent: "space-between", // Ensures elements are spaced out vertically
-          height: "100%",
           flexGrow: 1,
         }}
       >
@@ -69,7 +53,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
                 fontWeight: "bold",
               }}
             >
-              Math - Algebra
+              Question 1
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -122,4 +106,4 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
   );
 };
 
-export default QuizCard;
+export default QuestionCard;

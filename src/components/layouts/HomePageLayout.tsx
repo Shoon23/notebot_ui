@@ -2,6 +2,7 @@ import Chat from "@/pages/Chat";
 import Home from "@/pages/Home";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
+import Quizzes from "@/pages/Quizzes";
 import {
   IonTabs,
   IonRouterOutlet,
@@ -16,7 +17,6 @@ import {
 import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
 import React, { useState } from "react";
 import { Redirect, Route } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 
 const HomePageLayout = () => {
   const [selectedTab, setSelectedTab] = useState("/home"); // Track the selected tab
@@ -25,9 +25,9 @@ const HomePageLayout = () => {
   });
   const tabs = [
     { tab: "home", href: "/home", icon: home, label: "Home" },
-    { tab: "quiz", href: "/quiz", icon: layers, label: "Quiz" },
-    { tab: "note", href: "/note", icon: fileTray, label: "Note" },
-    { tab: "chat", href: "/chat", icon: chatbubbles, label: "Chat" },
+    { tab: "quiz", href: "/quizzes", icon: layers, label: "Quizzes" },
+    { tab: "note", href: "/notes", icon: fileTray, label: "Notes" },
+    { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
   ];
 
   const handleTabClick = (tab: string) => {
@@ -39,9 +39,9 @@ const HomePageLayout = () => {
         <Redirect exact path="/" to="/home" />
 
         <Route path="/home" render={() => <Home />} exact />
-        <Route path="/quiz" render={() => <Quiz />} exact />
-        <Route path="/note" render={() => <Notes />} exact />
-        <Route path="/chat" render={() => <Chat />} exact />
+        <Route path="/quizzes" render={() => <Quizzes />} exact />
+        <Route path="/notes" render={() => <Notes />} exact />
+        <Route path="/chats" render={() => <Chat />} exact />
       </IonRouterOutlet>
 
       <IonTabBar

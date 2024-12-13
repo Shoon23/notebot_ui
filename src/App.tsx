@@ -37,6 +37,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Routes from "./Routes";
 import Register from "./pages/Register";
 import HomePageLayout from "./components/layouts/HomePageLayout";
+import Quiz from "./pages/Quiz";
 
 setupIonicReact();
 
@@ -56,12 +57,11 @@ const App: React.FC = () => {
         <IonRouterOutlet>
           <QueryClientProvider client={queryClient}>
             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-            {/* <Routes /> */}
+
             <HomePageLayout />
-
             <Route exact path="/login" render={() => <Login />} />
-
             <Route exact path="/register" render={() => <Register />} />
+            <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
           </QueryClientProvider>
         </IonRouterOutlet>
       </IonReactRouter>
