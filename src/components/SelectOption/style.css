@@ -1,0 +1,20 @@
+.select-box {
+  width: 100%;
+  padding: 10px;
+  font-size: 20px;
+  border: 2px solid black;
+  border-radius: 2rem;
+  background-color: #fff;
+  box-shadow: 6px 8px 0px #87ceeb;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.select-box:focus {
+  border: 2px solid #87ceeb;
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.select-box:focus:not(:focus-visible) {
+  border: 2px solid #87ceeb;
+  box-shadow: none;
+}

@@ -27,6 +27,7 @@ import "../theme/animation.css";
 import QuizCard from "@/components/QuizCard";
 import AttemptQuizCard from "@/components/Quiz/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import GenerateQuizModal from "@/components/Quiz/GenerateQuizModal";
 
 const Quiz: React.FC = () => {
   const user = useUserSession();
@@ -86,7 +87,7 @@ const Quiz: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <AttemptQuizCard width="360px" />;
+                return <AttemptQuizCard key={index} width="360px" />;
               })}
               <br />
               <br />
@@ -104,32 +105,14 @@ const Quiz: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <QuizCard width="360px" />;
+                return <QuizCard key={index} width="360px" />;
               })}
               <br />
               <br />
             </IonSegmentContent>
           </IonSegmentView>
 
-          <IonFab
-            style={{
-              position: "fixed",
-              bottom: "100px",
-              right: "20px",
-              zIndex: "5px",
-            }}
-            slot="fixed"
-            horizontal="end"
-            className="generate-btn-container animated-button"
-          >
-            <IonIcon
-              icon={sparklesOutline}
-              color="light"
-              style={{
-                fontSize: "24px",
-              }}
-            ></IonIcon>
-          </IonFab>
+          <GenerateQuizModal />
         </section>
       </IonContent>
     </IonPage>

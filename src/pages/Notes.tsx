@@ -22,6 +22,7 @@ import {
 import { createOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import "../styles/note.css";
+import NoteList from "@/components/Note/NoteList/NoteList";
 const Notes = () => {
   const router = useIonRouter();
   const user = useUserSession();
@@ -49,45 +50,7 @@ const Notes = () => {
         </IonHeader>
         <section className="ion-padding">
           {/* input */}
-          <SearchInput />
-          <div
-            style={{
-              height: "650px",
-              width: "100%",
-              marginTop: "20px",
-              overflow: "scroll",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            {[...Array(10)].map((num, index) => {
-              return <NoteCard width="360px" />;
-            })}
-            <br />
-            <br />
-            <br />
-          </div>
-
-          <IonFab
-            style={{
-              position: "fixed",
-              bottom: "100px",
-              right: "20px",
-              zIndex: "5px",
-            }}
-            slot="fixed"
-            horizontal="end"
-            className="generate-btn-container-note animated-button"
-          >
-            <IonIcon
-              icon={createOutline}
-              color="light"
-              style={{
-                fontSize: "24px",
-              }}
-            ></IonIcon>
-          </IonFab>
+          <NoteList />
         </section>
       </IonContent>
     </IonPage>

@@ -10,14 +10,19 @@ import {
   IonIcon,
   IonLabel,
   IonPage,
+  useIonViewDidEnter,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
 import React, { useState } from "react";
-import { Redirect, Route } from "react-router";
+import { Redirect, Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const HomePageLayout = () => {
-  const [selectedTab, setSelectedTab] = useState("home"); // Track the selected tab
-
+  const [selectedTab, setSelectedTab] = useState("/home"); // Track the selected tab
+  useIonViewWillEnter(() => {
+    setSelectedTab(window.location.pathname);
+  });
   const tabs = [
     { tab: "home", href: "/home", icon: home, label: "Home" },
     { tab: "quiz", href: "/quiz", icon: layers, label: "Quiz" },
@@ -55,7 +60,7 @@ const HomePageLayout = () => {
         }}
       >
         {tabs.map((tabItem) => {
-          const isSelected = selectedTab === tabItem.tab;
+          const isSelected = selectedTab === tabItem.href;
           const animationStyles = isSelected
             ? {
                 animationName: "bookOpen",
@@ -87,7 +92,7 @@ const HomePageLayout = () => {
               key={tabItem.tab}
               tab={tabItem.tab}
               href={tabItem.href}
-              onClick={() => handleTabClick(tabItem.tab)}
+              onClick={() => handleTabClick(tabItem.href)}
               style={{
                 display: "flex",
                 flexDirection: "row", // Position label to the right of the icon
@@ -132,5 +137,4 @@ const HomePageLayout = () => {
     </IonTabs>
   );
 };
-
 export default HomePageLayout;

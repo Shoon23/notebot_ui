@@ -1,5 +1,14 @@
 import { Redirect, Route, Switch } from "react-router-dom";
-import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
+import {
+  IonApp,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonRouterOutlet,
+  IonTitle,
+  IonToolbar,
+  setupIonicReact,
+} from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import Login from "./pages/Login";
 
@@ -48,7 +57,6 @@ const App: React.FC = () => {
           <QueryClientProvider client={queryClient}>
             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
             {/* <Routes /> */}
-
             <HomePageLayout />
 
             <Route exact path="/login" render={() => <Login />} />

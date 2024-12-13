@@ -105,6 +105,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
             }}
             fill="clear"
             color={"dark"}
+            routerLink="/deym"
           >
             <IonIcon
               slot="icon-only"

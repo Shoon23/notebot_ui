@@ -4,4 +4,5 @@ export interface iFormQuizGeneration {
   difficulty: string;
   question_type: string;
   blooms_taxonomy_level: string;
+  quiz_type: string;
 }

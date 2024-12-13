@@ -23,10 +23,7 @@ async function generateQuiz(
   quiz_data: iFormQuizGeneration & { user_id: string }
 ) {
   const { question_type, ...other } = quiz_data;
-  const response = await authAxiosInstance.post(
-    `/generate-questions/${question_type}`,
-    other
-  );
+  const response = await authAxiosInstance.post(`/generate-questions`, other);
   console.log(response);
   return response.data;
 }
