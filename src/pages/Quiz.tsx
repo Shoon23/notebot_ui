@@ -1,5 +1,3 @@
-import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
-import QuizCard from "@/components/QuizCard";
 import {
   IonButton,
   IonContent,
@@ -16,6 +14,7 @@ import {
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import QuestionCard from "@/components/Quiz/QuestionCard";
+import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 interface QuizProp
   extends RouteComponentProps<{
     id: string;
@@ -87,9 +86,9 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                 alignItems: "center",
               }}
             >
-              {/* {[...Array(10)].map((num, index) => {
-                return <QuizCard key={index} width="360px" />;
-              })} */}
+              {[...Array(10)].map((num, index) => {
+                return <AttemptQuizCard key={index} width="360px" />;
+              })}
             </IonSegmentContent>
           </IonSegmentView>
 

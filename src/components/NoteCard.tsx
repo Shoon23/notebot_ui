@@ -46,17 +46,22 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between", // Ensures elements are spaced out vertically
           flexGrow: 1,
           height: "100%",
         }}
       >
         <div
           style={{
-            marginLeft: 15,
+            marginLeft: 10,
           }}
         >
-          <IonCardHeader>
+          <IonCardHeader
+            style={{
+              paddingBottom: "5px",
+              paddingRight: 0,
+            }}
+          >
+            <span>Last Viewed: 2 days Ago</span>
             <IonCardTitle
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
@@ -64,7 +69,7 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
                 marginBottom: 0,
               }}
             >
-              Math - Algebra
+              Math - Algebra{" "}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -72,11 +77,14 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
                 fontSize: "0.9rem",
                 color: "gray",
               }}
-            >
-              Last Viewed: 2 days
-            </IonCardSubtitle>
+            ></IonCardSubtitle>
           </IonCardHeader>
-          <IonCardContent>
+          <IonCardContent
+            style={{
+              marginTop: 0,
+              paddingRight: 0,
+            }}
+          >
             <p
               style={{
                 width: "100%",
@@ -88,8 +96,10 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
                 lineBreak: "anywhere", // Allows breaking at any point for long words
               }}
             >
-              Key points on derivatives is this and this and this this this
-              sdjakjdksjk...
+              {/* 91 letters for the home page */}
+              {/* 119 for not */}
+              Keypointsonderivativesisthisandthisandthisthisthis
+              sdjakjdksjkfasfasfasfsafsasffasfsasfAfsfsfsafsfsasfsafasassfsffsssfsf...
             </p>
           </IonCardContent>
         </div>

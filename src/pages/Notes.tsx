@@ -1,6 +1,6 @@
 import NoteCard from "@/components/NoteCard";
 import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
-import QuizCard from "@/components/QuizCard";
+import QuizCard from "@/components/Quizzes/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import useUserSession from "@/hooks/useUserSession";
 import noteService from "@/services/noteService";

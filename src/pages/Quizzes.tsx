@@ -24,10 +24,10 @@ import { IonSearchbar } from "@ionic/react";
 import { sparklesOutline, search } from "ionicons/icons";
 import "../styles/quiz.css";
 import "../theme/animation.css";
-import QuizCard from "@/components/QuizCard";
-import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import GenerateQuizModal from "@/components/Quizzes/GenerateQuizModal";
+import QuizCard from "@/components/QuizCard";
+import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 
 const Quizzes: React.FC = () => {
   const user = useUserSession();
@@ -77,7 +77,7 @@ const Quizzes: React.FC = () => {
             <IonSegmentContent
               id="generated_quiz"
               style={{
-                height: "600px",
+                height: "630px",
                 width: "100%",
                 marginTop: "20px",
                 overflow: "scroll",
@@ -87,7 +87,7 @@ const Quizzes: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <AttemptQuizCard key={index} width="360px" />;
+                return <QuizCard key={index} width="360px" />;
               })}
               <br />
               <br />
@@ -105,7 +105,7 @@ const Quizzes: React.FC = () => {
               }}
             >
               {[...Array(10)].map((num, index) => {
-                return <QuizCard key={index} width="360px" />;
+                return <AttemptQuizCard key={index} width="360px" />;
               })}
               <br />
               <br />

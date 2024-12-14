@@ -46,15 +46,23 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
         style={{
           display: "flex",
           justifyContent: "space-between", // Ensures elements are spaced out vertically
+          height: "100%",
           flexGrow: 1,
         }}
       >
         <div
           style={{
             marginLeft: 15,
+            height: "100%",
           }}
         >
-          <IonCardHeader>
+          <IonCardHeader
+            style={
+              {
+                // paddingBottom: "10px",
+              }
+            }
+          >
             <IonCardTitle
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
@@ -72,23 +80,14 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
             >
               <div
                 style={{
-                  marginBottom: 2,
+                  marginBottom: 5,
                 }}
               >
-                Number of Questions: 20
+                Completed: 2 days
               </div>
-              <div
-                style={{
-                  marginBottom: 2,
-                }}
-              >
-                Bloom's Level: Application
-              </div>
-              <div>Question Type: Multiple Choice</div>
+              Score: 18/20
             </IonCardSubtitle>
           </IonCardHeader>
-
-          <IonCardContent></IonCardContent>
         </div>
 
         <div
@@ -106,6 +105,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
             }}
             fill="clear"
             color={"dark"}
+            routerLink="/quiz/1"
           >
             <IonIcon
               slot="icon-only"

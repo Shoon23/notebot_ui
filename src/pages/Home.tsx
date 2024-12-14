@@ -23,7 +23,7 @@ import { libraryOutline, caretForwardOutline } from "ionicons/icons";
 import generate_icon from "../assets/generate2.png";
 import "../theme/animation.css";
 import ai_icon from "../assets/robot.png";
-import QuizCard from "@/components/QuizCard";
+import QuizCard from "@/components/Quizzes/AttemptQuizCard";
 import NoteCard from "@/components/NoteCard";
 import MoreButton from "@/components/Home/MoreButton";
 const Home: React.FC = () => {

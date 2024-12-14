@@ -46,23 +46,15 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
         style={{
           display: "flex",
           justifyContent: "space-between", // Ensures elements are spaced out vertically
-          height: "100%",
           flexGrow: 1,
         }}
       >
         <div
           style={{
             marginLeft: 15,
-            height: "100%",
           }}
         >
-          <IonCardHeader
-            style={
-              {
-                // paddingBottom: "10px",
-              }
-            }
-          >
+          <IonCardHeader>
             <IonCardTitle
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
@@ -80,12 +72,19 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
             >
               <div
                 style={{
-                  marginBottom: 5,
+                  marginBottom: 2,
                 }}
               >
-                Completed: 2 days
+                Number of Questions: 20
               </div>
-              Score: 18/20
+              <div
+                style={{
+                  marginBottom: 2,
+                }}
+              >
+                Bloom's Level: Application
+              </div>
+              <div>Question Type: Multiple Choice</div>
             </IonCardSubtitle>
           </IonCardHeader>
         </div>
@@ -105,7 +104,6 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
             }}
             fill="clear"
             color={"dark"}
-            routerLink="/quiz/1"
           >
             <IonIcon
               slot="icon-only"
