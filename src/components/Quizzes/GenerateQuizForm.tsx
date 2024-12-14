@@ -9,7 +9,7 @@ import React from "react";
 import "./generate-form.css";
 import SelectOption from "../SelectOption/SelectOption";
 import { fileTray, colorWand } from "ionicons/icons";
-import ChooseNoteModal from "./ChooseNoteModal";
+import ChooseNoteModal from "../ChooseNoteModal";
 
 const GenerateQuizForm = () => {
   const quizType = [
@@ -72,7 +72,12 @@ const GenerateQuizForm = () => {
       <SelectOption label="Difficulty" options={difficultyLevels} />
       <SelectOption label="Number Of Question" options={numbers} />
 
-      <ChooseNoteModal />
+      <ChooseNoteModal>
+        <button type="button" className="quiz-gen-choose-note-btn">
+          Choose Note
+          <IonIcon icon={fileTray}></IonIcon>
+        </button>
+      </ChooseNoteModal>
       <div
         style={{
           marginTop: "15px",

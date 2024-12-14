@@ -12,7 +12,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
-import { sparklesOutline } from "ionicons/icons";
+import { colorWand, colorWandOutline, sparklesOutline } from "ionicons/icons";
 import React, { useRef } from "react";
 import GenerateQuizForm from "./GenerateQuizForm";
 
@@ -58,7 +58,7 @@ const GenerateQuizModal = () => {
         className="generate-btn-container animated-button"
       >
         <IonIcon
-          icon={sparklesOutline}
+          icon={colorWand}
           color="light"
           style={{
             fontSize: "24px",

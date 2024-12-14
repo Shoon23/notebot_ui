@@ -21,8 +21,8 @@ import {
 } from "@ionic/react";
 import { createOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import "../styles/note.css";
 import NoteList from "@/components/Note/NoteList/NoteList";
+
 const Notes = () => {
   const router = useIonRouter();
   const user = useUserSession();

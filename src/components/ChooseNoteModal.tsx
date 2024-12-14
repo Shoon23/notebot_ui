@@ -9,24 +9,26 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import React, { useRef, useState } from "react";
-import "./generate-form.css";
 import { fileTray } from "ionicons/icons";
-import NoteCard from "../NoteCard";
-import NoteList from "../Note/NoteList/NoteList";
-const ChooseNoteModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+import NoteCard from "./NoteCard";
+import NoteList from "./Note/NoteList/NoteList";
 
+interface CHooseNoteModalProps {
+  children: React.ReactNode; // Use children prop
+}
+
+const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const childrenWithOnClick = React.isValidElement(children)
+    ? React.cloneElement(children as React.ReactElement, {
+        onClick: () => {
+          setIsOpen(true);
+        },
+      })
+    : children;
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        type="button"
-        className="quiz-gen-choose-note-btn"
-      >
-        Choose Note
-        <IonIcon icon={fileTray}></IonIcon>
-      </button>
-
+      {childrenWithOnClick}
       <IonModal
         isOpen={isOpen}
         initialBreakpoint={0.89}

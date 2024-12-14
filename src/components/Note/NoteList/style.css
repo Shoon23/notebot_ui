@@ -1,0 +1,32 @@
+.generate-btn-container-note {
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 2rem;
+  border: 2px solid black;
+  height: 60px;
+  width: 60px;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+ion-segment {
+  margin-top: 10px;
+  /* --background: #87ceeb; */
+}
+ion-fab-button {
+  --background: #47926b;
+}
+
+.mini-btn {
+  transform: scale(0.9);
+  width: 55px;
+  height: 55px;
+  border: 2px solid black;
+  border-radius: 2rem;
+  color: white;
+}
+
+.mini-btn > div {
+  color: white;
+}

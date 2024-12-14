@@ -38,6 +38,7 @@ import Routes from "./Routes";
 import Register from "./pages/Register";
 import HomePageLayout from "./components/layouts/HomePageLayout";
 import Quiz from "./pages/Quiz";
+import NoteInput from "./pages/NoteInput";
 
 setupIonicReact();
 
@@ -62,6 +63,10 @@ const App: React.FC = () => {
             <Route exact path="/login" render={() => <Login />} />
             <Route exact path="/register" render={() => <Register />} />
             <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
+            <Route
+              path={"/note/:id"}
+              render={(props) => <NoteInput {...props} />}
+            />
           </QueryClientProvider>
         </IonRouterOutlet>
       </IonReactRouter>

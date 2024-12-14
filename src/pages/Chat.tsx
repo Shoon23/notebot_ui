@@ -15,6 +15,7 @@ import "../styles/chat.css";
 import "../theme/animation.css";
 
 import ConversationCard from "@/components/Chat/ConversationCard/ConversationCard";
+import ChooseNoteModal from "@/components/ChooseNoteModal";
 const Chat = () => {
   return (
     <IonPage>
@@ -45,25 +46,27 @@ const Chat = () => {
             <br />
           </div>
 
-          <IonFab
-            className="generate-btn-container-chat animated-button"
-            style={{
-              position: "fixed",
-              bottom: "100px",
-              right: "20px",
-              zIndex: "5px",
-            }}
-            slot="fixed"
-            horizontal="end"
-          >
-            <IonIcon
-              icon={addOutline}
-              color="light"
+          <ChooseNoteModal>
+            <IonFab
+              className="generate-btn-container-chat animated-button"
               style={{
-                fontSize: "24px",
+                position: "fixed",
+                bottom: "100px",
+                right: "20px",
+                zIndex: "5px",
               }}
-            ></IonIcon>
-          </IonFab>
+              slot="fixed"
+              horizontal="end"
+            >
+              <IonIcon
+                icon={addOutline}
+                color="light"
+                style={{
+                  fontSize: "24px",
+                }}
+              ></IonIcon>
+            </IonFab>
+          </ChooseNoteModal>
         </section>
       </IonContent>
     </IonPage>

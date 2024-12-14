@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Input from "../components/Input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import authService from "../services/authService";
 import { iLogin, iRegister } from "../types/auth";
