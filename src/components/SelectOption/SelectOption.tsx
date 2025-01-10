@@ -7,9 +7,17 @@ interface SelectOptionProps {
     value: string;
     label: string;
   }[];
+  selectHandler: (selectedValue: string) => void; // New prop for handling selection
 }
 
-const SelectOption: React.FC<SelectOptionProps> = ({ label, options }) => {
+const SelectOption: React.FC<SelectOptionProps> = ({
+  label,
+  options,
+  selectHandler,
+}) => {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    selectHandler(e.target.value); // Call the handler with the selected value
+  };
   return (
     <div
       style={{
@@ -24,7 +32,11 @@ const SelectOption: React.FC<SelectOptionProps> = ({ label, options }) => {
       >
         {label}
       </div>
-      <select className="select-box" defaultValue={""}>
+      <select
+        className="select-box"
+        defaultValue={""}
+        onChange={handleSelectChange}
+      >
         <option value="" disabled>
           Select {label}
         </option>

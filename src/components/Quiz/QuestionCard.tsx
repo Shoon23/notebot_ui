@@ -1,3 +1,4 @@
+import { QuestionWithOptions } from "@/repository/QuizRepository";
 import { hexToRgb } from "@/utils";
 import {
   IonCard,
@@ -6,11 +7,19 @@ import {
   IonCardSubtitle,
   IonButton,
   IonIcon,
+  IonCardContent,
 } from "@ionic/react";
 import { caretForwardOutline } from "ionicons/icons";
 import React from "react";
 
-const QuestionCard = () => {
+interface QuestionCardProps {
+  question_answer: QuestionWithOptions;
+  idx: number;
+}
+const QuestionCard: React.FC<QuestionCardProps> = ({
+  question_answer,
+  idx,
+}) => {
   const tempoColor = "#47926B";
 
   const shadowColors = hexToRgb(tempoColor);
@@ -19,8 +28,7 @@ const QuestionCard = () => {
     flex: "0 0 auto",
     marginBottom: "10px",
     width: "98%", // Minimum width for the cards,
-    height: "350px",
-
+    minHeight: "150px", // Optional: Set a minimum height if needed
     borderRadius: "1.5rem",
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
@@ -30,77 +38,77 @@ const QuestionCard = () => {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between", // Ensures elements are spaced out vertically
-          flexGrow: 1,
+          flexDirection: "column",
         }}
       >
         <div
           style={{
-            marginLeft: 15,
             height: "100%",
           }}
         >
           <IonCardHeader
-            style={
-              {
-                // paddingBottom: "10px",
-              }
-            }
+            style={{
+              padding: "10px",
+            }}
           >
             <IonCardTitle
               style={{
-                fontSize: "1.2rem", // Scaled for mobile readability
-                fontWeight: "bold",
+                fontSize: "1rem", // Scaled for mobile readability
+                fontWeight: "bolder",
               }}
             >
-              Question 1
+              {idx + 1}. {question_answer.content}
             </IonCardTitle>
-            <IonCardSubtitle
-              style={{
-                fontSize: "0.9rem",
-                color: "gray",
-                marginTop: 5,
-              }}
-            >
-              <div
-                style={{
-                  marginBottom: 5,
-                }}
-              >
-                Completed: 2 days
-              </div>
-              Score: 18/20
-            </IonCardSubtitle>
           </IonCardHeader>
         </div>
-
-        <div
+        <IonCardContent
           style={{
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: 60,
+            flexDirection: "column",
           }}
         >
-          <IonButton
-            style={{
-              height: "100%",
-              width: 60,
-            }}
-            fill="clear"
-            color={"dark"}
-            routerLink="/quiz/1"
-          >
-            <IonIcon
-              slot="icon-only"
-              icon={caretForwardOutline}
-              style={{
-                fontSize: "35px", // Adjust the icon size
-                cursor: "pointer",
-              }}
-            />
-          </IonButton>
-        </div>
+          {question_answer.options.map((option, idx) => {
+            if (option.is_answer) {
+              return (
+                <div key={option.option_id}>
+                  <div
+                    style={{
+                      fontSize: ".9rem", // Scaled for mobile readability
+                      fontWeight: "bold",
+                      color: option.is_answer ? "green" : "black", // Highlight correct answer
+                      backgroundColor: option.is_answer
+                        ? "#e8f5e9"
+                        : "transparent", // Light green background for correct answer
+                      padding: option.is_answer ? "5px" : "0", // Add padding for better visibility
+                      borderRadius: option.is_answer ? "0.5rem" : "0", // Rounded corners for correct answer
+                    }}
+                    key={idx}
+                  >
+                    {option.content}
+                    {}
+                  </div>
+                  <br />
+                  {option.explanation && (
+                    <>
+                      <p>Explanation:</p>
+                      <span
+                        style={{
+                          fontSize: ".9rem", // Scaled for mobile readability
+                          fontWeight: "bold",
+                          color: option.is_answer ? "green" : "black", // Highlight correct answer
+                          padding: option.is_answer ? "5px" : "0", // Add padding for better visibility
+                          borderRadius: option.is_answer ? "0.5rem" : "0", // Rounded corners for correct answer
+                        }}
+                      >
+                        {option.explanation}
+                      </span>
+                    </>
+                  )}
+                </div>
+              );
+            }
+          })}
+        </IonCardContent>
       </div>
     </IonCard>
   );

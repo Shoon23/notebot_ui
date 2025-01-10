@@ -39,38 +39,70 @@ import Register from "./pages/Register";
 import HomePageLayout from "./components/layouts/HomePageLayout";
 import Quiz from "./pages/Quiz";
 import NoteInput from "./pages/NoteInput";
+import React from "react";
+import SqliteService from "./services/sqliteService";
+import DbVersionService from "./services/dbVersionService";
+import StorageService from "./services/storageService";
+import AppInitializer from "./components/AppInitializer/AppInitializer";
+import GenerateQuiz from "./pages/GenerateQuiz";
+import TakeQuiz from "./pages/TakeQuiz";
+import QuizResult from "./pages/QuizResult";
+// Singleton Services
+export const SqliteServiceContext = React.createContext(SqliteService);
+export const DbVersionServiceContext = React.createContext(DbVersionService);
+export const StorageServiceContext = React.createContext(
+  new StorageService(SqliteService, DbVersionService)
+);
 
 setupIonicReact();
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity,
-      gcTime: Infinity,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <QueryClientProvider client={queryClient}>
-            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+    <SqliteServiceContext.Provider value={SqliteService}>
+      <DbVersionServiceContext.Provider value={DbVersionService}>
+        <StorageServiceContext.Provider
+          value={new StorageService(SqliteService, DbVersionService)}
+        >
+          <AppInitializer>
+            <IonApp>
+              <IonReactRouter>
+                <IonRouterOutlet>
+                  <QueryClientProvider client={queryClient}>
+                    {/* <ReactQueryDevtools initialIsOpen={false} /> */}
 
-            <HomePageLayout />
-            <Route exact path="/login" render={() => <Login />} />
-            <Route exact path="/register" render={() => <Register />} />
-            <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
-            <Route
-              path={"/note/:id"}
-              render={(props) => <NoteInput {...props} />}
-            />
-          </QueryClientProvider>
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </IonApp>
+                    <HomePageLayout />
+                    {/* <Route exact path="/login" render={() => <Login />} /> */}
+                    {/* <Route exact path="/register" render={() => <Register />} /> */}
+                    <Route
+                      path={"/quiz/:id"}
+                      render={(props) => <Quiz {...props} />}
+                    />
+                    <Route
+                      path={"/note/:id"}
+                      render={(props) => <NoteInput {...props} />}
+                    />
+                    <Route
+                      path={"/take-quiz/:id"}
+                      render={(props) => <TakeQuiz {...props} />}
+                    />
+                    <Route
+                      path={"/quiz-result/:id"}
+                      render={(props) => <QuizResult {...props} />}
+                    />
+                  </QueryClientProvider>
+
+                  <Route
+                    path={"/generate-quiz"}
+                    render={(props) => <GenerateQuiz />}
+                  />
+                </IonRouterOutlet>
+              </IonReactRouter>
+            </IonApp>
+          </AppInitializer>
+        </StorageServiceContext.Provider>
+      </DbVersionServiceContext.Provider>
+    </SqliteServiceContext.Provider>
   );
 };
 

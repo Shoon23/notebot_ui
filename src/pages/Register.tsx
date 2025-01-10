@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import authService from "../services/authService";
 import { iLogin, iRegister } from "../types/auth";
 import { Axios, AxiosError } from "axios";
 import {

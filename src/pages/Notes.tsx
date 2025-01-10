@@ -3,7 +3,6 @@ import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import QuizCard from "@/components/Quizzes/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import useUserSession from "@/hooks/useUserSession";
-import noteService from "@/services/noteService";
 import {
   IonContent,
   IonFab,
@@ -18,28 +17,34 @@ import {
   IonTitle,
   IonToolbar,
   useIonRouter,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import { createOutline } from "ionicons/icons";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NoteList from "@/components/Note/NoteList/NoteList";
+import { StorageServiceContext } from "@/App";
+import { Note } from "@/databases/models/note";
 
 const Notes = () => {
   const router = useIonRouter();
   const user = useUserSession();
-  const [notes, setNotes] = useState<any>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const storageServ = useContext(StorageServiceContext);
+  useIonViewWillEnter(() => {
+    const fetchNote = async () => {
+      const noteList = await storageServ.noteRepo.getListOfNotes({});
+      setNotes(noteList);
+    };
 
-  // useEffect(() => {
-  //   const fetchNotes = async () => {
-  //     try {
-  //       const res = await noteService.getNotes(user.user_id as any);
-  //       console.log(res);
-  //       setNotes(res);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchNotes();
-  // }, []);
+    fetchNote();
+  }, []);
+
+  const handleSelectNote = async (note_data: {
+    note_id: number;
+    note_name: string;
+  }) => {
+    router.push(`/note/${note_data.note_id}`);
+  };
   return (
     <IonPage>
       <IonContent>
@@ -49,8 +54,7 @@ const Notes = () => {
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">
-          {/* input */}
-          <NoteList />
+          <NoteList notes={notes} handleSelectNote={handleSelectNote} />
         </section>
       </IonContent>
     </IonPage>

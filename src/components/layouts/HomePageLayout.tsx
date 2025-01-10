@@ -15,19 +15,24 @@ import {
   useIonViewWillEnter,
 } from "@ionic/react";
 import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
 
 const HomePageLayout = () => {
   const [selectedTab, setSelectedTab] = useState("/home"); // Track the selected tab
-  useIonViewWillEnter(() => {
+  useEffect(() => {
     setSelectedTab(window.location.pathname);
   });
   const tabs = [
     { tab: "home", href: "/home", icon: home, label: "Home" },
-    { tab: "quiz", href: "/quizzes", icon: layers, label: "Quizzes" },
+    {
+      tab: "quiz",
+      href: "/quizzes/generated_quiz",
+      icon: layers,
+      label: "Quizzes",
+    },
     { tab: "note", href: "/notes", icon: fileTray, label: "Notes" },
-    { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
+    // { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
   ];
 
   const handleTabClick = (tab: string) => {
@@ -39,7 +44,11 @@ const HomePageLayout = () => {
         <Redirect exact path="/" to="/home" />
 
         <Route path="/home" render={() => <Home />} exact />
-        <Route path="/quizzes" render={() => <Quizzes />} exact />
+        <Route
+          path="/quizzes/:window"
+          render={(props) => <Quizzes {...props} />}
+          exact
+        />
         <Route path="/notes" render={() => <Notes />} exact />
         <Route path="/chats" render={() => <Chat />} exact />
       </IonRouterOutlet>
@@ -60,7 +69,11 @@ const HomePageLayout = () => {
         }}
       >
         {tabs.map((tabItem) => {
-          const isSelected = selectedTab === tabItem.href;
+          let selTab = selectedTab;
+          if (selTab.startsWith("/quizzes")) {
+            selTab = "/quizzes/generated_quiz";
+          }
+          const isSelected = selTab === tabItem.href;
           const animationStyles = isSelected
             ? {
                 animationName: "bookOpen",

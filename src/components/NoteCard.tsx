@@ -11,6 +11,8 @@ import {
 } from "@ionic/react";
 
 import { caretForwardOutline } from "ionicons/icons";
+import { Note } from "@/databases/models/note";
+import { formatDate } from "@/utils/date-utils";
 const colors = [
   "gray",
   "#47926B",
@@ -26,12 +28,17 @@ const colors = [
 
 interface QuizCardProps {
   width?: string;
+  data: Note;
+  handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
 }
 
-const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
+const NoteCard: React.FC<QuizCardProps> = ({
+  width,
+  data,
+  handleSelectNote,
+}) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-
   const cardsStyles = {
     flex: "0 0 auto",
     width: width || "300px",
@@ -53,6 +60,7 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
         <div
           style={{
             marginLeft: 10,
+            width: "100%",
           }}
         >
           <IonCardHeader
@@ -61,7 +69,10 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
               paddingRight: 0,
             }}
           >
-            <span>Last Viewed: 2 days Ago</span>
+            <span>
+              Last Viewed:
+              {/* {formatDate(data.last_viewed_at as string)} */}
+            </span>
             <IonCardTitle
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
@@ -69,7 +80,7 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
                 marginBottom: 0,
               }}
             >
-              Math - Algebra{" "}
+              {data.note_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -83,6 +94,7 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
             style={{
               marginTop: 0,
               paddingRight: 0,
+              width: "100%",
             }}
           >
             <p
@@ -96,10 +108,9 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
                 lineBreak: "anywhere", // Allows breaking at any point for long words
               }}
             >
-              {/* 91 letters for the home page */}
-              {/* 119 for not */}
-              Keypointsonderivativesisthisandthisandthisthisthis
-              sdjakjdksjkfasfasfasfsafsasffasfsasfAfsfsfsafsfsasfsafasassfsffsssfsf...
+              {(data.content_text?.length as number) > 119
+                ? data.content_text?.slice(0, 119) + "..." // Truncate to 30 characters and add ellipsis
+                : data.content_text}
             </p>
           </IonCardContent>
         </div>
@@ -119,6 +130,12 @@ const NoteCard: React.FC<QuizCardProps> = ({ width }) => {
             }}
             fill="clear"
             color={"dark"}
+            onClick={() => {
+              handleSelectNote({
+                note_id: Number(data.note_id),
+                note_name: data.note_name,
+              });
+            }}
           >
             <IonIcon
               slot="icon-only"

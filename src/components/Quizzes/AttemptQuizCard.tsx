@@ -7,9 +7,13 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonIcon,
+  useIonRouter,
 } from "@ionic/react";
+import { formatDistance, formatDistanceToNow, parseISO } from "date-fns";
 
 import { caretForwardOutline } from "ionicons/icons";
+import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
+import { formatDate } from "@/utils/date-utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -25,12 +29,13 @@ const colors = [
 
 interface AttemptQuizCardProps {
   width?: string;
+  data: iAttemptQuiz;
 }
 
-const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
+const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width, data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-
+  const router = useIonRouter();
   const cardsStyles = {
     flex: "0 0 auto",
     width: width || "300px", // Minimum width for the cards,
@@ -39,7 +44,6 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
   };
-
   return (
     <IonCard style={cardsStyles}>
       <div
@@ -69,7 +73,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
                 fontWeight: "bold",
               }}
             >
-              Math - Algebra
+              {data.quiz_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -83,9 +87,9 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
                   marginBottom: 5,
                 }}
               >
-                Completed: 2 days
+                Completed: {formatDate(data.created_at)}
               </div>
-              Score: 18/20
+              Score: {data.score}/{data.num_questions}
             </IonCardSubtitle>
           </IonCardHeader>
         </div>
@@ -99,13 +103,16 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width }) => {
           }}
         >
           <IonButton
+            onClick={() => {
+              console.log(data.quiz_attempt_id);
+              router.push(`/quiz-result/${data.quiz_attempt_id}`);
+            }}
             style={{
               height: "100%",
               width: 60,
             }}
             fill="clear"
             color={"dark"}
-            routerLink="/quiz/1"
           >
             <IonIcon
               slot="icon-only"

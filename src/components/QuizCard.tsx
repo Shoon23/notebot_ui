@@ -7,9 +7,11 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonIcon,
+  useIonRouter,
 } from "@ionic/react";
 
 import { caretForwardOutline } from "ionicons/icons";
+import { iQuiz } from "@/repository/QuizRepository";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -25,12 +27,13 @@ const colors = [
 
 interface QuizCardProps {
   width?: string;
+  data: iQuiz;
 }
 
-const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
+const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-
+  const router = useIonRouter();
   const cardsStyles = {
     flex: "0 0 auto",
     width: width || "300px", // Minimum width for the cards,
@@ -61,7 +64,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
                 fontWeight: "bold",
               }}
             >
-              Math - Algebra
+              {data.quiz_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -75,16 +78,16 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
                   marginBottom: 2,
                 }}
               >
-                Number of Questions: 20
+                Number of Questions: {data.num_questions}
               </div>
               <div
                 style={{
                   marginBottom: 2,
                 }}
               >
-                Bloom's Level: Application
+                Bloom's Level: {data.blooms_taxonomy_level}
               </div>
-              <div>Question Type: Multiple Choice</div>
+              <div>Question Type:{data.question_type}</div>
             </IonCardSubtitle>
           </IonCardHeader>
         </div>
@@ -104,6 +107,9 @@ const QuizCard: React.FC<QuizCardProps> = ({ width }) => {
             }}
             fill="clear"
             color={"dark"}
+            onClick={() => {
+              router.push(`/quiz/${data.quiz_id}`);
+            }}
           >
             <IonIcon
               slot="icon-only"

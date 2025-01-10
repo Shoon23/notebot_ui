@@ -1,12 +1,5 @@
-import Input from "@/components/Input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React, { useRef, useState } from "react";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import noteService from "@/services/noteService";
 import useUserSession from "@/hooks/useUserSession";
 
 const UploadNotes = () => {
@@ -44,7 +37,6 @@ const UploadNotes = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(currTab);
 
     // Validation specific to currTab
     if (currTab === "file") {

@@ -61,12 +61,25 @@
   box-shadow: 6px 8px 0px #87ceeb;
   transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
 }
-.quiz-gen-choose-note-btn:active {
-  border: 2px solid #87ceeb;
-  transform: translateY(5px);
-
-  box-shadow: none;
+/* Disable all animations when the button is disabled */
+.quiz-gen-generate-btn:disabled {
+  background: #87ceeb; /* Disabled background */
+  opacity: 0.6; /* Visual cue for disabled state */
+  cursor: not-allowed; /* Show not-allowed cursor */
+  transform: none; /* Prevent transform animations */
+  box-shadow: none; /* Remove box shadow */
+  transition: none; /* Disable transition completely */
 }
+
+/* Active state when button is not disabled */
+.quiz-gen-generate-btn:active:not(:disabled) {
+  border: 2px solid #87ceeb;
+  transform: translateY(5px); /* Apply transform for active state */
+  box-shadow: none;
+  background: #87ceeb;
+  transition: transform 0.3s ease; /* Allow transition for transform only in active state */
+}
+
 .quiz-gen-generate-btn {
   font-size: 18px;
   display: flex;
