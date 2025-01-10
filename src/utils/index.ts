@@ -13,3 +13,7 @@ export const hexToRgb = (hex: string) => {
     `rgba(${r}, ${g}, ${b}, 0.3)`,
   ]; // Set opacity for the shadow
 };
+
+export const capitlizedFirstLetter = (text: string) => {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};

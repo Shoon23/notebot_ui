@@ -244,7 +244,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
   return (
     <IonPage>
       <IonContent>
-        <Header name={"Quiz Time!"} backRoute={"/quizzes/attempted_quiz"} />
+        <Header name={"Quiz Time!"} backRoute={`/quiz/${quiz.quiz_id}`} />
         <section
           className="ion-padding"
           style={{

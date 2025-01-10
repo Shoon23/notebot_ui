@@ -5,10 +5,12 @@ export const formatDate = (date: string) => {
     return "Invalid date"; // Fallback for empty or null values
   }
 
-  // Replace space with 'T' if present to make it ISO 8601 compliant
-  const isoDate = date.includes(" ") ? date.replace(" ", "T") : date;
+  // Ensure the input is ISO 8601 compliant
+  const isoDate =
+    date.includes(" ") && !date.includes("T") ? date.replace(" ", "T") : date;
 
   try {
+    // Parse and format the date
     const formattedDate = formatDistanceToNow(parseISO(isoDate), {
       addSuffix: true,
     });

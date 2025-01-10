@@ -9,7 +9,7 @@ export const NoteUpgradeStatements = [
            content_text TEXT,
            content_pdf_url TEXT,
            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-           last_viewed_at DATETIME CURRENT_TIMESTAMP
+           last_viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP
          );`,
     ],
   },

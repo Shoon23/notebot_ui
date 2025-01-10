@@ -2,7 +2,6 @@ import NoteCard from "@/components/NoteCard";
 import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import QuizCard from "@/components/Quizzes/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
-import useUserSession from "@/hooks/useUserSession";
 import {
   IonContent,
   IonFab,
@@ -27,7 +26,6 @@ import { Note } from "@/databases/models/note";
 
 const Notes = () => {
   const router = useIonRouter();
-  const user = useUserSession();
   const [notes, setNotes] = useState<Note[]>([]);
   const storageServ = useContext(StorageServiceContext);
   useIonViewWillEnter(() => {

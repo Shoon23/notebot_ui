@@ -10,7 +10,6 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import Login from "./pages/Login";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -35,7 +34,6 @@ import "./theme/variables.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Routes from "./Routes";
-import Register from "./pages/Register";
 import HomePageLayout from "./components/layouts/HomePageLayout";
 import Quiz from "./pages/Quiz";
 import NoteInput from "./pages/NoteInput";
@@ -55,7 +53,6 @@ export const StorageServiceContext = React.createContext(
 );
 
 setupIonicReact();
-const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   return (
@@ -68,34 +65,7 @@ const App: React.FC = () => {
             <IonApp>
               <IonReactRouter>
                 <IonRouterOutlet>
-                  <QueryClientProvider client={queryClient}>
-                    {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-
-                    <HomePageLayout />
-                    {/* <Route exact path="/login" render={() => <Login />} /> */}
-                    {/* <Route exact path="/register" render={() => <Register />} /> */}
-                    <Route
-                      path={"/quiz/:id"}
-                      render={(props) => <Quiz {...props} />}
-                    />
-                    <Route
-                      path={"/note/:id"}
-                      render={(props) => <NoteInput {...props} />}
-                    />
-                    <Route
-                      path={"/take-quiz/:id"}
-                      render={(props) => <TakeQuiz {...props} />}
-                    />
-                    <Route
-                      path={"/quiz-result/:id"}
-                      render={(props) => <QuizResult {...props} />}
-                    />
-                  </QueryClientProvider>
-
-                  <Route
-                    path={"/generate-quiz"}
-                    render={(props) => <GenerateQuiz />}
-                  />
+                  <HomePageLayout />
                 </IonRouterOutlet>
               </IonReactRouter>
             </IonApp>

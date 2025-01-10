@@ -1,4 +1,3 @@
-import useUserSession from "@/hooks/useUserSession";
 import {
   IonButton,
   IonButtons,
@@ -15,10 +14,13 @@ import {
   useIonRouter,
   useIonViewWillEnter,
 } from "@ionic/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { MouseEvent, useContext, useEffect, useRef, useState } from "react";
 import "../theme/animation.css";
-import { libraryOutline, caretForwardOutline } from "ionicons/icons";
+import {
+  libraryOutline,
+  caretForwardOutline,
+  closeSharp,
+} from "ionicons/icons";
 
 import generate_icon from "../assets/generate2.png";
 import "../theme/animation.css";
@@ -54,10 +56,12 @@ const Home: React.FC<HomeProps> = ({}) => {
 
           setNotes(noteList);
         };
+
         const fetchQuizAttempts = async () => {
           const quizList = await storageServ.attemptQuizRepo.getManyAttempts({
             is_recent: true,
           });
+          console.log(quizList);
           setAttemptedQuiz(quizList);
         };
         fetchNote();

@@ -45,6 +45,7 @@
 
 .quiz-gen-choose-note-btn {
   font-size: 18px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,10 +57,17 @@
   outline: none; /* Remove outline on focus */
   box-shadow: none; /* Remove shadow */
   color: black;
-  height: 45px;
+  height: 50px;
   border: 2px solid black;
   box-shadow: 6px 8px 0px #87ceeb;
   transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+}
+
+.quiz-gen-choose-note-btn:active {
+  border: 2px solid #87ceeb;
+  transform: translateY(5px);
+  box-shadow: none;
+  background: #87ceeb;
 }
 /* Disable all animations when the button is disabled */
 .quiz-gen-generate-btn:disabled {
@@ -92,7 +100,8 @@
   outline: none; /* Remove outline on focus */
   box-shadow: none; /* Remove shadow */
   color: black;
-  height: 45px;
+  height: 100px;
+
   border: 2px solid black;
   background: linear-gradient(to right, #87ceeb, #e0ac08);
   transition: border 0.3s ease, box-shadow 0.3s ease,

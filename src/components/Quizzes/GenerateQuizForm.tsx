@@ -116,7 +116,7 @@ const GenerateQuizForm = () => {
         message: "Genrating Quiz...",
       });
 
-      const { description, quiz_name, note_id, ...others } = genQuizForm;
+      const { quiz_name, note_id, ...others } = genQuizForm;
 
       const options = {
         url: "https://test-backend-9dqr.onrender.com/generate-questions",
@@ -135,7 +135,11 @@ const GenerateQuizForm = () => {
       switch (genQuizForm.question_type) {
         case "mcq":
           quiz_data = await storageServ.quizRepo.save_generated_mcq(
-            { note_id, quiz_name, ...others },
+            {
+              note_id,
+              quiz_name,
+              ...others,
+            },
 
             data
           );
@@ -144,7 +148,11 @@ const GenerateQuizForm = () => {
         case "short-answer":
           quiz_data =
             await storageServ.quizRepo.saved_gen_true_false_or_short_answer(
-              { note_id, quiz_name, ...others },
+              {
+                note_id,
+                quiz_name,
+                ...others,
+              },
               data
             );
 

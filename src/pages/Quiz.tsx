@@ -21,6 +21,8 @@ import useStorageService from "@/hooks/useStorageService";
 import { iMCQQuestion, iQuiz } from "@/repository/QuizRepository";
 import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
+import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
+import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
 interface QuizProp
   extends RouteComponentProps<{
     id: string;
@@ -30,7 +32,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     quiz_name: "",
     question_type: "",
     blooms_taxonomy_level: "",
-    difficultys: "",
+    difficulty: "",
+    description: "",
     num_questions: 0,
     quiz_id: 0,
     questions: [],
@@ -45,6 +48,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
           match.params.id
         );
+
+        console.log(quiz_data);
         fetchQuizAttemptHistory(quiz_data.quiz_id);
         setQuiz(quiz_data);
       } catch (error) {
@@ -70,25 +75,28 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     <IonPage
       style={{
         height: "100%",
-        overflow: "hidden",
       }}
     >
-      <IonContent>
+      <IonContent style={{}}>
         <Header backRoute={"/quizzes/generated_quiz"} name="Quiz Details" />
 
         <section
           className="ion-padding"
           style={{
-            height: "80%",
+            height: "90%",
           }}
         >
+          <QuizDetailCard data={quiz} />
+          {quiz.description && (
+            <QuizDescriptionCard description={quiz.description} />
+          )}
           <IonSegment
             mode="ios"
             style={{
-              marginTop: "20px",
               height: "40px",
               boxShadow: "8px 8px 0px #ECC56A",
               border: "1.5px solid black",
+              marginBottom: "3px",
             }}
             value="questions"
           >
@@ -99,6 +107,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               <IonLabel>History</IonLabel>
             </IonSegmentButton>
           </IonSegment>
+
           <IonSegmentView>
             <IonSegmentContent
               id="questions"
@@ -163,9 +172,9 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
 
           <div
             style={{
-              marginTop: "15px",
               display: "flex",
               justifyContent: "end",
+              alignItems: "end",
             }}
           >
             <IonButton

@@ -1,8 +1,12 @@
 import Chat from "@/pages/Chat";
+import GenerateQuiz from "@/pages/GenerateQuiz";
 import Home from "@/pages/Home";
+import NoteInput from "@/pages/NoteInput";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
+import QuizResult from "@/pages/QuizResult";
 import Quizzes from "@/pages/Quizzes";
+import TakeQuiz from "@/pages/TakeQuiz";
 import {
   IonTabs,
   IonRouterOutlet,
@@ -42,7 +46,6 @@ const HomePageLayout = () => {
     <IonTabs>
       <IonRouterOutlet>
         <Redirect exact path="/" to="/home" />
-
         <Route path="/home" render={() => <Home />} exact />
         <Route
           path="/quizzes/:window"
@@ -51,39 +54,57 @@ const HomePageLayout = () => {
         />
         <Route path="/notes" render={() => <Notes />} exact />
         <Route path="/chats" render={() => <Chat />} exact />
+
+        {/* No Nav Tabs Page */}
+        <Route
+          path={"/note/:id"}
+          render={(props) => <NoteInput {...props} />}
+        />
+        <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
+        <Route path={"/generate-quiz"} render={(props) => <GenerateQuiz />} />
+
+        <Route
+          path={"/take-quiz/:id"}
+          render={(props) => <TakeQuiz {...props} />}
+        />
+        <Route
+          path={"/quiz-result/:id"}
+          render={(props) => <QuizResult {...props} />}
+        />
       </IonRouterOutlet>
 
-      <IonTabBar
-        color={"warning"}
-        slot="bottom"
-        style={{
-          position: "fixed",
-          bottom: "10px",
-          left: "3%", // Add space from the left side of the screen
-          right: "3%", // Add space from the right side of the screen
-          zIndex: "10",
-          boxShadow: "rgba(0, 0, 0, 0.3)", // Floating effect
-          border: "2px solid black", // Black border around the tab bar
+      {tabs.some((tab) => window.location.pathname.startsWith(tab.href)) && (
+        <IonTabBar
+          color={"warning"}
+          slot="bottom"
+          style={{
+            position: "fixed",
+            bottom: "10px",
+            left: "3%", // Add space from the left side of the screen
+            right: "3%", // Add space from the right side of the screen
+            zIndex: "10",
+            boxShadow: "rgba(0, 0, 0, 0.3)", // Floating effect
+            border: "2px solid black", // Black border around the tab bar
 
-          borderRadius: "15px",
-        }}
-      >
-        {tabs.map((tabItem) => {
-          let selTab = selectedTab;
-          if (selTab.startsWith("/quizzes")) {
-            selTab = "/quizzes/generated_quiz";
-          }
-          const isSelected = selTab === tabItem.href;
-          const animationStyles = isSelected
-            ? {
-                animationName: "bookOpen",
-                animationDuration: "0.5s",
-                animationTimingFunction: "ease",
-                animationFillMode: "forwards",
-              }
-            : {};
+            borderRadius: "15px",
+          }}
+        >
+          {tabs.map((tabItem) => {
+            let selTab = selectedTab;
+            if (selTab.startsWith("/quizzes")) {
+              selTab = "/quizzes/generated_quiz";
+            }
+            const isSelected = selTab === tabItem.href;
+            const animationStyles = isSelected
+              ? {
+                  animationName: "bookOpen",
+                  animationDuration: "0.5s",
+                  animationTimingFunction: "ease",
+                  animationFillMode: "forwards",
+                }
+              : {};
 
-          const keyframes = `
+            const keyframes = `
            @keyframes bookOpen {
         0% {
           background-color: transparent;
@@ -100,53 +121,54 @@ const HomePageLayout = () => {
       
       }
         `;
-          return (
-            <IonTabButton
-              key={tabItem.tab}
-              tab={tabItem.tab}
-              href={tabItem.href}
-              onClick={() => handleTabClick(tabItem.href)}
-              style={{
-                display: "flex",
-                flexDirection: "row", // Position label to the right of the icon
-                alignItems: "center", // Center the icon and label vertically
-                justifyContent: "center", // Center the entire content horizontally
-                padding: "10px",
-                border: isSelected && "2px solid black", // Black border around the tab bar
-
-                backgroundColor: isSelected ? "#87CEEB" : "transparent", // Sky blue for selected
-                borderRadius: "12px", // Add slight rounding for selected tabs
-                transition: "background-color 0.3s ease",
-                transform: isSelected ? "scale(0.8)" : "scale(1)", // Make it smaller when selected
-                ...animationStyles, // Add animation styles
-              }}
-            >
-              <IonIcon
-                icon={tabItem.icon}
+            return (
+              <IonTabButton
+                key={tabItem.tab}
+                tab={tabItem.tab}
+                href={tabItem.href}
+                onClick={() => handleTabClick(tabItem.href)}
                 style={{
-                  fontSize: isSelected ? "20px" : "24px", // Smaller icon size when selected
-                  color: isSelected ? "#FFFFFF" : "#000000",
                   display: "flex",
+                  flexDirection: "row", // Position label to the right of the icon
+                  alignItems: "center", // Center the icon and label vertically
+                  justifyContent: "center", // Center the entire content horizontally
+                  padding: "10px",
+                  border: isSelected && "2px solid black", // Black border around the tab bar
+
+                  backgroundColor: isSelected ? "#87CEEB" : "transparent", // Sky blue for selected
+                  borderRadius: "12px", // Add slight rounding for selected tabs
+                  transition: "background-color 0.3s ease",
+                  transform: isSelected ? "scale(0.8)" : "scale(1)", // Make it smaller when selected
+                  ...animationStyles, // Add animation styles
                 }}
-              />
-              {isSelected && (
-                <IonLabel
+              >
+                <IonIcon
+                  icon={tabItem.icon}
                   style={{
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    marginLeft: "8px", // Add space between icon and label
-                    color: "#FFFFFF", // White text for labels on selected
-                    marginTop: "8px", // Add slight spacing between icon and label
+                    fontSize: isSelected ? "20px" : "24px", // Smaller icon size when selected
+                    color: isSelected ? "#FFFFFF" : "#000000",
+                    display: "flex",
                   }}
-                >
-                  {tabItem.label}
-                </IonLabel>
-              )}
-              <style>{keyframes}</style>
-            </IonTabButton>
-          );
-        })}
-      </IonTabBar>
+                />
+                {isSelected && (
+                  <IonLabel
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      marginLeft: "8px", // Add space between icon and label
+                      color: "#FFFFFF", // White text for labels on selected
+                      marginTop: "8px", // Add slight spacing between icon and label
+                    }}
+                  >
+                    {tabItem.label}
+                  </IonLabel>
+                )}
+                <style>{keyframes}</style>
+              </IonTabButton>
+            );
+          })}
+        </IonTabBar>
+      )}
     </IonTabs>
   );
 };

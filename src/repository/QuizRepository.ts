@@ -5,10 +5,11 @@ export interface iMCQQuestion {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficultys: string;
+  difficulty: string;
   created_at?: string;
   num_questions: number;
   quiz_id: number;
+  description?: string;
   questions: QuestionWithOptions[];
 }
 
@@ -51,6 +52,7 @@ type QuizData = {
   difficulty: string;
   num_questions: number;
   note_id: number;
+  description: string | null;
 };
 
 export interface iMCQQuestionGen {
@@ -165,7 +167,7 @@ class QuizRepository {
       // Start a new transaction
       // Insert quiz data
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty,num_questions,note_id) VALUES (?, ?, ?, ?,?,?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty,num_questions,note_id,description) VALUES (?, ?, ?, ?,?,?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -173,6 +175,7 @@ class QuizRepository {
           quiz_data.difficulty,
           quiz_data.num_questions,
           quiz_data.note_id,
+          quiz_data.description ?? null,
         ]
       );
       const quiz_id = quizInsertResult.changes?.lastId;
@@ -244,7 +247,7 @@ class QuizRepository {
     try {
       // Save quiz data
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -252,6 +255,7 @@ class QuizRepository {
           quiz_data.difficulty,
           quiz_data.num_questions,
           quiz_data.note_id,
+          quiz_data.description ?? null,
         ]
       );
       const quiz_id = quizInsertResult.changes?.lastId;

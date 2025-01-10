@@ -73,9 +73,10 @@ const NoteList: React.FC<NoteListProps> = ({
             height: "650px",
             width: "100%",
             marginTop: "20px",
-            overflow: "scroll",
+            overflowY: "scroll",
             display: "flex",
             flexDirection: "column",
+            scrollBehavior: "smooth", // Optional: for smooth scrolling
             alignItems: "center",
           }}
         >
@@ -97,7 +98,7 @@ const NoteList: React.FC<NoteListProps> = ({
         <div
           style={{
             display: "flex",
-            overflowX: "auto",
+
             whiteSpace: "nowrap",
             scrollBehavior: "smooth", // Optional: for smooth scrolling
             flexDirection: "column",

@@ -73,6 +73,7 @@ class NoteRepository {
                    limit ? "LIMIT " + limit : ""
                  };`;
     const result = await this.db.query(sql);
+
     return result.values as Note[];
   }
 

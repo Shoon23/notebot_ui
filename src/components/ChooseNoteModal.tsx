@@ -61,15 +61,6 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     fethNotes();
   }, []);
 
-  // const childrenWithOnClick = React.isValidElement(children)
-  //   ? React.cloneElement(children as React.ReactElement, {
-  //       onClick: () => {
-  //         console.log("closing");
-  //         setIsOpen(true);
-  //       },
-  //     })
-  //   : children;
-
   const handleSelectNote = async (note_data: {
     note_id: number;
     note_name: string;
@@ -86,7 +77,12 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     setIsOpen(false);
   };
   return (
-    <>
+    <div
+      style={{
+        height: "120px",
+        margin: "5px 0",
+      }}
+    >
       <button
         onClick={() => {
           setIsOpen(true);
@@ -124,7 +120,7 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
           />
         </IonContent>
       </IonModal>
-    </>
+    </div>
   );
 };
 

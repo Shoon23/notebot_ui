@@ -41,13 +41,12 @@ const NoteCard: React.FC<QuizCardProps> = ({
   const shadowColor = colors[randomIndex];
   const cardsStyles = {
     flex: "0 0 auto",
-    width: width || "300px",
+    width: "90%",
     height: "150px",
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
   };
-
   return (
     <IonCard style={cardsStyles}>
       <div
@@ -71,7 +70,7 @@ const NoteCard: React.FC<QuizCardProps> = ({
           >
             <span>
               Last Viewed:
-              {/* {formatDate(data.last_viewed_at as string)} */}
+              {formatDate(data.last_viewed_at as string)}
             </span>
             <IonCardTitle
               style={{
