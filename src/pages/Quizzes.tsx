@@ -23,7 +23,6 @@ import { sparklesOutline, search, colorWand } from "ionicons/icons";
 import "../styles/quiz.css";
 import "../theme/animation.css";
 import SearchInput from "@/components/SearchInput/SearchInput";
-import GenerateQuizModal from "@/components/Quizzes/GenerateQuizModal";
 import QuizCard from "@/components/QuizCard";
 import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import { StorageServiceContext } from "@/App";

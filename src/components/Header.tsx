@@ -4,10 +4,15 @@ import React from "react";
 import "../styles/note-input.css";
 
 interface HeaderProps {
-  name: string;
   backRoute: string;
+  backBtnText?: string;
+  nameComponent: React.ReactNode; // Fix: Define the correct type for nameComponent
 }
-const Header: React.FC<HeaderProps> = ({ name, backRoute }) => {
+const Header: React.FC<HeaderProps> = ({
+  nameComponent,
+  backRoute,
+  backBtnText,
+}) => {
   const router = useIonRouter();
   return (
     <header className="notes-header">
@@ -28,17 +33,10 @@ const Header: React.FC<HeaderProps> = ({ name, backRoute }) => {
             fontSize: "20px",
           }}
         >
-          Back
+          {backBtnText ?? "Back"}
         </span>
       </button>
-      <h1
-        style={{
-          alignSelf: "center",
-          marginTop: "60px",
-        }}
-      >
-        {name}
-      </h1>
+      {nameComponent}
     </header>
   );
 };

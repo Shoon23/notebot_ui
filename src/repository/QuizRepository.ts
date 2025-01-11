@@ -303,6 +303,21 @@ class QuizRepository {
       throw new Error("Something Went Wrong");
     }
   }
+  async updateQuizDetail(
+    quiz_id: number,
+    quiz_name: string,
+    description: string | null
+  ): Promise<void> {
+    try {
+      const sql = `UPDATE Quiz SET quiz_name = ?, description = ? WHERE quiz_id = ?`;
+      const res = await this.db.run(sql, [quiz_name, description, quiz_id]);
+
+      console.log(res);
+    } catch (error) {
+      console.error("Error updating quiz details:", error);
+      throw new Error("Unable to update quiz details");
+    }
+  }
 }
 
 export default QuizRepository;

@@ -46,7 +46,7 @@ const Chat = () => {
             <br />
           </div>
 
-          <ChooseNoteModal>
+          {/* <ChooseNoteModal>
             <IonFab
               className="generate-btn-container-chat animated-button"
               style={{
@@ -66,7 +66,7 @@ const Chat = () => {
                 }}
               ></IonIcon>
             </IonFab>
-          </ChooseNoteModal>
+          </ChooseNoteModal> */}
         </section>
       </IonContent>
     </IonPage>

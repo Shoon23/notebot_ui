@@ -16,7 +16,7 @@ import NoteCard from "./NoteCard";
 import NoteList from "./Note/NoteList/NoteList";
 import useStorageService from "@/hooks/useStorageService";
 import { Note } from "@/databases/models/note";
-import "../components/Quizzes/generate-form.css";
+import "../components/GenerateQuiz/generate-form.css";
 
 interface CHooseNoteModalProps {
   // children: React.ReactNode; // Use children prop

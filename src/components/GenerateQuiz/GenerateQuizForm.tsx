@@ -17,6 +17,8 @@ import ChooseNoteModal from "../ChooseNoteModal";
 import { Note } from "@/databases/models/note";
 import useStorageService from "@/hooks/useStorageService";
 import { CapacitorHttp, HttpResponse } from "@capacitor/core";
+import DescriptionInput from "./DescriptionInput";
+import QuizNameInput from "./QuizNameInput";
 
 const GenerateQuizForm = () => {
   const [genQuizForm, setGenQuizForm] = useState<{
@@ -175,28 +177,10 @@ const GenerateQuizForm = () => {
         flexDirection: "column",
       }}
     >
-      <div
-        style={{
-          height: "80px",
-          marginBottom: "12px",
-        }}
-      >
-        <p
-          style={{
-            marginBottom: "5px",
-          }}
-        >
-          Quiz Name
-        </p>
-
-        <input
-          value={genQuizForm.quiz_name}
-          onChange={handleOnChangeName}
-          type="text"
-          className="input-box"
-          placeholder="Enter Quiz Name"
-        />
-      </div>
+      <QuizNameInput
+        value={genQuizForm.quiz_name}
+        handleOnChangeName={handleOnChangeName}
+      />
       <IonAlert
         isOpen={isOpen}
         header="Something Went Wrong"
@@ -223,7 +207,6 @@ const GenerateQuizForm = () => {
         label="Number Of Question"
         options={numbers}
       />
-
       {/* {!selectedNote.note_name ? ( */}
       <ChooseNoteModal
         setGenQuizForm={setGenQuizForm}
@@ -233,27 +216,11 @@ const GenerateQuizForm = () => {
       {/* // ) : (
       //   <>{selectedNote.note_name}</>
       // )} */}
-      <div
-        style={{
-          marginTop: "15px",
-        }}
-      >
-        <div
-          style={{
-            marginBottom: "5px",
-          }}
-        >
-          Desciption
-        </div>
-        <textarea
-          value={genQuizForm.description}
-          onChange={handleOnChangeDescription}
-          rows={10}
-          placeholder="Enter description here..."
-          className="quiz-description-input"
-        />
-      </div>
-
+      <DescriptionInput
+        value={genQuizForm.description}
+        handleOnChangeDescription={handleOnChangeDescription}
+        rows={10}
+      />
       <button
         onClick={handleSubmit}
         type="button"

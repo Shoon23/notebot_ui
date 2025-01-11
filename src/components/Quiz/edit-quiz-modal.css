@@ -1,0 +1,30 @@
+.submit-edited-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex; /* Keep flex for centering */
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
+  padding: 5px;
+  border-radius: 13rem;
+  width: 100%;
+  box-shadow: 2px 8px 0px #87ceeb;
+  border: 2px solid black;
+  height: 50px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  text-align: center;
+  font-size: 1.1rem;
+  margin-top: 18px;
+}
+
+.submit-edited-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.submit-edited-btn:disabled {
+  box-shadow: none;
+  transition: none;
+  transform: none;
+  color: gray;
+  border: 2px solid gray;
+}

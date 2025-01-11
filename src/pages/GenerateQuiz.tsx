@@ -1,4 +1,4 @@
-import GenerateQuizForm from "@/components/Quizzes/GenerateQuizForm";
+import GenerateQuizForm from "@/components/GenerateQuiz/GenerateQuizForm";
 import {
   IonButton,
   IonButtons,

@@ -15,3 +15,21 @@ ion-segment {
   margin-top: 10px;
   /* --background: #87ceeb; */
 }
+.edit-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #44819e;
+  border: 2px solid black;
+  height: 40px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+}
+
+.edit-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}

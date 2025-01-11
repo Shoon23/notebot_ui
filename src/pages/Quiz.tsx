@@ -2,6 +2,7 @@ import {
   IonButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonLabel,
   IonPage,
   IonSegment,
@@ -23,6 +24,9 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
 import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
 import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
+import { createOutline } from "ionicons/icons";
+import "../styles/quiz.css";
+import EditQuizModal from "@/components/Quiz/EditQuizModal";
 interface QuizProp
   extends RouteComponentProps<{
     id: string;
@@ -41,6 +45,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const storageServ = useStorageService();
   const [attemptedQuiz, setAttemptedQuiz] = useState<iAttemptQuiz[]>([]);
   const [window, setWindow] = useState("questions");
+  const [isEdit, setIsEdit] = useState(false);
 
   const [shadowColor, setShadowColor] = useState("");
   const router = useIonRouter();
@@ -75,20 +80,49 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     setShadowColor(getShadowColors());
   }, []);
   return (
-    <IonPage
-      style={{
-        height: "100%",
-      }}
-    >
-      <IonContent style={{}}>
-        <Header backRoute={"/quizzes/generated_quiz"} name="Quiz Details" />
-
-        <section
-          className="ion-padding"
-          style={{
-            height: "90%",
-          }}
-        >
+    <IonPage>
+      <IonContent>
+        {/* backBtnText */}
+        <Header
+          backRoute={"/quizzes/generated_quiz"}
+          nameComponent={
+            <h1
+              style={{
+                alignSelf: "center",
+                marginTop: "60px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+              }}
+            >
+              Quiz Details
+              <button
+                className="edit-btn"
+                onClick={() => {
+                  setIsEdit(true);
+                }}
+              >
+                <IonIcon
+                  slot="icon-only"
+                  icon={createOutline}
+                  style={{
+                    fontSize: "30px",
+                  }}
+                ></IonIcon>
+              </button>
+            </h1>
+          }
+        />
+        <EditQuizModal
+          isEdit={isEdit}
+          setIsEdit={setIsEdit}
+          quiz_name={quiz.quiz_name}
+          description={quiz.description}
+          setQuiz={setQuiz}
+          quiz_id={quiz.quiz_id}
+        />
+        <section className="ion-padding">
           <QuizDetailCard data={quiz} shadowColor={shadowColor} />
           {quiz.description && (
             <QuizDescriptionCard
@@ -107,10 +141,10 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             value={window}
             onIonChange={(e) => setWindow(e.detail.value as string)} // Set the state for the active segment
           >
-            <IonSegmentButton value="questions" contentId="questions">
+            <IonSegmentButton value="questions">
               <IonLabel>Questions</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="history" contentId="history">
+            <IonSegmentButton value="history">
               <IonLabel>History</IonLabel>
             </IonSegmentButton>
           </IonSegment>
@@ -172,15 +206,18 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               </div>
             )}
           </div>
-
           <div
             style={{
               display: "flex",
-              justifyContent: "end",
-              alignItems: "end",
+              justifyContent: "flex-end", // Align horizontally to the right
+              alignItems: "flex-end", // Align vertically to the bottom
+              height: "100%", // Make sure the parent container has full height
+              marginTop: "5px",
+              marginBottom: "5px",
             }}
           >
             <IonButton
+              expand="full"
               color={"tertiary"}
               onClick={() => {
                 router.push(`/take-quiz/${String(quiz.quiz_id)}`);
