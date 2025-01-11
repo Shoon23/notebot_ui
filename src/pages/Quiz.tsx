@@ -40,7 +40,9 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   });
   const storageServ = useStorageService();
   const [attemptedQuiz, setAttemptedQuiz] = useState<iAttemptQuiz[]>([]);
+  const [window, setWindow] = useState("questions");
 
+  const [shadowColor, setShadowColor] = useState("");
   const router = useIonRouter();
   useIonViewWillEnter(() => {
     const fetchQuizData = async () => {
@@ -70,6 +72,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       }
     };
     fetchQuizData();
+    setShadowColor(getShadowColors());
   }, []);
   return (
     <IonPage
@@ -86,9 +89,12 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             height: "90%",
           }}
         >
-          <QuizDetailCard data={quiz} />
+          <QuizDetailCard data={quiz} shadowColor={shadowColor} />
           {quiz.description && (
-            <QuizDescriptionCard description={quiz.description} />
+            <QuizDescriptionCard
+              shadowColor={shadowColor}
+              description={quiz.description}
+            />
           )}
           <IonSegment
             mode="ios"
@@ -98,7 +104,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               border: "1.5px solid black",
               marginBottom: "3px",
             }}
-            value="questions"
+            value={window}
+            onIonChange={(e) => setWindow(e.detail.value as string)} // Set the state for the active segment
           >
             <IonSegmentButton value="questions" contentId="questions">
               <IonLabel>Questions</IonLabel>
@@ -108,67 +115,63 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             </IonSegmentButton>
           </IonSegment>
 
-          <IonSegmentView>
-            <IonSegmentContent
-              id="questions"
-              style={{
-                height: "100%",
-                width: "100%",
-                marginTop: "20px",
-                overflowY: "scroll",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {quiz.questions.map((question_answer, index) => {
-                return (
+          <div>
+            {window === "questions" ? (
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  marginTop: "20px",
+                  overflowY: "scroll",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {quiz.questions.map((question_answer, index) => (
                   <QuestionCard
                     key={question_answer.question_id}
                     question_answer={question_answer}
                     idx={index}
                   />
-                );
-              })}
-            </IonSegmentContent>
-            <IonSegmentContent id="history">
-              {attemptedQuiz.length !== 0 ? (
-                <div
-                  style={{
-                    height: "630px",
-                    width: "100%",
-                    marginTop: "20px",
-                    overflowY: "scroll",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  {attemptedQuiz.map((data, index) => {
-                    return (
-                      <AttemptQuizCard
-                        key={data.quiz_attempt_id}
-                        width="360px"
-                        data={data}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "630px",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  No History
-                </div>
-              )}
-            </IonSegmentContent>
-          </IonSegmentView>
+                ))}
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: "630px",
+                  width: "100%",
+                  marginTop: "20px",
+                  overflowY: "scroll",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {attemptedQuiz.length !== 0 ? (
+                  attemptedQuiz.map((data, index) => (
+                    <AttemptQuizCard
+                      key={data.quiz_attempt_id}
+                      width="360px"
+                      data={data}
+                    />
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "630px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    No History
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div
             style={{
@@ -190,6 +193,25 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       </IonContent>
     </IonPage>
   );
+};
+
+export const getShadowColors = () => {
+  const colors = [
+    "#ECC56A",
+    "#47926B",
+    "#44819E",
+    "#AC4830",
+    "gray",
+    "#D8A7C7",
+    "#D98F56",
+    "#7E5F92",
+    "#8F7CC4",
+    "#9E7C5E",
+  ];
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  const shadowColor = colors[randomIndex];
+
+  return shadowColor;
 };
 
 export default Quiz;

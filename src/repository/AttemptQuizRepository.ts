@@ -113,8 +113,7 @@ class AttemptQuizRepository {
           qa.created_at, 
           qa.score, 
     q.quiz_name,
-    q.num_questions,
-    qa.created_at
+    q.num_questions
 
 FROM 
     QuizAttempt qa
@@ -141,7 +140,6 @@ ORDER BY
     qa.quiz_attempt_id, 
     qa.created_at, 
     qa.score,
-    qa.created_at, 
     q.quiz_name,
     q.num_questions
 FROM 
@@ -168,7 +166,6 @@ ${limit ? "LIMIT " + limit : ""};`;
     qa.quiz_attempt_id, 
     qa.created_at, 
     qa.score,
-    qa.created_at, 
     q.quiz_name,
     q.num_questions,
     q.question_type

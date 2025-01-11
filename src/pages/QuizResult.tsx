@@ -57,7 +57,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
   return (
     <IonPage>
       <IonContent>
-        <Header backRoute="/quizzes/generated_quiz" name="Result" />
+        <Header backRoute={`/quiz/${match.params.id}`} name="Result" />
         <section
           className="ion-padding"
           style={{

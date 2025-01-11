@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -41,27 +41,40 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
   const [quiz, setQuiz] = useState<iQuiz[]>([]);
   const router = useIonRouter();
   const storageServ = useContext(StorageServiceContext);
-  const [window, setWindow] = useState("");
+  const [window, setWindow] = useState("generated_quiz");
+  const isInitComplete = useRef(false);
+
   useIonViewWillEnter(() => {
-    const fetchQuizAttempts = async () => {
-      const quizAttemptList = await storageServ.attemptQuizRepo.getManyAttempts(
-        {
-          is_recent: true,
+    const initSubscription = storageServ.isInitCompleted.subscribe((value) => {
+      isInitComplete.current = value;
+      if (isInitComplete.current === true) {
+        const fetchQuizAttempts = async () => {
+          const quizAttemptList =
+            await storageServ.attemptQuizRepo.getManyAttempts({
+              is_recent: true,
+            });
+          setAttemptedQuiz(quizAttemptList);
+        };
+        const fetchQuiz = async () => {
+          const quizList = await storageServ.quizRepo.getManyQuiz({
+            is_recent: true,
+            search_key_word: null,
+          });
+          setQuiz(quizList);
+        };
+
+        if (match.params.window) {
+          setWindow(match.params.window);
         }
-      );
-      setAttemptedQuiz(quizAttemptList);
+
+        fetchQuizAttempts();
+        fetchQuiz();
+      }
+    });
+    return () => {
+      initSubscription.unsubscribe();
     };
-    const fetchQuiz = async () => {
-      const quizList = await storageServ.quizRepo.getManyQuiz({
-        is_recent: true,
-        search_key_word: null,
-      });
-      setQuiz(quizList);
-    };
-    setWindow(match.params.window);
-    fetchQuizAttempts();
-    fetchQuiz();
-  }, []);
+  }, [storageServ]);
 
   return (
     <IonPage>
@@ -73,8 +86,9 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
         </IonHeader>
         <section className="ion-padding">
           {/* input */}
-          <SearchInput />
+          {/* <SearchInput /> */}
           <IonSegment
+            onIonChange={(e) => setWindow(e.detail.value as string)}
             mode="ios"
             style={{
               marginTop: "20px",
@@ -91,82 +105,73 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
               <IonLabel>Attempted Quiz</IonLabel>
             </IonSegmentButton>
           </IonSegment>
-          <IonSegmentView>
-            <IonSegmentContent id="generated_quiz">
-              {quiz.length !== 0 ? (
-                <div
-                  style={{
-                    height: "630px",
-                    width: "100%",
-                    marginTop: "20px",
-                    overflow: "scroll",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  {quiz.map((data, index) => {
-                    return <QuizCard key={index} width="360px" data={data} />;
-                  })}
-                  <br />
-                  <br />
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "630px",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  No Quiz
-                </div>
-              )}
-            </IonSegmentContent>
-            <IonSegmentContent id="attempted_quiz">
-              {attemptedQuiz.length !== 0 ? (
-                <div
-                  style={{
-                    height: "630px",
-                    width: "100%",
-                    marginTop: "20px",
-                    overflow: "scroll",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  {attemptedQuiz.map((data) => {
-                    return (
-                      <AttemptQuizCard
-                        key={data.quiz_attempt_id}
-                        width="360px"
-                        data={data}
-                      />
-                    );
-                  })}
-                  <br />
-                  <br />
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "630px",
-
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  No Attempted Quiz
-                </div>
-              )}
-            </IonSegmentContent>
-          </IonSegmentView>
-
+          <div>
+            {window === "generated_quiz" ? (
+              <div
+                style={{
+                  height: "630px",
+                  width: "100%",
+                  marginTop: "20px",
+                  overflow: "scroll",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {quiz.length !== 0 ? (
+                  quiz.map((data, index) => (
+                    <QuizCard key={index} width="360px" data={data} />
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "630px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    No Quiz
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: "630px",
+                  width: "100%",
+                  marginTop: "20px",
+                  overflow: "scroll",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {attemptedQuiz.length !== 0 ? (
+                  attemptedQuiz.map((data) => (
+                    <AttemptQuizCard
+                      key={data.quiz_attempt_id}
+                      width="360px"
+                      data={data}
+                    />
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "630px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    No Attempted Quiz
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <IonFab
             style={{
               position: "fixed",
@@ -189,7 +194,6 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
               }}
             ></IonIcon>
           </IonFab>
-          {/* <GenerateQuizModal /> */}
         </section>
       </IonContent>
     </IonPage>

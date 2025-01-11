@@ -36,13 +36,12 @@ const ResultTitle: React.FC<ResultTitleProps> = ({ data }) => {
   const shadowColor = colors[randomIndex];
   const cardsStyles = {
     flex: "0 0 auto",
-    width: "360px", // Minimum width for the cards,
+    width: "95%", // Minimum width for the cards,
     height: "130px",
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
   };
-
   return (
     <IonCard style={cardsStyles}>
       <div

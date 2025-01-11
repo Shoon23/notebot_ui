@@ -31,6 +31,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
 
+  console.log(question_answer);
+
   return (
     <IonCard style={cardsStyles}>
       <div

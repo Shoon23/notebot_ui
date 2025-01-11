@@ -38,7 +38,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width, data }) => {
   const router = useIonRouter();
   const cardsStyles = {
     flex: "0 0 auto",
-    width: width || "300px", // Minimum width for the cards,
+    width: "95%",
     height: "130px",
     border: "2px solid black",
     borderRadius: "1.5rem",

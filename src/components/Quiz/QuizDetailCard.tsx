@@ -16,21 +16,10 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import { capitlizedFirstLetter } from "@/utils";
-const colors = [
-  "#ECC56A",
-  "#47926B",
-  "#44819E",
-  "#AC4830",
-  "gray",
-  "#D8A7C7",
-  "#D98F56",
-  "#7E5F92",
-  "#8F7CC4",
-  "#9E7C5E",
-];
 
 interface QuizDetailCardProps {
   data: iMCQQuestion;
+  shadowColor: string;
 }
 const questionTypes = {
   mcq: "Multiple Choice",
@@ -38,9 +27,10 @@ const questionTypes = {
   "true-or-false": "True or False",
   essay: "Essay",
 };
-const QuizDetailCard: React.FC<QuizDetailCardProps> = ({ data }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+const QuizDetailCard: React.FC<QuizDetailCardProps> = ({
+  data,
+  shadowColor,
+}) => {
   const cardsStyles = {
     marginBottom: "20px",
     flex: "0 0 auto",

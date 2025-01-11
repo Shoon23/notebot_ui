@@ -20,18 +20,24 @@ import {
 } from "@ionic/react";
 import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
-import { Redirect, Route } from "react-router-dom";
+import { Redirect, Route, matchPath, useLocation } from "react-router-dom";
 
 const HomePageLayout = () => {
   const [selectedTab, setSelectedTab] = useState("/home"); // Track the selected tab
+  const location = useLocation(); // Get the current location
+
   useEffect(() => {
-    setSelectedTab(window.location.pathname);
-  });
+    const matchedTab = tabs.find((tab) =>
+      matchPath(location.pathname, { path: tab.href, exact: false })
+    );
+
+    setSelectedTab(matchedTab ? matchedTab.href : "/home");
+  }, [location.pathname]);
   const tabs = [
     { tab: "home", href: "/home", icon: home, label: "Home" },
     {
       tab: "quiz",
-      href: "/quizzes/generated_quiz",
+      href: "/quizzes",
       icon: layers,
       label: "Quizzes",
     },
@@ -73,7 +79,9 @@ const HomePageLayout = () => {
         />
       </IonRouterOutlet>
 
-      {tabs.some((tab) => window.location.pathname.startsWith(tab.href)) && (
+      {tabs.some((tab) =>
+        matchPath(location.pathname, { path: tab.href, exact: false })
+      ) && (
         <IonTabBar
           color={"warning"}
           slot="bottom"
@@ -90,11 +98,14 @@ const HomePageLayout = () => {
           }}
         >
           {tabs.map((tabItem) => {
-            let selTab = selectedTab;
-            if (selTab.startsWith("/quizzes")) {
-              selTab = "/quizzes/generated_quiz";
+            const isSelected = location.pathname.startsWith(tabItem.href);
+
+            let href = tabItem.href;
+            console.log(href);
+            if (href === "/quizzes") {
+              href = "/quizzes/generated_quiz";
             }
-            const isSelected = selTab === tabItem.href;
+            console.log(href);
             const animationStyles = isSelected
               ? {
                   animationName: "bookOpen",
@@ -125,7 +136,7 @@ const HomePageLayout = () => {
               <IonTabButton
                 key={tabItem.tab}
                 tab={tabItem.tab}
-                href={tabItem.href}
+                href={href}
                 onClick={() => handleTabClick(tabItem.href)}
                 style={{
                   display: "flex",

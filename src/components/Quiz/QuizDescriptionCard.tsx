@@ -16,27 +16,15 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import { capitlizedFirstLetter } from "@/utils";
-const colors = [
-  "#ECC56A",
-  "#47926B",
-  "#44819E",
-  "#AC4830",
-  "gray",
-  "#D8A7C7",
-  "#D98F56",
-  "#7E5F92",
-  "#8F7CC4",
-  "#9E7C5E",
-];
 
 interface QuizDescriptionCardProps {
   description: string;
+  shadowColor: string;
 }
 const QuizDescriptionCard: React.FC<QuizDescriptionCardProps> = ({
   description,
+  shadowColor,
 }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
   const cardsStyles = {
     flex: "0 0 auto",
     width: "95%", // Minimum width for the cards,

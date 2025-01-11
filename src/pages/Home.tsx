@@ -83,14 +83,23 @@ const Home: React.FC<HomeProps> = ({}) => {
   };
   return (
     <IonPage>
-      <IonContent>
+      <IonContent
+        style={{
+          overflow: "hidden",
+        }}
+      >
         <IonHeader className="ion-no-border">
           <IonToolbar>
             <IonTitle>Home</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <section className="ion-padding">
-          <div>
+        <section
+          className="ion-padding"
+          style={{
+            overflow: "hidden",
+          }}
+        >
+          {/* <div>
             <h4>Quick Actions</h4>
             <div
               style={{
@@ -152,7 +161,7 @@ const Home: React.FC<HomeProps> = ({}) => {
                 AI Assist
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <h4>Recent Quizzes</h4>
