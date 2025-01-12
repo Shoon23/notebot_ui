@@ -101,11 +101,9 @@ const HomePageLayout = () => {
             const isSelected = location.pathname.startsWith(tabItem.href);
 
             let href = tabItem.href;
-            console.log(href);
             if (href === "/quizzes") {
               href = "/quizzes/generated_quiz";
             }
-            console.log(href);
             const animationStyles = isSelected
               ? {
                   animationName: "bookOpen",

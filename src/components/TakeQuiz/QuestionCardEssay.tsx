@@ -8,34 +8,26 @@ import {
   IonButton,
   IonIcon,
   IonCardContent,
-  IonCheckbox,
-  IonRadioGroup,
-  IonRadio,
-  IonInput,
 } from "@ionic/react";
 import { caretForwardOutline } from "ionicons/icons";
 import React from "react";
-import "./style.css";
-interface QuestionShortAnswerProps {
+import TextAreaInput from "../GenerateQuiz/TextAreaInput";
+
+interface QuestionCardEssayProps {
   question_answer: QuestionWithOptions;
   idx: number;
-  handleOnChangeAnswer: (answer: any, question_type: string) => void;
-  lastShortAnswerRef: React.MutableRefObject<{
-    content: string;
-    question: string;
-    question_id: number;
-  }>;
-  value: String;
+  handleOnChangeEssayAnswer: (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => void;
+  answer: string;
 }
-const QuestionShortAnswer: React.FC<QuestionShortAnswerProps> = ({
+const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
   question_answer,
   idx,
-  handleOnChangeAnswer,
-  lastShortAnswerRef,
-  value,
+  handleOnChangeEssayAnswer,
+  answer,
 }) => {
   const tempoColor = "#47926B";
-
   const shadowColors = hexToRgb(tempoColor);
 
   const cardsStyles = {
@@ -75,39 +67,23 @@ const QuestionShortAnswer: React.FC<QuestionShortAnswerProps> = ({
             </IonCardTitle>
           </IonCardHeader>
         </div>
-        <IonInput
-          value={value as any}
-          onIonChange={(e) => {
-            lastShortAnswerRef.current = {
-              content: e.target.value,
-              question: question_answer.content,
-              question_id: question_answer.question_id,
-            } as any;
-
-            handleOnChangeAnswer(
-              {
-                content: e.target.value,
-                question: question_answer.content,
-                question_id: question_answer.question_id,
-              },
-              "short-answer"
-            );
-          }}
-          color={"tertiary"}
+        <IonCardContent
           style={{
-            width: "90%",
-            alignSelf: "center",
-            marginTop: "5px",
-            marginBottom: "5px",
-            heigth: "90%",
+            display: "flex",
+            flexDirection: "column",
           }}
-          type="text"
-          fill="solid"
-          helperText="Enter a Answer Here"
-        ></IonInput>
+        >
+          <TextAreaInput
+            value={answer}
+            handleOnChangeDescription={handleOnChangeEssayAnswer}
+            rows={15}
+            placeHolder={"Enter Answer Here"}
+            label={"Answer"}
+          />
+        </IonCardContent>
       </div>
     </IonCard>
   );
 };
 
-export default QuestionShortAnswer;
+export default QuestionCardEssay;

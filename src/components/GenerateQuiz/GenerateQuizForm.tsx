@@ -17,8 +17,9 @@ import ChooseNoteModal from "../ChooseNoteModal";
 import { Note } from "@/databases/models/note";
 import useStorageService from "@/hooks/useStorageService";
 import { CapacitorHttp, HttpResponse } from "@capacitor/core";
-import DescriptionInput from "./DescriptionInput";
+import DescriptionInput from "./TextAreaInput";
 import QuizNameInput from "./QuizNameInput";
+import TextAreaInput from "./TextAreaInput";
 
 const GenerateQuizForm = () => {
   const [genQuizForm, setGenQuizForm] = useState<{
@@ -53,7 +54,7 @@ const GenerateQuizForm = () => {
     { value: "mcq", label: "Multiple Choice" },
     { value: "true-or-false", label: "True/False" },
     { value: "short-answer", label: "Short Answer" },
-    // { value: "essay", label: "Essay" },
+    { value: "essay", label: "Essay" },
   ];
 
   const bloomsLevel = [
@@ -75,6 +76,8 @@ const GenerateQuizForm = () => {
     // { value: "10", label: "10" },
     // { value: "15", label: "15" },
   ];
+
+  const essayNumbers = [{ value: "1", label: "1" }];
   const updateForm = (key: string, value: string | number) => {
     setGenQuizForm((prev) => ({
       ...prev,
@@ -135,6 +138,17 @@ const GenerateQuizForm = () => {
       const data = response.data;
       let quiz_data = null;
       switch (genQuizForm.question_type) {
+        case "essay":
+          quiz_data = await storageServ.quizRepo.saveEssayQuestion(
+            {
+              note_id,
+              quiz_name,
+              ...others,
+            },
+
+            data
+          );
+          break;
         case "mcq":
           quiz_data = await storageServ.quizRepo.save_generated_mcq(
             {
@@ -197,16 +211,19 @@ const GenerateQuizForm = () => {
         label="Blooms Level"
         options={bloomsLevel}
       />
+
       <SelectOption
         selectHandler={handleSelectBloomDifficulty}
         label="Difficulty"
         options={difficultyLevels}
       />
+
       <SelectOption
         selectHandler={handleSelectNumQuestions}
         label="Number Of Question"
-        options={numbers}
+        options={genQuizForm.question_type !== "essay" ? numbers : essayNumbers}
       />
+
       {/* {!selectedNote.note_name ? ( */}
       <ChooseNoteModal
         setGenQuizForm={setGenQuizForm}
@@ -216,7 +233,9 @@ const GenerateQuizForm = () => {
       {/* // ) : (
       //   <>{selectedNote.note_name}</>
       // )} */}
-      <DescriptionInput
+      <TextAreaInput
+        placeHolder="Enter description here..."
+        label="Description"
         value={genQuizForm.description}
         handleOnChangeDescription={handleOnChangeDescription}
         rows={10}

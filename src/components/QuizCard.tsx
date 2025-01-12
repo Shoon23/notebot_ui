@@ -12,6 +12,7 @@ import {
 
 import { caretForwardOutline } from "ionicons/icons";
 import { iQuiz } from "@/repository/QuizRepository";
+import { capitlizedFirstLetter } from "@/utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -85,9 +86,12 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
                   marginBottom: 2,
                 }}
               >
-                Bloom's Level: {data.blooms_taxonomy_level}
+                Bloom's Level:
+                {capitlizedFirstLetter(data.blooms_taxonomy_level)}
               </div>
-              <div>Question Type:{data.question_type}</div>
+              <div>
+                Question Type: {capitlizedFirstLetter(data.question_type)}
+              </div>
             </IonCardSubtitle>
           </IonCardHeader>
         </div>

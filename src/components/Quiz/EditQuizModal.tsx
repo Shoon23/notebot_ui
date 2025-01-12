@@ -9,10 +9,10 @@ import {
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import QuizNameInput from "../GenerateQuiz/QuizNameInput";
-import DescriptionInput from "../GenerateQuiz/DescriptionInput";
 import "./edit-quiz-modal.css";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import useStorageService from "@/hooks/useStorageService";
+import TextAreaInput from "../GenerateQuiz/TextAreaInput";
 interface EditNoteModalProps {
   isEdit: boolean;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,7 +43,6 @@ const EditQuizModal: React.FC<EditNoteModalProps> = ({
       });
     }
   }, [quiz_name, description, isEdit]);
-  console.log(formData);
   const handleSubmitUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -103,16 +102,15 @@ const EditQuizModal: React.FC<EditNoteModalProps> = ({
             value={formData.quiz_name}
             handleOnChangeName={handleOnChangeName}
           />
-          <DescriptionInput
+          <TextAreaInput
+            placeHolder="Enter description here..."
+            label="Description"
             value={formData.description as string}
             handleOnChangeDescription={handleOnChangeDescription}
             rows={20}
           />
           <button
-            disabled={
-              !formData.quiz_name ||
-              (formData.quiz_name === quiz_name && !formData.description)
-            }
+            disabled={!formData.quiz_name}
             type="submit"
             className="submit-edited-btn"
           >

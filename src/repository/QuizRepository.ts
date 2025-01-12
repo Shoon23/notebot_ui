@@ -17,10 +17,11 @@ export interface iQuiz {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficultys: string;
+  difficulty: string;
   created_at?: string;
   num_questions: number;
   quiz_id: number;
+  description?: string;
 }
 
 export interface Option {
@@ -71,7 +72,17 @@ export interface iTForShortAnswerQuestionGen {
   answer: boolean;
   explanation: string;
 }
-
+export interface iEssayQuestionGen {
+  question: string;
+}
+export interface iSavedEssay {
+  quiz_id: number;
+  quiz_name: string;
+  question_type: string;
+  blooms_taxonomy_level: string;
+  difficulty: string;
+  questions: Array<{ question_id: number; content: string }>;
+}
 class QuizRepository {
   private db: SQLiteDBConnection;
 
@@ -247,7 +258,7 @@ class QuizRepository {
     try {
       // Save quiz data
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -303,6 +314,59 @@ class QuizRepository {
       throw new Error("Something Went Wrong");
     }
   }
+  // Save quiz and essay questions
+  async saveEssayQuestion(
+    quiz_data: QuizData,
+    generated_questions: iEssayQuestionGen[]
+  ): Promise<iSavedEssay> {
+    try {
+      // Start a new transaction
+      const quizInsertResult = await this.db.run(
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?,?)",
+        [
+          quiz_data.quiz_name,
+          quiz_data.question_type,
+          quiz_data.blooms_taxonomy_level,
+          quiz_data.difficulty,
+          quiz_data.num_questions,
+          quiz_data.note_id,
+          quiz_data.description ?? null,
+        ]
+      );
+      const quiz_id = quizInsertResult.changes?.lastId;
+
+      // Process each essay question
+      const questionPromises = generated_questions.map(async (question) => {
+        // Insert question data
+        const questionInsertResult = await this.db.run(
+          "INSERT INTO Question (quiz_id, content) VALUES (?, ?)",
+          [Number(quiz_id), question.question]
+        );
+        const question_id = questionInsertResult.changes?.lastId;
+
+        return {
+          question_id: Number(question_id),
+          content: question.question,
+        };
+      });
+
+      // Wait for all essay questions to be inserted
+      const saved_questions = await Promise.all(questionPromises);
+
+      // Return the result
+      return {
+        quiz_id: Number(quiz_id),
+        quiz_name: quiz_data.quiz_name,
+        question_type: quiz_data.question_type,
+        blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
+        difficulty: quiz_data.difficulty,
+        questions: saved_questions,
+      };
+    } catch (error) {
+      console.log(`Error: ${error}`);
+      throw new Error("Error saving essay questions");
+    }
+  }
   async updateQuizDetail(
     quiz_id: number,
     quiz_name: string,
@@ -311,8 +375,6 @@ class QuizRepository {
     try {
       const sql = `UPDATE Quiz SET quiz_name = ?, description = ? WHERE quiz_id = ?`;
       const res = await this.db.run(sql, [quiz_name, description, quiz_id]);
-
-      console.log(res);
     } catch (error) {
       console.error("Error updating quiz details:", error);
       throw new Error("Unable to update quiz details");

@@ -73,10 +73,9 @@
 .quiz-gen-generate-btn:disabled {
   background: #87ceeb; /* Disabled background */
   opacity: 0.6; /* Visual cue for disabled state */
-  cursor: not-allowed; /* Show not-allowed cursor */
-  transform: none; /* Prevent transform animations */
-  box-shadow: none; /* Remove box shadow */
-  transition: none; /* Disable transition completely */
+  box-shadow: none;
+  transition: none;
+  transform: none;
 }
 
 /* Active state when button is not disabled */
@@ -100,7 +99,7 @@
   outline: none; /* Remove outline on focus */
   box-shadow: none; /* Remove shadow */
   color: black;
-  height: 100px;
+  height: 50px;
 
   border: 2px solid black;
   background: linear-gradient(to right, #87ceeb, #e0ac08);

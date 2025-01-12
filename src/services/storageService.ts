@@ -116,7 +116,8 @@ class StorageService implements IStorageService {
 
       this.attemptQuizService = new AttemptQuizService(
         this.attemptQuizRepo,
-        this.questionRepo
+        this.questionRepo,
+        this.essayRepo
       );
       // Mark the initialization as completed
       this.isInitCompleted.next(true);

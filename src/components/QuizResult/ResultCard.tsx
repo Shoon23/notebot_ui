@@ -31,8 +31,6 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
 
-  console.log(question_answer);
-
   return (
     <IonCard style={cardsStyles}>
       <div
@@ -85,6 +83,40 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
                 String(question_answer.is_correct).slice(1)}
           </div>
           <br />
+
+          {question_answer.real_answer && (
+            <>
+              <p>Answer:</p>
+              <span
+                style={{
+                  fontSize: ".9rem", // Scaled for mobile readability
+                  fontWeight: "bold",
+                  color: "green",
+                  padding: "5px",
+                  borderRadius: "0.5rem",
+                }}
+              >
+                {question_answer.real_answer.content}
+              </span>
+
+              {question_answer.real_answer.explanation && (
+                <>
+                  <p>Explanation:</p>
+                  <span
+                    style={{
+                      fontSize: ".9rem", // Scaled for mobile readability
+                      fontWeight: "bold",
+                      color: "green",
+                      padding: "5px",
+                      borderRadius: "0.5rem",
+                    }}
+                  >
+                    {question_answer.real_answer.explanation}
+                  </span>
+                </>
+              )}
+            </>
+          )}
           {/* {option.explanation && (
                     <>
                       <p>Explanation:</p>
@@ -99,8 +131,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
                       >
                         {option.explanation}
                       </span>
-                    </>
-                  )} */}
+                    </> */}
         </IonCardContent>
       </div>
     </IonCard>

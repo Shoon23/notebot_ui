@@ -1,11 +1,13 @@
 import Header from "@/components/Header";
 import QuestionCardAnswer from "@/components/TakeQuiz/QuestionCardAnswer";
+import QuestionCardEssay from "@/components/TakeQuiz/QuestionCardEssay";
 import QuestionCardMCQ from "@/components/TakeQuiz/QuestionCardMCQ";
 import QuestionShortAnswer from "@/components/TakeQuiz/QuestionCardShortAnswer";
 import QuestionCardTF from "@/components/TakeQuiz/QuestionCardTF";
 import useStorageService from "@/hooks/useStorageService";
 import { iMCQQuestion } from "@/repository/QuizRepository";
-import { iAttemptQuiz } from "@/services/attemptQuizService";
+import { AttemptEssayType, iAttemptQuiz } from "@/services/attemptQuizService";
+import { HttpResponse, CapacitorHttp } from "@capacitor/core";
 import {
   IonButton,
   IonContent,
@@ -30,7 +32,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     quiz_name: "",
     question_type: "",
     blooms_taxonomy_level: "",
-    difficultys: "",
+    difficulty: "",
     num_questions: 0,
     quiz_id: 0,
     questions: [],
@@ -61,10 +63,26 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
               match.params.id
             );
-            setAttemptQuiz({
-              quiz_id: Number(match.params.id),
-              attempted_answers: [],
-            });
+            if (quiz_data.question_type === "essay") {
+              setAttemptQuiz({
+                quiz_id: Number(match.params.id),
+                attempted_answers: [
+                  {
+                    answer: {
+                      content: "",
+                    },
+                    question: quiz_data.questions[0].content,
+                    question_id: quiz_data.questions[0].question_id,
+                  },
+                ],
+              });
+            } else {
+              setAttemptQuiz({
+                quiz_id: Number(match.params.id),
+                attempted_answers: [],
+              });
+            }
+
             setQuiz(quiz_data);
           } catch (error) {
             console.log(error);
@@ -75,7 +93,8 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     });
   }, []);
 
-  const handleCheckAnswer = async () => {
+  const handleCheckAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
       present({
         message: "Checking Answer",
@@ -93,20 +112,27 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           );
           break;
         case "short-answer":
-          const updatedAnswers = attemptQuiz;
-          updatedAnswers.attempted_answers.push({
-            question_id: lastShortAnswerRef.current?.question_id,
-            question: lastShortAnswerRef.current?.question,
-            answer: {
-              content: lastShortAnswerRef.current?.content,
-            },
-          });
-
           result = await storageServ.attemptQuizService.processShortAnswer(
-            updatedAnswers
+            attemptQuiz
+          );
+          break;
+        case "essay":
+          const options = {
+            url: "https://test-backend-9dqr.onrender.com/evaluate-essay",
+            headers: {
+              "Content-Type": "application/json", // Set the content type to JSON
+            },
+            data: attemptQuiz,
+          };
+          const response: HttpResponse = await CapacitorHttp.post(options);
+          const evaluated_answer = response.data as AttemptEssayType;
+          console.log(evaluated_answer);
+          result = await storageServ.attemptQuizService.processEssayAnswer(
+            evaluated_answer
           );
           break;
       }
+
       router.push(`/quiz-result/${result?.quiz_attempt_id}`);
     } catch (error) {
       console.log(error);
@@ -114,7 +140,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
       dismiss();
     }
   };
-
   const handleSelectAnswer = (answer: any, question_type: string) => {
     switch (question_type) {
       case "mcq":
@@ -196,21 +221,16 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
   const handleOnChangeAnswer = (answer: any, question_type: string) => {
     switch (question_type) {
       case "short-answer":
-        // question_id: string;
-        // question: string | null;
-        // answer: {
-        //     content: string;
-        //     option_id?: string | null;
-        // };
         setAttemptQuiz((prev) => {
           const existingAnswerIndex = prev.attempted_answers.findIndex(
-            (attempt) => attempt.question_id === answer.question_id
+            (attempt) => attempt.question === answer.question
           );
-          let updatedAnswers;
+
+          // Create a copy of the attempted answers
+          const updatedAnswers = [...prev.attempted_answers];
 
           if (existingAnswerIndex !== -1) {
             // Update the existing answer
-            updatedAnswers = [...prev.attempted_answers];
             updatedAnswers[existingAnswerIndex] = {
               question_id: answer.question_id,
               question: answer.question,
@@ -219,17 +239,14 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
               },
             };
           } else {
-            // Add the new answer
-            updatedAnswers = [
-              ...prev.attempted_answers,
-              {
-                question_id: answer.question_id,
-                question: answer.question,
-                answer: {
-                  content: answer.content,
-                },
+            // Add a new answer if not found
+            updatedAnswers.push({
+              question_id: answer.question_id,
+              question: answer.question,
+              answer: {
+                content: answer.content,
               },
-            ];
+            });
           }
 
           return {
@@ -238,19 +255,51 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           };
         });
         break;
+
+      default:
+        console.warn(`Unhandled question type: ${question_type}`);
     }
   };
 
+  const handleOnChangeEssayAnswer = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setAttemptQuiz((prev) => {
+      const prevAnswer = prev.attempted_answers[0];
+      const updatedAnswer = {
+        ...prevAnswer,
+        answer: {
+          content: e.target.value,
+        },
+      };
+      return {
+        ...prev,
+        attempted_answers: [updatedAnswer],
+      };
+    });
+  };
+  console.log(attemptQuiz);
   return (
     <IonPage>
       <IonContent>
-        <Header name={"Quiz Time!"} backRoute={`/quiz/${quiz.quiz_id}`} />
-        <section
-          className="ion-padding"
-          style={{
-            height: "85%",
-          }}
-        >
+        <Header
+          nameComponent={
+            <h1
+              style={{
+                alignSelf: "center",
+                marginTop: "60px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+              }}
+            >
+              Quiz Time!
+            </h1>
+          }
+          backRoute={`/quiz/${quiz.quiz_id}`}
+        />
+        <form className="ion-padding" onSubmit={handleCheckAnswer}>
           <div
             style={{
               height: "100%",
@@ -264,6 +313,9 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           >
             {quiz.questions.map((question_answer, index) => {
               // Determine the question type and assign the correct card component
+              const attemptedAnswer = attemptQuiz.attempted_answers.find(
+                (answer) => answer.question === question_answer.content
+              );
               switch (quiz.question_type) {
                 case "mcq":
                   return (
@@ -291,32 +343,48 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
                       question_answer={question_answer}
                       idx={index}
                       handleOnChangeAnswer={handleOnChangeAnswer}
+                      value={attemptedAnswer?.answer.content || ""}
                     />
                   );
                 case "essay":
-                  // QuestionCard = EssayCard;
-                  break;
+                  return (
+                    <QuestionCardEssay
+                      answer={
+                        attemptQuiz.attempted_answers[0].answer.content ?? ""
+                      }
+                      question_answer={question_answer}
+                      idx={index}
+                      key={index}
+                      handleOnChangeEssayAnswer={handleOnChangeEssayAnswer}
+                    />
+                  );
               }
             })}
           </div>
           <div
             style={{
-              marginTop: "15px",
               display: "flex",
-              justifyContent: "end",
+              justifyContent: "flex-end", // Align horizontally to the right
+              alignItems: "flex-end", // Align vertically to the bottom
+              height: "100%", // Make sure the parent container has full height
+              marginTop: "5px",
+              marginBottom: "5px",
             }}
           >
             <IonButton
               disabled={
-                attemptQuiz.attempted_answers.length !== quiz.questions.length
+                quiz.question_type !== "essay"
+                  ? attemptQuiz.attempted_answers.length !==
+                    quiz.questions.length
+                  : !attemptQuiz.attempted_answers[0].answer.content
               }
               color={"tertiary"}
-              onClick={handleCheckAnswer}
+              type="submit"
             >
               Submit
             </IonButton>
           </div>
-        </section>
+        </form>
       </IonContent>
     </IonPage>
   );

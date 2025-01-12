@@ -14,6 +14,7 @@ import { formatDistance, formatDistanceToNow, parseISO } from "date-fns";
 import { caretForwardOutline } from "ionicons/icons";
 import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
+import { capitlizedFirstLetter } from "@/utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -92,7 +93,15 @@ const ResultTitle: React.FC<ResultTitleProps> = ({ data }) => {
                   marginBottom: 2,
                 }}
               >
-                Score: {data.score}/{data.num_questions}
+                Score: {data.score}/
+                {data.question_type !== "essay" ? data.num_questions : 24}
+              </div>
+              <div
+                style={{
+                  marginBottom: 2,
+                }}
+              >
+                Question Type: {capitlizedFirstLetter(data.question_type)}
               </div>
             </IonCardSubtitle>
           </IonCardHeader>

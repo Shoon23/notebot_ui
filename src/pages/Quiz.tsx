@@ -56,7 +56,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
           match.params.id
         );
 
-        console.log(quiz_data);
         fetchQuizAttemptHistory(quiz_data.quiz_id);
         setQuiz(quiz_data);
       } catch (error) {
@@ -79,8 +78,13 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     fetchQuizData();
     setShadowColor(getShadowColors());
   }, []);
+
   return (
-    <IonPage>
+    <IonPage
+      style={{
+        overflow: "hidden",
+      }}
+    >
       <IonContent>
         {/* backBtnText */}
         <Header
@@ -93,12 +97,14 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 10,
               }}
             >
               Quiz Details
               <button
                 className="edit-btn"
+                style={{
+                  marginLeft: "10px",
+                }}
                 onClick={() => {
                   setIsEdit(true);
                 }}

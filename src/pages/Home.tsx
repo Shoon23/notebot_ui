@@ -61,7 +61,6 @@ const Home: React.FC<HomeProps> = ({}) => {
           const quizList = await storageServ.attemptQuizRepo.getManyAttempts({
             is_recent: true,
           });
-          console.log(quizList);
           setAttemptedQuiz(quizList);
         };
         fetchNote();
@@ -244,8 +243,8 @@ const Home: React.FC<HomeProps> = ({}) => {
                       key={index}
                       width="360px"
                       data={data}
-                      handleSelectNote={function (): {} {
-                        throw new Error("Function not implemented.");
+                      handleSelectNote={(note_data) => {
+                        router.push(`/note/${note_data.note_id}`);
                       }}
                     />
                   );

@@ -1,4 +1,5 @@
 import AttemptQuizRepository from "@/repository/AttemptQuizRepository";
+import EssayRepository from "@/repository/EssayRepository";
 import QuestionRepository from "@/repository/QuestionRepository";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 export interface iAttemptQuiz {
@@ -12,15 +13,40 @@ export interface iAttemptQuiz {
     };
   }>;
 }
+export interface AttemptEssayType {
+  quiz_id: number;
+  question_id: number;
+  answer: string;
+  evaluation: EssayEvaluation;
+}
+export interface Feedback {
+  feedback: string;
+  strength: string[];
+  areas_of_improvement: string[];
+}
+
+// Define the structure for each item in the array
+export interface EssayEvaluation {
+  content: Array<number>; // Score for content
+  organization: Array<number>; // Score for organization
+  thesis_statement: Array<number>; // Score for thesis statement
+  style_and_voice: Array<number>; // Score for style and voice
+  grammar_and_mechanics: Array<number>; // Score for grammar and mechanics
+  critical_thinking: Array<number>; // Score for critical thinking
+  feedbacks: Feedback; // The feedback structure for this evaluation
+}
 class AttemptQuizService {
   private attemptQuizRepo: AttemptQuizRepository;
   private questionRepo: QuestionRepository;
+  private essayRepo: EssayRepository;
   constructor(
     attemptQuizRepo: AttemptQuizRepository,
-    questionRepo: QuestionRepository
+    questionRepo: QuestionRepository,
+    essayRepo: EssayRepository
   ) {
     this.attemptQuizRepo = attemptQuizRepo;
     this.questionRepo = questionRepo;
+    this.essayRepo = essayRepo;
   }
 
   async processMCQAnswers(answers: iAttemptQuiz) {
@@ -122,6 +148,93 @@ class AttemptQuizService {
       throw error;
     }
   }
+
+  async processEssayAnswer(answers: AttemptEssayType) {
+    const { evaluation, quiz_id, answer, question_id } = answers;
+
+    try {
+      // Calculate total essay score
+      const total_score = this.calculateTotalEssayScore(evaluation);
+      // Save Quiz Attempt
+      const quiz_attempt_id = await this.attemptQuizRepo.saveQuizAttempt({
+        quiz_id,
+        score: total_score,
+        num_questions: 1, // Assuming only 1 essay question
+      });
+      // Save Essay Answer
+      const essay_answer_id = await this.essayRepo.saveEssayAnswer(
+        quiz_attempt_id,
+        question_id,
+        answer
+      );
+
+      // Save Essay Evaluation
+      const { feedbacks, ...essay_scores } = evaluation;
+      const essay_eval_id = await this.essayRepo.saveEssayEvaluation(
+        essay_scores,
+        essay_answer_id
+      );
+      // Save Feedback
+      const { areas_of_improvement, feedback, strength } = feedbacks;
+      const essay_fb_id = await this.essayRepo.saveEssayFeedback(
+        feedback,
+        essay_eval_id
+      );
+      // Map strengths and save
+      const transformed_strength = this.mapStringsToObjects(
+        strength,
+        essay_fb_id
+      );
+      const saved_strength = await this.essayRepo.saveManyEssayStrength(
+        transformed_strength
+      );
+
+      // Map areas of improvement and save
+      const transformed_improvements = this.mapStringsToObjects(
+        areas_of_improvement,
+        essay_fb_id
+      );
+      const saved_improvement =
+        await this.essayRepo.saveManyEssayAreaOfImprovements(
+          transformed_improvements
+        );
+      return {
+        quiz_id,
+        quiz_attempt_id,
+        results: {
+          essay_scores,
+          total_score,
+          feedback,
+          strength,
+          areas_of_improvement,
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private calculateTotalEssayScore = (evaluation: EssayEvaluation): number => {
+    return (
+      Number(evaluation.content[0]) +
+      Number(evaluation.organization[0]) +
+      Number(evaluation.thesis_statement[0]) +
+      Number(evaluation.style_and_voice[0]) +
+      Number(evaluation.grammar_and_mechanics[0]) +
+      Number(evaluation.critical_thinking[0])
+    );
+  };
+
+  private mapStringsToObjects = (
+    strings: string[],
+    essay_fb_id: number
+  ): { essay_fb_id: number; content: string }[] => {
+    return strings.map((content) => ({
+      essay_fb_id,
+      content,
+    }));
+  };
+
   private check_answers = async (
     answers: iAttemptQuiz,
     compare_by: "content" | "option_id"
@@ -139,7 +252,6 @@ class AttemptQuizService {
     }
     // Normalize the correct answers
     const correct_answers_map = this.answers_to_map(correct_answers);
-    console.log("quiz service", correct_answers_map);
     let score = 0;
     // Check each attempted answer
     const checked_answers = attempted_answers.map((user_answer) => {

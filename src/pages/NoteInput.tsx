@@ -32,7 +32,6 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
 
   useIonViewWillEnter(() => {
     const id = Number(match.params.id); // Capture it here
-    console.log(id);
     const fetchNote = async () => {
       const note = await storageServ.noteRepo.getNoteById(id);
       await storageServ.noteRepo.updateLastViewed(id);

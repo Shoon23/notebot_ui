@@ -28,24 +28,29 @@ const colors = [
   "#9E7C5E",
 ];
 
-interface AttemptQuizCardProps {
-  width?: string;
-  data: iAttemptQuiz;
+interface RubricResultProps {
+  data: {
+    content: number;
+    critical_thinking: number;
+    grammar_and_mechanics: number;
+    organization: number;
+    style_and_voice: number;
+    thesis_statement: number;
+  };
 }
 
-const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width, data }) => {
+const RubricResult: React.FC<RubricResultProps> = ({ data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-  const router = useIonRouter();
   const cardsStyles = {
     flex: "0 0 auto",
-    width: "95%",
-    height: "130px",
+    width: "95%", // Minimum width for the cards,
+    minHeight: "130px",
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
+    marginTop: "5px",
   };
-
   return (
     <IonCard style={cardsStyles}>
       <div
@@ -69,77 +74,38 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width, data }) => {
               }
             }
           >
-            <IonCardSubtitle>{formatDate(data.created_at)}</IonCardSubtitle>
             <IonCardTitle
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
                 fontWeight: "bold",
-                marginTop: 3,
               }}
             >
-              {data.quiz_name}
+              Rubric Breakdown
             </IonCardTitle>
             <IonCardSubtitle
               style={{
                 fontSize: "0.9rem",
                 color: "gray",
-                marginTop: 3,
+                marginTop: 5,
               }}
             >
-              {data.question_type !== "essay" && (
+              {}
+              {Object.entries(data).map(([key, value]) => (
                 <div
+                  key={key}
                   style={{
                     marginBottom: 2,
                   }}
                 >
-                  Score: {data.score}/{data.num_questions}
+                  {`${capitlizedFirstLetter(key)}: ${value}/4`}
                 </div>
-              )}
-              <div
-                style={{
-                  marginBottom: 2,
-                }}
-              >
-                Question Type: {capitlizedFirstLetter(data.question_type)}
-              </div>
-              Blooms Level: {capitlizedFirstLetter(data.blooms_taxonomy_level)}
+              ))}
             </IonCardSubtitle>
           </IonCardHeader>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: 60,
-          }}
-        >
-          <IonButton
-            onClick={() => {
-              console.log(data.quiz_attempt_id);
-              router.push(`/quiz-result/${data.quiz_attempt_id}`);
-            }}
-            style={{
-              height: "100%",
-              width: 60,
-            }}
-            fill="clear"
-            color={"dark"}
-          >
-            <IonIcon
-              slot="icon-only"
-              icon={caretForwardOutline}
-              style={{
-                fontSize: "35px", // Adjust the icon size
-                cursor: "pointer",
-              }}
-            />
-          </IonButton>
         </div>
       </div>
     </IonCard>
   );
 };
 
-export default AttemptQuizCard;
+export default RubricResult;

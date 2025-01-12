@@ -26,14 +26,42 @@ export interface iAttemptQuiz {
   score: number;
   quiz_name: string;
   num_questions: number;
+  question_type: string;
+  blooms_taxonomy_level: string;
+  quiz_id: number;
 }
-
+export interface iEssayResults {
+  answer: string;
+  question: string;
+  feedback: string;
+  scores: {
+    content: number;
+    critical_thinking: number;
+    grammar_and_mechanics: number;
+    organization: number;
+    style_and_voice: number;
+    thesis_statement: number;
+  };
+  strength: Array<{
+    content: string;
+    strength_id: number;
+  }>;
+  improvements: Array<{
+    area_of_improvement_id: number;
+    content: string;
+  }>;
+}
 export interface iQuizResult {
   option_answer_id?: number;
+  essay_answer_id?: number;
   question: string;
   answer: string;
   is_correct: boolean;
   identification_answer_id?: number;
+  real_answer?: {
+    content: string;
+    explanation?: string;
+  };
 }
 
 class AttemptQuizRepository {
@@ -113,7 +141,9 @@ class AttemptQuizRepository {
           qa.created_at, 
           qa.score, 
     q.quiz_name,
-    q.num_questions
+    q.num_questions,
+    q.question_type,
+    q.blooms_taxonomy_level
 
 FROM 
     QuizAttempt qa
@@ -141,7 +171,9 @@ ORDER BY
     qa.created_at, 
     qa.score,
     q.quiz_name,
-    q.num_questions
+    q.num_questions,
+     q.question_type,
+    q.blooms_taxonomy_level
 FROM 
     QuizAttempt qa
 JOIN 
@@ -168,7 +200,8 @@ ${limit ? "LIMIT " + limit : ""};`;
     qa.score,
     q.quiz_name,
     q.num_questions,
-    q.question_type
+    q.question_type,
+    q.quiz_id
 FROM 
     QuizAttempt qa
 JOIN 
@@ -190,40 +223,56 @@ WHERE
 
     let quiz_res;
     switch (quiz_attempt.question_type) {
-      case "mcq":
       case "true-or-false":
-        const user_answer_sql_option = `SELECT question_id,option_answer_id,is_correct,option_id FROM OptionAnswer WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
-        const user_answer_option = (await this.db.query(user_answer_sql_option))
+      case "mcq":
+        const user_answer_sql_mcq = `SELECT question_id,option_answer_id,is_correct,option_id FROM OptionAnswer WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
+        const user_answer_mcq = (await this.db.query(user_answer_sql_mcq))
           .values as Array<{
           question_id: number;
           option_answer_id: number;
           is_correct: number;
           option_id: number;
         }>;
-        const user_ans_promise = user_answer_option?.map(async (answer) => {
-          const question_sql = `SELECT question_id,content FROM Question WHERE question_id = ${answer.question_id}`;
-          const options_sql = `SELECT option_id, content,is_answer,explanation FROM Option WHERE option_id=${answer.option_id}`;
+        const user_ans_promise = user_answer_mcq?.map(async (user__answer) => {
+          const question_sql_mcq = `SELECT question_id,content FROM Question WHERE question_id = ${user__answer.question_id}`;
+          const options_sql_mcq = `SELECT option_id, content,is_answer,explanation FROM Option WHERE option_id=${user__answer.option_id}`;
 
-          const question = (await this.db.query(question_sql)).values;
-          let options;
-          if (quiz_attempt.question_type === "mcq") {
-            options = (await this.db.query(options_sql)).values;
-          }
-          if (!question || question.length === 0) {
+          const question = (await this.db.query(question_sql_mcq)).values;
+          let options = (await this.db.query(options_sql_mcq)).values;
+          if (!question || question.length === 0 || !options) {
             throw new Error("Missing Question");
           }
+          if (!Boolean(user__answer.is_correct)) {
+            const correct_answer_sql = `SELECT option_id, content,is_answer,explanation FROM Option WHERE question_id = ${user__answer.question_id} and is_answer=1 LIMIT 1`;
+            const correct_answer = (await this.db.query(correct_answer_sql))
+              .values;
 
-          return {
-            option_answer_id: answer.option_answer_id,
-            question: question[0].content,
-            answer: options ? options[0]?.content : null,
-            is_correct: Boolean(answer.is_correct),
-          };
+            if (!correct_answer) {
+              throw new Error("Missing Real Answer");
+            }
+
+            return {
+              option_answer_id: user__answer.option_answer_id,
+              question: question[0].content,
+              answer: options[0]?.content,
+              is_correct: Boolean(user__answer.is_correct),
+              real_answer: {
+                content: correct_answer[0]?.content,
+                explanation: correct_answer[0]?.explanation,
+              },
+            };
+          } else {
+            return {
+              option_answer_id: user__answer.option_answer_id,
+              question: question[0].content,
+              answer: options[0]?.content,
+              is_correct: Boolean(user__answer.is_correct),
+            };
+          }
         });
         quiz_res = await Promise.all(user_ans_promise);
         break;
       case "short-answer":
-        console.log(quiz_attempt);
         const user_answer_sql_short_ans = `SELECT identification_answer_id,question_id, answer,is_correct FROM IdentificationAnswer WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
         const user_answer_short_ans = (
           await this.db.query(user_answer_sql_short_ans)
@@ -234,30 +283,134 @@ WHERE
           answer: number;
         }>;
         const user_short_ans_promise = user_answer_short_ans?.map(
-          async (answer) => {
-            const question_sql = `SELECT question_id,content FROM Question WHERE question_id = ${answer.question_id}`;
+          async (user_answer) => {
+            const question_sql = `SELECT question_id,content FROM Question WHERE question_id = ${user_answer.question_id}`;
 
             const question = (await this.db.query(question_sql)).values;
-            console.log(question);
             if (!question || question.length === 0) {
               throw new Error("Missing Question Or Answer");
             }
 
-            return {
-              identification_answer_id: answer.identification_answer_id,
-              question: question[0].content,
-              answer: answer.answer,
-              is_correct: Boolean(answer.is_correct),
-            };
+            if (!Boolean(user_answer.is_correct)) {
+              const correct_answer_sql = `SELECT option_id, content,is_answer,explanation FROM Option WHERE question_id = ${user_answer.question_id} and is_answer=1 LIMIT 1`;
+              const correct_answer = (await this.db.query(correct_answer_sql))
+                .values;
+              if (!correct_answer) {
+                throw new Error("Missing Real Answer");
+              }
+              return {
+                identification_answer_id: user_answer.identification_answer_id,
+                question: question[0].content,
+                answer: user_answer.answer,
+                is_correct: Boolean(user_answer.is_correct),
+                real_answer: {
+                  content: correct_answer[0]?.content,
+                  explanation: correct_answer[0]?.explanation,
+                },
+              };
+            } else {
+              return {
+                identification_answer_id: user_answer.identification_answer_id,
+                question: question[0].content,
+                answer: user_answer.answer,
+                is_correct: Boolean(user_answer.is_correct),
+              };
+            }
           }
         );
         quiz_res = await Promise.all(user_short_ans_promise);
         break;
       case "essay":
+        const essay_eval_sql = `
+       SELECT 
+        ea.essay_answer_id,
+        ea.quiz_attempt_id,
+         ea.question_id,
+         ea.answer,
+         ev.content,
+        ev.organization,
+        ev.thesis_statement,
+         ev.style_and_voice,
+         ev.grammar_and_mechanics,
+         ev.critical_thinking,
+         ev.essay_eval_id,
+         fb.feedback,
+         fb.essay_fb_id
+        FROM 
+        EssayAnswer AS ea
+        INNER JOIN 
+        EssayEvaluation AS ev
+        ON 
+        ea.essay_answer_id = ev.essay_answer_id
+        INNER JOIN 
+         EssayFeedback AS fb
+        ON 
+        fb.essay_eval_id = ev.essay_eval_id
+        WHERE 
+          ea.quiz_attempt_id = ${quiz_attempt.quiz_attempt_id};
+      `;
+        const essay_eval = (await this.db.query(essay_eval_sql)).values;
+        if (!essay_eval) {
+          throw new Error("Missing Essay Evaluation");
+        }
+        console.log(essay_eval);
+        const essay_strength_sql = `
+        SELECT 
+          str.strength_id,
+          str.content
+        FROM 
+        EssayStrength AS str 
+        WHERE 
+        str.essay_fb_id = ${essay_eval[0].essay_fb_id};
+`;
+
+        const essay_strength = (await this.db.query(essay_strength_sql)).values;
+        if (!essay_strength) {
+          throw new Error("Missing Essay Strength");
+        }
+        const essay_aoi_sql = `
+        SELECT 
+          aio.area_of_improvement_id,
+          aio.content
+        FROM 
+        EssayAreaOfImprovement AS aio 
+        WHERE 
+        aio.essay_fb_id = ${essay_eval[0].essay_fb_id};
+`;
+
+        const essay_aoi = (await this.db.query(essay_aoi_sql)).values;
+        if (!essay_aoi) {
+          throw new Error("Missing Essay Strength");
+        }
+        const question_sql = `SELECT content FROM Question WHERE question_id = ${essay_eval[0].question_id}`;
+
+        const question = (await this.db.query(question_sql)).values;
+
+        if (!question) {
+          throw new Error("Missing Question");
+        }
+        quiz_res = {
+          answer: essay_eval[0].answer,
+          question: question[0].content,
+          feedback: essay_eval[0].feedback,
+          scores: {
+            content: essay_eval[0].content,
+            critical_thinking: essay_eval[0].critical_thinking,
+            grammar_and_mechanics: essay_eval[0].grammar_and_mechanics,
+            organization: essay_eval[0].organization,
+            style_and_voice: essay_eval[0].style_and_voice,
+            thesis_statement: essay_eval[0].thesis_statement,
+          },
+
+          strength: essay_strength,
+          improvements: essay_aoi,
+        };
+        break;
     }
     return {
       ...quiz_attempt,
-      quiz_results: quiz_res as iQuizResult[],
+      quiz_results:
+        (quiz_res as iQuizResult[]) || (quiz_res as unknown as iEssayResults),
     };
   }
 }

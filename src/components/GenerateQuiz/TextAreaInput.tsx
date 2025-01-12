@@ -1,17 +1,21 @@
 import React from "react";
 import "./generate-form.css";
 
-interface DescriptionInputProps {
+interface TextAreaInputProps {
   value: string;
   handleOnChangeDescription: (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => void;
   rows: number;
+  placeHolder: string;
+  label: string;
 }
-const DescriptionInput: React.FC<DescriptionInputProps> = ({
+const TextAreaInput: React.FC<TextAreaInputProps> = ({
   handleOnChangeDescription,
   value,
   rows,
+  placeHolder,
+  label,
 }) => {
   return (
     <div
@@ -24,17 +28,17 @@ const DescriptionInput: React.FC<DescriptionInputProps> = ({
           marginBottom: "5px",
         }}
       >
-        Desciption
+        {label}
       </div>
       <textarea
         value={value}
         onChange={handleOnChangeDescription}
         rows={rows}
-        placeholder="Enter description here..."
+        placeholder={placeHolder}
         className="quiz-description-input"
       />
     </div>
   );
 };
 
-export default DescriptionInput;
+export default TextAreaInput;

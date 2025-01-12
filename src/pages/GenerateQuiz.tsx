@@ -14,11 +14,7 @@ import React from "react";
 const GenerateQuiz = () => {
   const router = useIonRouter();
   return (
-    <IonPage
-      style={{
-        overflow: "hidden",
-      }}
-    >
+    <IonPage>
       <IonContent className="ion-padding">
         <IonHeader className="ion-no-border">
           <IonToolbar>
