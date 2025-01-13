@@ -9,7 +9,6 @@ export const OptionAnswerUpgradeStatements = [
            option_id INTEGER,
            is_correct BOOLEAN NOT NULL,
            FOREIGN KEY (quiz_attempt_id) REFERENCES QuizAttempt(quiz_attempt_id),
-           FOREIGN KEY (question_id) REFERENCES Question(question_id)
          );`,
     ],
   },

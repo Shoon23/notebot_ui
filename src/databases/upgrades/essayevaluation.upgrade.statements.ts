@@ -5,7 +5,6 @@ export const EssayEvaluationUpgradeStatements = [
       `CREATE TABLE IF NOT EXISTS EssayEvaluation (
            essay_eval_id INTEGER PRIMARY KEY AUTOINCREMENT,
            essay_answer_id INTEGER UNIQUE NOT NULL,
-           feedback INTEGER,
            content INTEGER NOT NULL,
            organization INTEGER NOT NULL,
            thesis_statement INTEGER NOT NULL,
