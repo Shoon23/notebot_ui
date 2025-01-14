@@ -30,16 +30,18 @@ const colors = [
 
 interface FeedBackCardProps {
   name: string;
-  feedbacks: Array<
-    | {
-        content: string;
-        strength_id: number;
-      }
-    | {
-        area_of_improvement_id: number;
-        content: string;
-      }
-  >;
+  feedbacks:
+    | Array<
+        | {
+            content: string;
+            strength_id: number;
+          }
+        | {
+            area_of_improvement_id: number;
+            content: string;
+          }
+      >
+    | string;
 }
 
 const FeedBackCard: React.FC<FeedBackCardProps> = ({ name, feedbacks }) => {
@@ -92,18 +94,28 @@ const FeedBackCard: React.FC<FeedBackCardProps> = ({ name, feedbacks }) => {
                 marginTop: 5,
               }}
             >
-              {feedbacks.map((fb, idx) => {
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      marginBottom: 5,
-                    }}
-                  >
-                    {idx + 1}. {fb.content}
-                  </div>
-                );
-              })}
+              {Array.isArray(feedbacks) ? (
+                feedbacks.map((fb, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        marginBottom: 5,
+                      }}
+                    >
+                      {idx + 1}. {fb.content}
+                    </div>
+                  );
+                })
+              ) : (
+                <div
+                  style={{
+                    marginBottom: 5,
+                  }}
+                >
+                  {feedbacks}
+                </div>
+              )}
             </IonCardSubtitle>
           </IonCardHeader>
         </div>

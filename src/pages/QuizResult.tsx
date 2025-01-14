@@ -124,6 +124,10 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
             <>
               <RubricResult data={quizResult.quiz_results.scores} />
               <FeedBackCard
+                name={"Feedback"}
+                feedbacks={quizResult.quiz_results.feedback}
+              />
+              <FeedBackCard
                 name={"Strengths"}
                 feedbacks={quizResult.quiz_results.strength}
               />

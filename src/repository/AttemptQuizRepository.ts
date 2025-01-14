@@ -3,7 +3,6 @@ import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 type QuizAttemptType = {
   quiz_id: number;
   score: number;
-  num_questions: number;
 };
 
 type OptionAnswerType = {
@@ -73,10 +72,10 @@ class AttemptQuizRepository {
 
   // Save quiz attempt
   async saveQuizAttempt(quiz_attempt_data: QuizAttemptType): Promise<number> {
-    const { quiz_id, score, num_questions } = quiz_attempt_data;
-    const sql = `INSERT INTO QuizAttempt (quiz_id, score, num_questions) 
-                 VALUES (?, ?, ?);`;
-    const res = await this.db.run(sql, [quiz_id, score, num_questions]);
+    const { quiz_id, score } = quiz_attempt_data;
+    const sql = `INSERT INTO QuizAttempt (quiz_id, score) 
+                 VALUES (?, ?);`;
+    const res = await this.db.run(sql, [quiz_id, score]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
     }

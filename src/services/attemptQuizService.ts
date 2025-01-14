@@ -50,14 +50,15 @@ class AttemptQuizService {
   }
 
   async processMCQAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, num_questions, quiz_id } =
-      await this.check_answers(answers, "option_id");
+    const { checked_answers, score, quiz_id } = await this.check_answers(
+      answers,
+      "option_id"
+    );
     try {
       // saving the quiz attempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
       });
       // Saving the answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -71,7 +72,6 @@ class AttemptQuizService {
       });
       const saved_answers = await Promise.all(answers_promises);
       return {
-        num_questions,
         quiz_id,
         score,
         quiz_attempt_id: saved_quiz_attempt,
@@ -83,14 +83,15 @@ class AttemptQuizService {
     }
   }
   async processTrueFalseAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, num_questions, quiz_id } =
-      await this.check_answers(answers, "content");
+    const { checked_answers, score, quiz_id } = await this.check_answers(
+      answers,
+      "content"
+    );
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -103,7 +104,6 @@ class AttemptQuizService {
       });
       const saved_answers = await Promise.all(answers_promises);
       return {
-        num_questions,
         quiz_id,
         score,
         quiz_attempt_id: saved_quiz_attempt,
@@ -114,15 +114,16 @@ class AttemptQuizService {
     }
   }
   async processShortAnswer(answers: iAttemptQuiz) {
-    const { checked_answers, score, num_questions, quiz_id } =
-      await this.check_answers(answers, "content");
+    const { checked_answers, score, quiz_id } = await this.check_answers(
+      answers,
+      "content"
+    );
 
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -138,7 +139,6 @@ class AttemptQuizService {
 
       return {
         score,
-        num_questions,
         quiz_id,
         quiz_attempt_id: saved_quiz_attempt,
         results: saved_answers,
@@ -159,7 +159,6 @@ class AttemptQuizService {
       const quiz_attempt_id = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score: total_score,
-        num_questions: 1, // Assuming only 1 essay question
       });
       // Save Essay Answer
       const essay_answer_id = await this.essayRepo.saveEssayAnswer(
