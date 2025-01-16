@@ -21,7 +21,7 @@ const MoreButton: React.FC<MoreButtonProps> = ({ color, handleMoreButton }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        width: "360px",
+        width: "95%",
       }}
     >
       <IonCardContent

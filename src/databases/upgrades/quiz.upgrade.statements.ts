@@ -13,7 +13,7 @@ export const QuizUpgradeStatements = [
            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
            description TEXT,
            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-           FOREIGN KEY (note_id) REFERENCES Note(note_id)
+           FOREIGN KEY (note_id) REFERENCES Note(note_id) ON DELETE CASCADE
          );`,
     ],
   },

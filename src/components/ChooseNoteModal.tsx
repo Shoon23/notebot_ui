@@ -20,17 +20,7 @@ import "../components/GenerateQuiz/generate-form.css";
 
 interface CHooseNoteModalProps {
   // children: React.ReactNode; // Use children prop
-  setGenQuizForm: React.Dispatch<
-    React.SetStateAction<{
-      quiz_name: string;
-      question_type: string;
-      blooms_taxonomy_level: string;
-      difficulty: string;
-      num_questions: number;
-      note_id: number;
-      description: string;
-    }>
-  >;
+  setForms: React.Dispatch<React.SetStateAction<any>>;
   setSelectedNote: React.Dispatch<
     React.SetStateAction<{
       note_name: string;
@@ -45,7 +35,7 @@ interface CHooseNoteModalProps {
 
 const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
   // children,
-  setGenQuizForm,
+  setForms,
   setSelectedNote,
   selectedNote,
 }) => {
@@ -55,7 +45,9 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
 
   useEffect(() => {
     const fethNotes = async () => {
-      const notes = await storageServ.noteRepo.getListOfNotes({});
+      const notes = await storageServ.noteRepo.getListOfNotes({
+        onlyWithContent: true,
+      });
       setNotes(notes);
     };
     fethNotes();
@@ -65,7 +57,7 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     note_id: number;
     note_name: string;
   }) => {
-    setGenQuizForm((prev) => ({ ...prev, note_id: note_data.note_id }));
+    setForms((prev: any) => ({ ...prev, note_id: note_data.note_id }));
 
     const note = await storageServ.noteRepo.getNoteById(
       Number(note_data.note_id)
@@ -77,12 +69,7 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     setIsOpen(false);
   };
   return (
-    <div
-      style={{
-        height: "120px",
-        margin: "5px 0",
-      }}
-    >
+    <div>
       <button
         onClick={() => {
           setIsOpen(true);
@@ -114,6 +101,7 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
             </IonToolbar>
           </IonHeader>
           <NoteList
+            isShowAdd={false}
             buttonPosBottom="120px"
             notes={notes}
             handleSelectNote={handleSelectNote}

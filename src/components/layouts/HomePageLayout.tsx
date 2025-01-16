@@ -1,6 +1,8 @@
-import Chat from "@/pages/Chat";
+import ChatLists from "@/pages/ChatLists";
+import ChatView from "@/pages/ChatView";
 import GenerateQuiz from "@/pages/GenerateQuiz";
 import Home from "@/pages/Home";
+import NewChat from "@/pages/NewChat";
 import NoteInput from "@/pages/NoteInput";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
@@ -42,7 +44,7 @@ const HomePageLayout = () => {
       label: "Quizzes",
     },
     { tab: "note", href: "/notes", icon: fileTray, label: "Notes" },
-    // { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
+    { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
   ];
 
   const handleTabClick = (tab: string) => {
@@ -59,9 +61,12 @@ const HomePageLayout = () => {
           exact
         />
         <Route path="/notes" render={() => <Notes />} exact />
-        <Route path="/chats" render={() => <Chat />} exact />
+        <Route path="/chats" render={() => <ChatLists />} exact />
 
         {/* No Nav Tabs Page */}
+
+        <Route path="/chat/:id" render={(props) => <ChatView {...props} />} />
+        {/* <Route path="/new-chat/" render={() => <NewChat />} /> */}
         <Route
           path={"/note/:id"}
           render={(props) => <NoteInput {...props} />}

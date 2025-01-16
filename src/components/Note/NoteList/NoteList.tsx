@@ -23,12 +23,14 @@ interface NoteListProps {
   buttonPosBottom?: string;
   notes: Note[];
   handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
+  isShowAdd: boolean;
 }
 
 const NoteList: React.FC<NoteListProps> = ({
   buttonPosBottom,
   notes,
   handleSelectNote,
+  isShowAdd,
 }) => {
   // Create a reference for the file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -65,7 +67,7 @@ const NoteList: React.FC<NoteListProps> = ({
   };
   return (
     <>
-      <SearchInput />
+      {/* <SearchInput /> */}
 
       {notes.length !== 0 ? (
         <div
@@ -110,29 +112,29 @@ const NoteList: React.FC<NoteListProps> = ({
           No Notes
         </div>
       )}
+      {isShowAdd && (
+        <IonFab
+          style={{
+            position: "fixed",
+            bottom: buttonPosBottom || "100px",
+            right: "20px",
+            zIndex: "5px",
+          }}
+          slot="fixed"
+          horizontal="end"
+        >
+          <IonFabButton className="generate-btn-container-note animated-button">
+            <IonIcon
+              icon={createOutline}
+              color="light"
+              style={{
+                fontSize: "24px",
+              }}
+            ></IonIcon>
+          </IonFabButton>
 
-      <IonFab
-        style={{
-          position: "fixed",
-          bottom: buttonPosBottom || "100px",
-          right: "20px",
-          zIndex: "5px",
-        }}
-        slot="fixed"
-        horizontal="end"
-      >
-        <IonFabButton className="generate-btn-container-note animated-button">
-          <IonIcon
-            icon={createOutline}
-            color="light"
-            style={{
-              fontSize: "24px",
-            }}
-          ></IonIcon>
-        </IonFabButton>
-
-        <IonFabList side="top">
-          {/* <IonFabButton
+          <IonFabList side="top">
+            {/* <IonFabButton
             style={{ zIndex: 1000 }}
             className="mini-btn animated-button"
             onClick={handleButtonClick}
@@ -155,38 +157,39 @@ const NoteList: React.FC<NoteListProps> = ({
               <div>File</div>
             </div>
           </IonFabButton> */}
-          <IonFabButton
-            style={{ zIndex: 1000 }}
-            className="mini-btn animated-button"
-            onClick={handleAddNote}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <IonFabButton
+              style={{ zIndex: 1000 }}
+              className="mini-btn animated-button"
+              onClick={handleAddNote}
             >
-              <IonIcon
-                color="light"
+              <div
                 style={{
-                  fontSize: "24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                icon={addCircle}
-              ></IonIcon>
+              >
+                <IonIcon
+                  color="light"
+                  style={{
+                    fontSize: "24px",
+                  }}
+                  icon={addCircle}
+                ></IonIcon>
 
-              <div>New</div>
-            </div>
-          </IonFabButton>
-          <input
-            ref={fileInputRef}
-            type="file"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
-        </IonFabList>
-      </IonFab>
+                <div>New</div>
+              </div>
+            </IonFabButton>
+            <input
+              ref={fileInputRef}
+              type="file"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+          </IonFabList>
+        </IonFab>
+      )}
     </>
   );
 };

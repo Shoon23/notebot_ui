@@ -5,6 +5,7 @@ export interface iNote {
   content_text: string;
   content_pdf_url: string;
   note_name: string;
+  note_id: number;
 }
 
 class NoteRepository {
@@ -12,6 +13,31 @@ class NoteRepository {
 
   constructor(db: SQLiteDBConnection) {
     this.db = db;
+  } // New method to delete a note and its related entries
+  // Method to delete a note and its related entries without using a transaction
+  async deleteNote(note_id: number): Promise<void> {
+    // Delete the note from the Note table
+    const deleteNoteSql = `DELETE FROM Note WHERE note_id = ?`;
+    const res2 = await this.db.run(deleteNoteSql, [note_id]);
+
+    if (res2.changes?.changes === 0) {
+      throw new Error(`No note found with note_id ${note_id}`);
+    }
+  }
+  async getNoteByConversationId(conversationId: number) {
+    const sql = `
+      SELECT n.note_id, n.content_text, n.content_pdf_url, n.note_name
+      FROM Conversation c
+      JOIN Note n ON c.note_id = n.note_id
+      WHERE c.conversation_id = ?;
+    `;
+    const result = await this.db.query(sql, [conversationId]);
+
+    if (!result.values || result.values.length === 0) {
+      throw new Error("Note not found for the given conversation ID");
+    }
+
+    return result.values[0];
   }
 
   async saveNote(note_data: {
@@ -65,13 +91,35 @@ class NoteRepository {
     }
     return result.values[0];
   }
+  async getListOfNotes(filters: {
+    limit?: number;
+    onlyWithContent?: boolean;
+    onlyWithoutConversation?: boolean; // New filter
+  }): Promise<Note[]> {
+    const { limit, onlyWithContent, onlyWithoutConversation } = filters;
 
-  async getListOfNotes(filters: { limit?: number }): Promise<Note[]> {
-    const { limit } = filters;
-    const sql = `SELECT note_id, note_name, content_text, last_viewed_at FROM Note 
-                 ORDER BY last_viewed_at DESC  ${
-                   limit ? "LIMIT " + limit : ""
-                 };`;
+    const sql = `SELECT n.note_id, n.note_name, n.content_text, n.last_viewed_at 
+                 FROM Note n
+                 ${
+                   onlyWithoutConversation
+                     ? "LEFT JOIN Conversation c ON n.note_id = c.note_id"
+                     : ""
+                 }
+                 ${
+                   onlyWithContent
+                     ? `${
+                         onlyWithoutConversation ? "WHERE" : "WHERE"
+                       } n.content_text IS NOT NULL AND n.content_text != ''`
+                     : ""
+                 }
+                 ${
+                   onlyWithoutConversation
+                     ? `${onlyWithContent ? "AND" : "WHERE"} c.note_id IS NULL`
+                     : ""
+                 }
+                 ORDER BY n.last_viewed_at DESC
+                 ${limit ? "LIMIT " + limit : ""};`;
+
     const result = await this.db.query(sql);
 
     return result.values as Note[];

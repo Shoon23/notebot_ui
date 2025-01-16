@@ -1,12 +1,16 @@
 import React from "react";
 import "./generate-form.css";
-interface QuizNameInputProps {
+interface InputProps {
   value: string;
   handleOnChangeName: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeHolder: string;
+  label: string;
 }
-const QuizNameInput: React.FC<QuizNameInputProps> = ({
+const Input: React.FC<InputProps> = ({
   handleOnChangeName,
   value,
+  placeHolder,
+  label,
 }) => {
   return (
     <div
@@ -20,7 +24,7 @@ const QuizNameInput: React.FC<QuizNameInputProps> = ({
           marginBottom: "5px",
         }}
       >
-        Quiz Name
+        {label}
       </p>
 
       <input
@@ -28,10 +32,10 @@ const QuizNameInput: React.FC<QuizNameInputProps> = ({
         onChange={handleOnChangeName}
         type="text"
         className="input-box"
-        placeholder="Enter Quiz Name"
+        placeholder={placeHolder}
       />
     </div>
   );
 };
 
-export default QuizNameInput;
+export default Input;

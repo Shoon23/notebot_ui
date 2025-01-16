@@ -8,7 +8,7 @@ export const OptionUpgradeStatements = [
            content TEXT NOT NULL,
            is_answer BOOLEAN NOT NULL,
            explanation TEXT,
-           FOREIGN KEY (question_id) REFERENCES Question(question_id)
+           FOREIGN KEY (question_id) REFERENCES Question(question_id) ON DELETE CASCADE
          );`,
     ],
   },

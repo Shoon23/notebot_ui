@@ -6,10 +6,14 @@ import {
   IonButton,
   IonIcon,
   IonAvatar,
+  useIonRouter,
 } from "@ionic/react";
 import { caretForwardOutline } from "ionicons/icons";
 import React from "react";
 import "./style.css";
+import { iConversationWithNote } from "@/repository/ConversationRepository";
+import { formatDate } from "@/utils/date-utils";
+import useStorageService from "@/hooks/useStorageService";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -22,13 +26,19 @@ const colors = [
   "#8F7CC4",
   "#9E7C5E",
 ];
-const ConversationCard = () => {
+
+interface ConversationCardProps {
+  data: iConversationWithNote;
+}
+
+const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-
+  const router = useIonRouter();
+  const storageServ = useStorageService();
   const cardsStyles = {
     flex: "0 0 auto",
-    width: "370px", // Minimum width for the cards,
+    width: "95%", // Minimum width for the cards,
     height: "120px",
     border: `2px solid black`,
     borderRadius: "1.5rem",
@@ -37,7 +47,16 @@ const ConversationCard = () => {
   };
   const customStyles = {};
   return (
-    <div style={cardsStyles} className="conversation-card">
+    <div
+      style={cardsStyles}
+      className="conversation-card"
+      onClick={async () => {
+        await storageServ.conversationRepo.updateLastViewedAt(
+          data.conversation_id
+        );
+        router.push(`/chat/${data.conversation_id}`, "forward");
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -58,7 +77,7 @@ const ConversationCard = () => {
             justifyContent: "center",
           }}
         >
-          <div
+          {/* <div
             style={{
               flex: 1,
             }}
@@ -69,7 +88,7 @@ const ConversationCard = () => {
                 src="https://ionicframework.com/docs/img/demos/avatar.svg"
               />
             </IonAvatar>
-          </div>
+          </div> */}
 
           <IonCardHeader
             style={{
@@ -82,7 +101,7 @@ const ConversationCard = () => {
                 fontWeight: "bold",
               }}
             >
-              Chat - 1
+              {data.note_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -91,10 +110,19 @@ const ConversationCard = () => {
                 marginBottom: 5,
               }}
             >
-              <div style={{}}>mwa mwa mwa </div>
+              <div style={{}}>*last message</div>
             </IonCardSubtitle>
           </IonCardHeader>
-          <div>Yesterday</div>
+          <div
+            style={{
+              flex: 1,
+              whiteSpace: "nowrap", // Prevents wrapping
+              textOverflow: "ellipsis", // Adds ellipsis if the text overflows
+              fontSize: "0.9rem",
+            }}
+          >
+            {formatDate(data.last_viewed_at)}
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,29 @@
+.send-msg-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #44819e;
+  border: 2px solid black;
+  height: 40px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+}
+
+.send-msg-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+
+.send-msg-btn:disabled {
+  transform: none;
+  border: none;
+  background-color: #44819e;
+  box-shadow: none;
+}
+ion-spinner {
+  width: 40px;
+  height: 40px;
+}

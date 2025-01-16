@@ -18,7 +18,7 @@ import { Note } from "@/databases/models/note";
 import useStorageService from "@/hooks/useStorageService";
 import { CapacitorHttp, HttpResponse } from "@capacitor/core";
 import DescriptionInput from "./TextAreaInput";
-import QuizNameInput from "./QuizNameInput";
+import Input from "./Input";
 import TextAreaInput from "./TextAreaInput";
 
 const GenerateQuizForm = () => {
@@ -191,9 +191,11 @@ const GenerateQuizForm = () => {
         flexDirection: "column",
       }}
     >
-      <QuizNameInput
+      <Input
+        placeHolder="Enter Quiz Name"
         value={genQuizForm.quiz_name}
         handleOnChangeName={handleOnChangeName}
+        label={"Quiz Name"}
       />
       <IonAlert
         isOpen={isOpen}
@@ -226,7 +228,7 @@ const GenerateQuizForm = () => {
 
       {/* {!selectedNote.note_name ? ( */}
       <ChooseNoteModal
-        setGenQuizForm={setGenQuizForm}
+        setForms={setGenQuizForm}
         setSelectedNote={setSelectedNote}
         selectedNote={selectedNote}
       ></ChooseNoteModal>

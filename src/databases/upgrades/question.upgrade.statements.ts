@@ -6,7 +6,7 @@ export const QuestionUpgradeStatements = [
            question_id INTEGER PRIMARY KEY AUTOINCREMENT,
            quiz_id INTEGER NOT NULL,
            content TEXT NOT NULL,
-           FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id)
+           FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id) ON DELETE CASCADE
          );`,
     ],
   },

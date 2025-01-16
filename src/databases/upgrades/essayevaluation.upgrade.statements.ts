@@ -11,7 +11,7 @@ export const EssayEvaluationUpgradeStatements = [
            style_and_voice INTEGER NOT NULL,
            grammar_and_mechanics INTEGER NOT NULL,
            critical_thinking INTEGER NOT NULL,
-           FOREIGN KEY (essay_answer_id) REFERENCES EssayAnswer(essay_answer_id)
+           FOREIGN KEY (essay_answer_id) REFERENCES EssayAnswer(essay_answer_id) ON DELETE CASCADE
          );`,
     ],
   },

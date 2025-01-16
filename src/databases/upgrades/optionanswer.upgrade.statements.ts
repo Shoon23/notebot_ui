@@ -8,7 +8,7 @@ export const OptionAnswerUpgradeStatements = [
     question_id INTEGER NOT NULL,
     option_id INTEGER,
     is_correct BOOLEAN NOT NULL,
-    FOREIGN KEY (quiz_attempt_id) REFERENCES QuizAttempt(quiz_attempt_id)
+    FOREIGN KEY (quiz_attempt_id) REFERENCES QuizAttempt(quiz_attempt_id) ON DELETE CASCADE
 );
 `,
     ],

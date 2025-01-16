@@ -1,4 +1,5 @@
 import {
+  IonAlert,
   IonBackButton,
   IonButtons,
   IonContent,
@@ -13,7 +14,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/note-input.css";
-import { chevronBack, colorWand } from "ionicons/icons";
+import { chevronBack, colorWand, trashBin } from "ionicons/icons";
 import useStorageService from "@/hooks/useStorageService";
 import { iNote } from "@/repository/NoteRepository";
 
@@ -28,6 +29,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     content_pdf_url: "",
     content_text: "",
     note_name: "",
+    note_id: 0,
   });
 
   useIonViewWillEnter(() => {
@@ -35,7 +37,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     const fetchNote = async () => {
       const note = await storageServ.noteRepo.getNoteById(id);
       await storageServ.noteRepo.updateLastViewed(id);
-      setNote(note);
+      setNote({ ...note, note_id: id });
     };
     fetchNote();
   }, []);
@@ -102,6 +104,39 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
             </span>
           </button>
 
+          <button id="alert-del-note" className="del-note-btn">
+            <IonIcon
+              icon={trashBin}
+              style={{
+                fontSize: "30px",
+              }}
+            ></IonIcon>
+          </button>
+          <IonAlert
+            className="custom-alert"
+            header="Do you want to delete this note?"
+            trigger="alert-del-note"
+            buttons={[
+              {
+                text: "Cancel",
+                role: "cancel",
+              },
+              {
+                cssClass: "alert-button-confirm",
+
+                text: "Yes",
+                role: "confirm",
+                handler: async () => {
+                  await storageServ.noteRepo.deleteNote(note.note_id);
+                  router.push("/notes");
+                },
+              },
+            ]}
+            onDidDismiss={({ detail }) =>
+              console.log(`Dismissed with role: ${detail.role}`)
+            }
+          ></IonAlert>
+          {/* 
           <button className="gen-btn">
             <IonIcon
               icon={colorWand}
@@ -109,7 +144,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
                 fontSize: "30px",
               }}
             ></IonIcon>
-          </button>
+          </button> */}
         </header>
         <section
           style={{

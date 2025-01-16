@@ -8,7 +8,7 @@ import {
   IonContent,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
-import QuizNameInput from "../GenerateQuiz/QuizNameInput";
+import Input from "../GenerateQuiz/Input";
 import "./edit-quiz-modal.css";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import useStorageService from "@/hooks/useStorageService";
@@ -98,9 +98,11 @@ const EditQuizModal: React.FC<EditNoteModalProps> = ({
         }}
       >
         <form onSubmit={handleSubmitUpdate}>
-          <QuizNameInput
+          <Input
+            placeHolder="Enter Quiz Name"
             value={formData.quiz_name}
             handleOnChangeName={handleOnChangeName}
+            label={"Quiz Name"}
           />
           <TextAreaInput
             placeHolder="Enter description here..."

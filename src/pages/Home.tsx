@@ -98,73 +98,8 @@ const Home: React.FC<HomeProps> = ({}) => {
             overflow: "hidden",
           }}
         >
-          {/* <div>
-            <h4>Quick Actions</h4>
-            <div
-              style={{
-                display: "flex",
-                height: "70px",
-              }}
-            >
-              <button
-                className="animated-button"
-                style={{
-                  border: "2px solid black",
-                  fontSize: "1.5rem",
-                  height: "100%",
-                  borderRadius: "20px",
-                  marginBottom: "10px",
-                  backgroundColor: "#E57373",
-                  marginRight: 5,
-                  flex: 1,
-                  color: "white",
-                  boxShadow: "5px 8px 15px rgba(0, 0, 0, 0.3)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  display: "flex", // Flexbox layout
-                  alignItems: "center", // Vertically align items (text and image)
-                  justifyContent: "center", // Horizontally center content
-                  padding: "0", // Ensure no padding inside the button
-                  gap: 0,
-                }}
-              >
-                <img src={generate_icon} width={40} />
-                <span>Create Quiz</span>
-              </button>
-
-              <button
-                className="animated-button"
-                style={{
-                  border: "2px solid black",
-                  fontSize: "1.5rem",
-                  flex: 1,
-                  height: "100%",
-                  borderRadius: "20px",
-
-                  backgroundColor: "#81C784",
-                  color: "white",
-
-                  boxShadow: "5px 8px 15px rgba(0, 0, 0, 0.3)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  display: "flex", // Flexbox layout
-                  alignItems: "center", // Vertically align items (text and image)
-                  justifyContent: "center", // Horizontally center content
-                }}
-              >
-                <img
-                  src={ai_icon}
-                  width={40}
-                  style={{
-                    marginRight: "10px",
-                  }}
-                />
-                AI Assist
-              </button>
-            </div>
-          </div> */}
-
           <div>
             <h4>Recent Quizzes</h4>
-
             {attemptedQuiz.length !== 0 ? (
               <div
                 style={{

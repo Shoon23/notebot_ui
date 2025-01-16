@@ -1,0 +1,22 @@
+.msg-input-box {
+  border: none; /* Remove border */
+  background: none; /* Remove background */
+  outline: none; /* Remove outline on focus */
+  box-shadow: none; /* Remove shadow */
+  color: #000; /* Text color */
+  width: 100%; /* Make input take full width */
+  padding: 10px; /* Padding inside the input */
+  font-size: 20px; /* Font size inside input */
+  border: 2px solid black;
+  border-radius: 2rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+
+  box-shadow: 6px 8px 0px #44819e;
+}
+
+.msg-input-box:focus {
+  border: 2px solid #44819e;
+  transform: translateY(5px);
+
+  box-shadow: none;
+}

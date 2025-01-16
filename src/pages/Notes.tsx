@@ -52,7 +52,11 @@ const Notes = () => {
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">
-          <NoteList notes={notes} handleSelectNote={handleSelectNote} />
+          <NoteList
+            isShowAdd={true}
+            notes={notes}
+            handleSelectNote={handleSelectNote}
+          />
         </section>
       </IonContent>
     </IonPage>

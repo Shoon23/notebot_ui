@@ -70,6 +70,37 @@
   box-shadow: none;
   background: #87ceeb;
 }
+.del-note-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  height: 40px;
+  border-radius: 1rem;
+  width: 50px;
+  background: white;
+  transition: border 0.3s ease, box-shadow 0.3s ease,
+    background 0.3s ease-in-out; /* Add smooth transition */
+  box-shadow: 2px 8px #ac4830;
+  border: 2px solid black;
+}
+
+.del-note-btn:active {
+  border: 2px solid #ac4830;
+  transform: translateY(5px);
+  box-shadow: none;
+  background: #ac4830;
+}
+ion-alert.custom-alert {
+  --backdrop-opacity: 0.7;
+}
+
+.custom-alert .alert-button-group {
+  padding: 8px;
+}
+
+button.alert-button.alert-button-confirm {
+  color: #ac4830;
+}
 
 .notes-header {
   border: 1px solid #e0e0e0; /* Light gray */
