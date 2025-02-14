@@ -70,7 +70,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     <IonPage>
       <IonContent>
         <Header
-          backRoute={`/quiz/${quizResult.quiz_id}`}
+          backRoute={`/quizzes/generated_quiz`}
           nameComponent={
             <h1
               style={{

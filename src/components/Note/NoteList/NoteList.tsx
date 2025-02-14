@@ -14,11 +14,14 @@ import {
   addCircle,
   cloudUpload,
 } from "ionicons/icons";
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import "./style.css";
 import { Note } from "@/databases/models/note";
 import StorageService from "@/services/storageService";
 import useStorageService from "@/hooks/useStorageService";
+import { FilePicker } from "@capawesome/capacitor-file-picker";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+
 interface NoteListProps {
   buttonPosBottom?: string;
   notes: Note[];
@@ -33,22 +36,73 @@ const NoteList: React.FC<NoteListProps> = ({
   isShowAdd,
 }) => {
   // Create a reference for the file input
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const storageServ = useStorageService();
   const router = useIonRouter();
-
-  // Handle button click to trigger file input
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  // Updated function to create a folder in the application’s data directory
+  async function ensureDirectoryExists(
+    folderName: string,
+    baseDirectory: Directory = Directory.Data // default to Directory.Data
+  ): Promise<void> {
+    try {
+      await Filesystem.mkdir({
+        path: folderName,
+        directory: baseDirectory,
+        recursive: true, // Create intermediate folders if needed
+      });
+      console.log(
+        `Folder '${folderName}' created (or already exists) in ${baseDirectory}.`
+      );
+    } catch (error: any) {
+      // If the error indicates the folder already exists, ignore it
+      if (error.message && error.message.toLowerCase().includes("exists")) {
+        console.log(
+          `Folder '${folderName}' already exists, no need to create.`
+        );
+      } else {
+        console.error(`Error creating folder '${folderName}':`, error);
+        throw error;
+      }
     }
-  };
+  }
 
-  // Handle file change event (e.g., when a user selects a file)
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      console.log("Selected file:", files[0].name);
+  const pickAndSaveFile = async () => {
+    try {
+      const { files: pickedFiles } = await FilePicker.pickFiles({
+        types: [
+          "application/pdf",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ],
+        readData: true,
+      });
+
+      if (pickedFiles.length > 0) {
+        const file = pickedFiles[0];
+        // Define a subfolder name within the app's data directory
+        const folderName = "Notes";
+
+        // Ensure the folder exists in Directory.Data
+        await ensureDirectoryExists(folderName, Directory.Data);
+
+        // Create the target path using the folder name and file name.
+        const targetPath = `${folderName}/${file.name}`;
+
+        // Save the file locally with proper base64 encoding
+        await Filesystem.writeFile({
+          path: targetPath,
+          data: file.data as string, // Ensure file.data is a valid Base64 string
+          directory: Directory.Data,
+        });
+
+        const noteId = await storageServ.noteRepo.saveNote({
+          content_text: null,
+          note_name: file.name,
+          content_pdf_url: targetPath,
+        });
+
+        router.push(`/note/${noteId}`);
+      }
+    } catch (error) {
+      console.error("File pick/save error:", error);
     }
   };
 
@@ -134,29 +188,29 @@ const NoteList: React.FC<NoteListProps> = ({
           </IonFabButton>
 
           <IonFabList side="top">
-            {/* <IonFabButton
-            style={{ zIndex: 1000 }}
-            className="mini-btn animated-button"
-            onClick={handleButtonClick}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <IonFabButton
+              style={{ zIndex: 1000 }}
+              className="mini-btn animated-button"
+              onClick={pickAndSaveFile}
             >
-              <IonIcon
-                color="light"
+              <div
                 style={{
-                  fontSize: "24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                icon={cloudUpload}
-              ></IonIcon>
-              <div>File</div>
-            </div>
-          </IonFabButton> */}
+              >
+                <IonIcon
+                  color="light"
+                  style={{
+                    fontSize: "24px",
+                  }}
+                  icon={cloudUpload}
+                ></IonIcon>
+                <div>File</div>
+              </div>
+            </IonFabButton>
             <IonFabButton
               style={{ zIndex: 1000 }}
               className="mini-btn animated-button"
@@ -181,12 +235,6 @@ const NoteList: React.FC<NoteListProps> = ({
                 <div>New</div>
               </div>
             </IonFabButton>
-            <input
-              ref={fileInputRef}
-              type="file"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
           </IonFabList>
         </IonFab>
       )}

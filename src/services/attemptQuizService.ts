@@ -50,15 +50,14 @@ class AttemptQuizService {
   }
 
   async processMCQAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id } = await this.check_answers(
-      answers,
-      "option_id"
-    );
+    const { checked_answers, score, quiz_id, num_questions } =
+      await this.check_answers(answers, "option_id");
     try {
       // saving the quiz attempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
+        num_questions,
       });
       // Saving the answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -83,15 +82,14 @@ class AttemptQuizService {
     }
   }
   async processTrueFalseAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id } = await this.check_answers(
-      answers,
-      "content"
-    );
+    const { checked_answers, score, quiz_id, num_questions } =
+      await this.check_answers(answers, "content");
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
+        num_questions,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -114,16 +112,15 @@ class AttemptQuizService {
     }
   }
   async processShortAnswer(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id } = await this.check_answers(
-      answers,
-      "content"
-    );
+    const { checked_answers, score, quiz_id, num_questions } =
+      await this.check_answers(answers, "content");
 
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
+        num_questions,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -159,6 +156,7 @@ class AttemptQuizService {
       const quiz_attempt_id = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score: total_score,
+        num_questions: 1,
       });
       // Save Essay Answer
       const essay_answer_id = await this.essayRepo.saveEssayAnswer(
@@ -244,11 +242,7 @@ class AttemptQuizService {
     const correct_answers = await this.questionRepo.getQuestionsWithAnswer(
       quiz_id
     );
-
-    // Validate quiz length
-    if (attempted_answers.length !== correct_answers.length) {
-      throw new Error("Quiz length does not match");
-    }
+    console.log(correct_answers);
     // Normalize the correct answers
     const correct_answers_map = this.answers_to_map(correct_answers);
     let score = 0;
@@ -259,6 +253,7 @@ class AttemptQuizService {
           ? correct_answers_map
               .get(user_answer.question_id)
               ?.content?.toLowerCase()
+              .trim()
           : correct_answers_map.get(user_answer.question_id)?.option_id;
 
       // Validate the presence of a correct answer
@@ -269,7 +264,7 @@ class AttemptQuizService {
       // Compare the user's answer with the correct one
       const user_value =
         compare_by === "content"
-          ? user_answer.answer.content.toLowerCase()
+          ? user_answer.answer.content.toLowerCase().trim()
           : user_answer.answer.option_id;
 
       const is_correct = correct_value === user_value;
@@ -289,7 +284,7 @@ class AttemptQuizService {
     return {
       score,
       checked_answers,
-      num_questions: correct_answers.length,
+      num_questions: checked_answers.length,
       quiz_id,
     };
   };

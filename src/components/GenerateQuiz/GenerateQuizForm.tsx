@@ -20,13 +20,13 @@ import { CapacitorHttp, HttpResponse } from "@capacitor/core";
 import DescriptionInput from "./TextAreaInput";
 import Input from "./Input";
 import TextAreaInput from "./TextAreaInput";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 
 const GenerateQuizForm = () => {
   const [genQuizForm, setGenQuizForm] = useState<{
     quiz_name: string;
     question_type: string;
     blooms_taxonomy_level: string;
-    difficulty: string;
     num_questions: number;
     note_id: number;
     description: string;
@@ -34,7 +34,6 @@ const GenerateQuizForm = () => {
     quiz_name: "",
     blooms_taxonomy_level: "",
     description: "",
-    difficulty: "",
     note_id: 0,
     num_questions: 0,
     question_type: "",
@@ -42,10 +41,12 @@ const GenerateQuizForm = () => {
 
   const [selectedNote, setSelectedNote] = useState<{
     note_name: string;
-    note_content: string;
+    note_content: string | null;
+    note_path: string | null;
   }>({
     note_name: "",
     note_content: "",
+    note_path: "",
   });
 
   const storageServ = useStorageService();
@@ -73,7 +74,7 @@ const GenerateQuizForm = () => {
 
   const numbers = [
     { value: "5", label: "5" },
-    // { value: "10", label: "10" },
+    { value: "10", label: "10" },
     // { value: "15", label: "15" },
   ];
 
@@ -108,55 +109,97 @@ const GenerateQuizForm = () => {
     updateForm("blooms_taxonomy_level", selectedValue);
   };
 
-  const handleSelectBloomDifficulty = (selectedValue: string) => {
-    updateForm("difficulty", selectedValue);
-  };
-
   const handleSelectNumQuestions = (selectedValue: string) => {
     updateForm("num_questions", Number(selectedValue));
   };
+  // Helper function to convert a base64 string to a Blob
+  function b64toBlob(b64Data: string, contentType = "", sliceSize = 512): Blob {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: contentType });
+  }
+
   const handleSubmit = async () => {
     try {
-      await present({
-        message: "Genrating Quiz...",
+      await present({ message: "Generating Quiz..." });
+      const apiUrl =
+        "https://test-backend-9dqr.onrender.com/generate-questions";
+      let fileBlob: Blob | null = null;
+      let filename: string | null = null;
+
+      // If a file path exists, read the file using Capacitor Filesystem.
+      if (selectedNote.note_path) {
+        // Remove any "file://" prefix if present.
+        let filePath = selectedNote.note_path;
+        if (filePath.startsWith("file://")) {
+          filePath = filePath.replace("file://", "");
+        }
+        // Read the file from Directory.Documents (adjust if needed)
+        const fileResult = await Filesystem.readFile({
+          path: filePath, // Relative path (e.g., folderName/file.name)
+          directory: Directory.Data,
+        });
+        const base64Data = fileResult.data as any; // Base64 encoded string
+
+        // Determine MIME type based on file extension
+        let mimeType = "application/octet-stream";
+        if (filePath.toLowerCase().endsWith(".pdf")) {
+          mimeType = "application/pdf";
+        } else if (filePath.toLowerCase().endsWith(".docx")) {
+          mimeType =
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        }
+
+        // Convert the Base64 string to a Blob.
+        fileBlob = b64toBlob(base64Data, mimeType);
+        filename = filePath.split("/").pop() || "uploadfile";
+      }
+
+      // Always use FormData to send the data.
+      const formData = new FormData();
+      // Append the file if available.
+      if (fileBlob && filename) {
+        formData.append("file", fileBlob, filename);
+      }
+      formData.append(
+        "blooms_taxonomy_level",
+        genQuizForm.blooms_taxonomy_level
+      );
+      formData.append("num_questions", String(genQuizForm.num_questions));
+      formData.append("question_type", genQuizForm.question_type);
+      // Append note content (or fallback to an empty string).
+      formData.append("content_text", selectedNote.note_content || "");
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: formData,
+        // Do not manually set the Content-Type header; the browser sets it automatically.
       });
-
-      const { quiz_name, note_id, ...others } = genQuizForm;
-
-      const options = {
-        url: "https://test-backend-9dqr.onrender.com/generate-questions",
-        headers: {
-          "Content-Type": "application/json", // Set the content type to JSON
-        },
-        data: {
-          ...others,
-          content_text: selectedNote.note_content,
-        },
-      };
-
-      const response: HttpResponse = await CapacitorHttp.post(options);
-      const data = response.data;
+      console.log(response);
+      // Validate the response.
+      const data = await response.json();
+      console.log(data);
       let quiz_data = null;
+      const { quiz_name, note_id, ...others } = genQuizForm;
       switch (genQuizForm.question_type) {
         case "essay":
           quiz_data = await storageServ.quizRepo.saveEssayQuestion(
-            {
-              note_id,
-              quiz_name,
-              ...others,
-            },
-
+            { note_id, quiz_name, ...others },
             data
           );
           break;
         case "mcq":
           quiz_data = await storageServ.quizRepo.save_generated_mcq(
-            {
-              note_id,
-              quiz_name,
-              ...others,
-            },
-
+            { note_id, quiz_name, ...others },
             data
           );
           break;
@@ -164,25 +207,21 @@ const GenerateQuizForm = () => {
         case "short-answer":
           quiz_data =
             await storageServ.quizRepo.saved_gen_true_false_or_short_answer(
-              {
-                note_id,
-                quiz_name,
-                ...others,
-              },
+              { note_id, quiz_name, ...others },
               data
             );
-
           break;
+        default:
+          console.error("Unknown question type");
       }
       router.push("/quiz/" + quiz_data?.quiz_id, "forward", "pop");
     } catch (error) {
       setIsOpen(true);
-      console.log(error);
+      console.error(error);
     } finally {
       dismiss();
     }
   };
-
   return (
     <form
       style={{
@@ -215,12 +254,6 @@ const GenerateQuizForm = () => {
       />
 
       <SelectOption
-        selectHandler={handleSelectBloomDifficulty}
-        label="Difficulty"
-        options={difficultyLevels}
-      />
-
-      <SelectOption
         selectHandler={handleSelectNumQuestions}
         label="Number Of Question"
         options={genQuizForm.question_type !== "essay" ? numbers : essayNumbers}
@@ -249,7 +282,6 @@ const GenerateQuizForm = () => {
         disabled={
           !genQuizForm.quiz_name ||
           !genQuizForm.blooms_taxonomy_level ||
-          !genQuizForm.difficulty ||
           genQuizForm.note_id === 0 ||
           !genQuizForm.question_type ||
           genQuizForm.num_questions === 0

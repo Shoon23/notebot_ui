@@ -21,7 +21,8 @@ import {
 } from "@ionic/react";
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { c } from "vitest/dist/reporters-5f784f42";
+import { useLocation } from "react-router-dom";
+
 interface TakeQuizProp
   extends RouteComponentProps<{
     id: string;
@@ -32,7 +33,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     quiz_name: "",
     question_type: "",
     blooms_taxonomy_level: "",
-    difficulty: "",
     num_questions: 0,
     quiz_id: 0,
     questions: [],
@@ -46,52 +46,58 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     question: "",
     question_id: 0,
   });
+  const [totalWord, setTotalWorld] = useState(0);
 
   const [attemptQuiz, setAttemptQuiz] = useState<iAttemptQuiz>({
     quiz_id: 0,
     attempted_answers: [],
   });
 
-  const [present, dismiss] = useIonLoading();
-
   const router = useIonRouter();
-  useIonViewWillEnter(() => {
-    storageServ.isInitCompleted.subscribe((isComplete) => {
-      if (isComplete) {
-        const fetchQuizWithAnswer = async () => {
-          try {
-            const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
-              match.params.id
-            );
-            if (quiz_data.question_type === "essay") {
-              setAttemptQuiz({
-                quiz_id: Number(match.params.id),
-                attempted_answers: [
-                  {
-                    answer: {
-                      content: "",
-                    },
-                    question: quiz_data.questions[0].content,
-                    question_id: quiz_data.questions[0].question_id,
-                  },
-                ],
-              });
-            } else {
-              setAttemptQuiz({
-                quiz_id: Number(match.params.id),
-                attempted_answers: [],
-              });
-            }
+  const [present, dismiss] = useIonLoading();
+  const location = useLocation<{ quiz: any }>();
+  // Check the state passed via history.push
 
-            setQuiz(quiz_data);
-          } catch (error) {
-            console.log(error);
-          }
-        };
-        fetchQuizWithAnswer();
+  useIonViewWillEnter(() => {
+    // storageServ.isInitCompleted.subscribe((isComplete) => {
+    //   if (isComplete) {
+
+    //   }
+    // });
+    const fetchQuizWithAnswer = async () => {
+      try {
+        const quiz_data = location.state.quiz;
+        // const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
+        //   match.params.id
+        // );
+        console.log(quiz_data);
+        if (quiz_data.question_type === "essay") {
+          setAttemptQuiz({
+            quiz_id: Number(match.params.id),
+            attempted_answers: [
+              {
+                answer: {
+                  content: "",
+                },
+                question: quiz_data.questions[0].content,
+                question_id: quiz_data.questions[0].question_id,
+              },
+            ],
+          });
+        } else {
+          setAttemptQuiz({
+            quiz_id: Number(match.params.id),
+            attempted_answers: [],
+          });
+        }
+
+        setQuiz(quiz_data);
+      } catch (error) {
+        console.log(error);
       }
-    });
-  }, []);
+    };
+    fetchQuizWithAnswer();
+  }, [location.state]);
 
   const handleCheckAnswer = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -99,6 +105,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
       present({
         message: "Checking Answer",
       });
+
       let result;
       switch (quiz.question_type) {
         case "mcq":
@@ -260,10 +267,12 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
         console.warn(`Unhandled question type: ${question_type}`);
     }
   };
-
+  const countWords = (text: string): number =>
+    text.trim().split(/\s+/).filter(Boolean).length;
   const handleOnChangeEssayAnswer = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
+    setTotalWorld(countWords(e.target.value));
     setAttemptQuiz((prev) => {
       const prevAnswer = prev.attempted_answers[0];
       const updatedAnswer = {
@@ -278,7 +287,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
       };
     });
   };
-  console.log(attemptQuiz);
   return (
     <IonPage>
       <IonContent>
@@ -349,6 +357,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
                 case "essay":
                   return (
                     <QuestionCardEssay
+                      totalWord={totalWord}
                       answer={
                         attemptQuiz.attempted_answers[0].answer.content ?? ""
                       }
@@ -376,7 +385,8 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
                 quiz.question_type !== "essay"
                   ? attemptQuiz.attempted_answers.length !==
                     quiz.questions.length
-                  : !attemptQuiz.attempted_answers[0].answer.content
+                  : !attemptQuiz.attempted_answers[0].answer.content ||
+                    totalWord < 250
               }
               color={"tertiary"}
               type="submit"

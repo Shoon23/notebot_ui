@@ -99,13 +99,6 @@ const QuizDetailCard: React.FC<QuizDetailCardProps> = ({
                   ]
                 }
               </div>
-              <div
-                style={{
-                  marginBottom: 4,
-                }}
-              >
-                Difficulty: {capitlizedFirstLetter(data.difficulty)}
-              </div>
             </IonCardSubtitle>
           </IonCardHeader>
         </div>

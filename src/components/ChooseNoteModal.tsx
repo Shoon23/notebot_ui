@@ -24,12 +24,14 @@ interface CHooseNoteModalProps {
   setSelectedNote: React.Dispatch<
     React.SetStateAction<{
       note_name: string;
-      note_content: string;
+      note_content: string | null;
+      note_path: string | null;
     }>
   >;
   selectedNote: {
     note_name: string;
-    note_content: string;
+    note_content: string | null;
+    note_path: string | null;
   };
 }
 
@@ -62,9 +64,11 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     const note = await storageServ.noteRepo.getNoteById(
       Number(note_data.note_id)
     );
+
     setSelectedNote({
       note_name: note_data.note_name,
       note_content: note.content_text,
+      note_path: note.content_pdf_url,
     });
     setIsOpen(false);
   };

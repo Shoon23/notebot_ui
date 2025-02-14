@@ -13,6 +13,7 @@ import {
 import { caretForwardOutline } from "ionicons/icons";
 import { iQuiz } from "@/repository/QuizRepository";
 import { capitlizedFirstLetter } from "@/utils";
+import { useHistory } from "react-router-dom";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -34,7 +35,8 @@ interface QuizCardProps {
 const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
-  const router = useIonRouter();
+  const history = useHistory();
+
   const cardsStyles = {
     flex: "0 0 auto",
     width: width || "300px", // Minimum width for the cards,
@@ -112,7 +114,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
             fill="clear"
             color={"dark"}
             onClick={() => {
-              router.push(`/quiz/${data.quiz_id}`);
+              history.push(`/quiz/${data.quiz_id}`, {});
             }}
           >
             <IonIcon

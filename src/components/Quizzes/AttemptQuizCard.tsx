@@ -29,11 +29,10 @@ const colors = [
 ];
 
 interface AttemptQuizCardProps {
-  width?: string;
   data: iAttemptQuiz;
 }
 
-const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ width, data }) => {
+const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
   const router = useIonRouter();

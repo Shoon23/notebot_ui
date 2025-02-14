@@ -5,7 +5,6 @@ export interface iMCQQuestion {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficulty: string;
   created_at?: string;
   num_questions: number;
   quiz_id: number;
@@ -17,7 +16,6 @@ export interface iQuiz {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficulty: string;
   created_at?: string;
   num_questions: number;
   quiz_id: number;
@@ -42,7 +40,6 @@ interface SavedMCQQuiz {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficulty: string;
   questions: QuestionWithOptions[];
 }
 
@@ -50,7 +47,6 @@ type QuizData = {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficulty: string;
   num_questions: number;
   note_id: number;
   description: string | null;
@@ -80,7 +76,6 @@ export interface iSavedEssay {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
-  difficulty: string;
   questions: Array<{ question_id: number; content: string }>;
 }
 class QuizRepository {
@@ -95,23 +90,16 @@ class QuizRepository {
     quiz_name: string;
     question_type: string;
     blooms_taxonomy_level: string;
-    difficulty: string;
     description: string | null;
   }): Promise<number> {
-    const {
-      quiz_name,
-      question_type,
-      blooms_taxonomy_level,
-      difficulty,
-      description,
-    } = quiz_data;
-    const sql = `INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, description) 
-                 VALUES (?, ?, ?, ?, ?, ?);`;
+    const { quiz_name, question_type, blooms_taxonomy_level, description } =
+      quiz_data;
+    const sql = `INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, description) 
+                 VALUES (?, ?, ?, ?, ?);`;
     const res = await this.db.run(sql, [
       quiz_name,
       question_type,
       blooms_taxonomy_level,
-      difficulty,
       description,
     ]);
     if (res.changes?.lastId) {
@@ -122,7 +110,7 @@ class QuizRepository {
 
   // Get quiz by ID with questions
   async getQuizWithQuestions(quiz_id: string) {
-    const sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, difficulty, description, created_at 
+    const sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, description, created_at 
                  FROM Quiz WHERE quiz_id=?;`;
     const result = await this.db.query(sql, [quiz_id]);
     if (!result.values || result.values?.length === 0) {
@@ -153,7 +141,7 @@ class QuizRepository {
     search_key_word: string | null;
   }): Promise<iQuiz[]> {
     const { is_recent, search_key_word } = filters;
-    let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, difficulty, created_at ,num_questions
+    let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, created_at ,num_questions
                FROM Quiz`;
 
     if (search_key_word) {
@@ -178,12 +166,11 @@ class QuizRepository {
       // Start a new transaction
       // Insert quiz data
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty,num_questions,note_id,description) VALUES (?, ?, ?, ?,?,?,?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level,num_questions,note_id,description) VALUES ( ?, ?, ?,?,?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
           quiz_data.blooms_taxonomy_level,
-          quiz_data.difficulty,
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
@@ -203,11 +190,14 @@ class QuizRepository {
         const optionPromises = Object.entries(question.options).map(
           async ([key, value]) => {
             const is_answer =
-              value.toLowerCase().trim() ===
-              question.answer
-                .toLowerCase()
-                .replace(/^[a-zA-Z]+\)\s*/, "")
-                .trim();
+              question.answer.trim().length === 1
+                ? key.toLowerCase().trim() ===
+                  question.answer.toLowerCase().trim()
+                : value.toLowerCase().trim() ===
+                  question.answer
+                    .toLowerCase()
+                    .replace(/^[a-zA-Z]+\)\s*/, "")
+                    .trim();
 
             // Insert option data
             const savedOption = await this.db.run(
@@ -242,7 +232,6 @@ class QuizRepository {
         quiz_name: quiz_data.quiz_name,
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
-        difficulty: quiz_data.difficulty,
         questions: questionsWithOptions,
       };
     } catch (error) {
@@ -258,12 +247,11 @@ class QuizRepository {
     try {
       // Save quiz data
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?,?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
           quiz_data.blooms_taxonomy_level,
-          quiz_data.difficulty,
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
@@ -306,7 +294,6 @@ class QuizRepository {
         quiz_name: quiz_data.quiz_name,
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
-        difficulty: quiz_data.difficulty,
         questions: questions_with_answer,
       };
     } catch (error) {
@@ -322,12 +309,11 @@ class QuizRepository {
     try {
       // Start a new transaction
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, difficulty, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?,?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
           quiz_data.blooms_taxonomy_level,
-          quiz_data.difficulty,
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
@@ -359,7 +345,6 @@ class QuizRepository {
         quiz_name: quiz_data.quiz_name,
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
-        difficulty: quiz_data.difficulty,
         questions: saved_questions,
       };
     } catch (error) {

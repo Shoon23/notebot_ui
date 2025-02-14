@@ -12,7 +12,11 @@ import {
 import { formatDistance, formatDistanceToNow, parseISO } from "date-fns";
 
 import { caretForwardOutline } from "ionicons/icons";
-import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
+import {
+  iAttemptQuiz,
+  iEssayResults,
+  iQuizResult,
+} from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
 import { capitlizedFirstLetter } from "@/utils";
 const colors = [
@@ -29,7 +33,9 @@ const colors = [
 ];
 
 interface ResultTitleProps {
-  data: iAttemptQuiz;
+  data: iAttemptQuiz & {
+    quiz_results: iQuizResult[] | iEssayResults;
+  };
 }
 
 const ResultTitle: React.FC<ResultTitleProps> = ({ data }) => {
@@ -94,7 +100,9 @@ const ResultTitle: React.FC<ResultTitleProps> = ({ data }) => {
                 }}
               >
                 Score: {data.score}/
-                {data.question_type !== "essay" ? data.num_questions : 24}
+                {data.question_type !== "essay"
+                  ? Array.isArray(data.quiz_results) && data.quiz_results.length
+                  : 24}
               </div>
               <div
                 style={{

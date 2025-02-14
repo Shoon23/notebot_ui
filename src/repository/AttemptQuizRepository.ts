@@ -3,6 +3,7 @@ import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 type QuizAttemptType = {
   quiz_id: number;
   score: number;
+  num_questions: number;
 };
 
 type OptionAnswerType = {
@@ -72,10 +73,10 @@ class AttemptQuizRepository {
 
   // Save quiz attempt
   async saveQuizAttempt(quiz_attempt_data: QuizAttemptType): Promise<number> {
-    const { quiz_id, score } = quiz_attempt_data;
-    const sql = `INSERT INTO QuizAttempt (quiz_id, score) 
-                 VALUES (?, ?);`;
-    const res = await this.db.run(sql, [quiz_id, score]);
+    const { quiz_id, score, num_questions } = quiz_attempt_data;
+    const sql = `INSERT INTO QuizAttempt (quiz_id, score,num_questions) 
+                 VALUES (?, ?,?);`;
+    const res = await this.db.run(sql, [quiz_id, score, num_questions]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
     }
@@ -140,7 +141,7 @@ class AttemptQuizRepository {
           qa.created_at, 
           qa.score, 
     q.quiz_name,
-    q.num_questions,
+    qa.num_questions,
     q.question_type,
     q.blooms_taxonomy_level
 
@@ -170,7 +171,7 @@ ORDER BY
     qa.created_at, 
     qa.score,
     q.quiz_name,
-    q.num_questions,
+    qa.num_questions,
      q.question_type,
     q.blooms_taxonomy_level
 FROM 
@@ -198,7 +199,7 @@ ${limit ? "LIMIT " + limit : ""};`;
     qa.created_at, 
     qa.score,
     q.quiz_name,
-    q.num_questions,
+    qa.num_questions,
     q.question_type,
     q.quiz_id
 FROM 

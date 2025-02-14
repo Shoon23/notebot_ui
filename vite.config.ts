@@ -17,4 +17,12 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/setupTests.ts",
   },
+  optimizeDeps: {
+    include: ["pdfjs-dist"],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/pdfjs-dist/, /node_modules/],
+    },
+  },
 });

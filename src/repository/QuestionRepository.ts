@@ -22,6 +22,7 @@ class QuestionRepository {
     const sql = `SELECT question_id, content 
                  FROM Question WHERE quiz_id=?;`;
     const result = await this.db.query(sql, [quiz_id]);
+
     if (!result.values || result.values.length === 0) {
       throw new Error("No questions found");
     }
@@ -29,11 +30,13 @@ class QuestionRepository {
     // Retrieve options for each question that are marked as answers
     for (let question of result.values) {
       const optionsSql = `SELECT option_id, content 
-                          FROM Option WHERE question_id=? AND is_answer=1;`;
+                          FROM Option WHERE question_id=? AND is_answer=?;`;
       const optionsResult = await this.db.query(optionsSql, [
         question.question_id,
+        true,
       ]);
       question.options = optionsResult.values;
+      console.log(optionsResult);
     }
 
     return result.values;

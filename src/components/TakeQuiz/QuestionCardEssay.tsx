@@ -10,7 +10,7 @@ import {
   IonCardContent,
 } from "@ionic/react";
 import { caretForwardOutline } from "ionicons/icons";
-import React from "react";
+import React, { useState } from "react";
 import TextAreaInput from "../GenerateQuiz/TextAreaInput";
 
 interface QuestionCardEssayProps {
@@ -20,12 +20,14 @@ interface QuestionCardEssayProps {
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => void;
   answer: string;
+  totalWord: number;
 }
 const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
   question_answer,
   idx,
   handleOnChangeEssayAnswer,
   answer,
+  totalWord,
 }) => {
   const tempoColor = "#47926B";
   const shadowColors = hexToRgb(tempoColor);
@@ -38,7 +40,6 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
     borderRadius: "1.5rem",
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
-
   return (
     <IonCard style={cardsStyles}>
       <div
@@ -73,6 +74,24 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
             flexDirection: "column",
           }}
         >
+          <div
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            Minimum Word: <span>250</span>
+          </div>
+          <div
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            Maximum Word: <span style={{}}>650</span>
+          </div>
+          <br />
+          <div className="">
+            Total Word: <span>{totalWord}</span>
+          </div>
           <TextAreaInput
             value={answer}
             handleOnChangeDescription={handleOnChangeEssayAnswer}

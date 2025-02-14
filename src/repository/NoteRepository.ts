@@ -58,6 +58,7 @@ class NoteRepository {
     }
     throw new Error(`NoteRepository.saveNote: lastId not returned`);
   }
+
   async updateNoteContent(note_content: {
     content_text: string;
     note_name: string;
@@ -98,30 +99,32 @@ class NoteRepository {
   }): Promise<Note[]> {
     const { limit, onlyWithContent, onlyWithoutConversation } = filters;
 
-    const sql = `SELECT n.note_id, n.note_name, n.content_text, n.last_viewed_at 
-                 FROM Note n
-                 ${
-                   onlyWithoutConversation
-                     ? "LEFT JOIN Conversation c ON n.note_id = c.note_id"
-                     : ""
-                 }
-                 ${
-                   onlyWithContent
-                     ? `${
-                         onlyWithoutConversation ? "WHERE" : "WHERE"
-                       } n.content_text IS NOT NULL AND n.content_text != ''`
-                     : ""
-                 }
-                 ${
-                   onlyWithoutConversation
-                     ? `${onlyWithContent ? "AND" : "WHERE"} c.note_id IS NULL`
-                     : ""
-                 }
-                 ORDER BY n.last_viewed_at DESC
-                 ${limit ? "LIMIT " + limit : ""};`;
+    const sql = `
+      SELECT n.note_id, n.note_name, n.content_text, n.last_viewed_at 
+      FROM Note n
+      ${
+        onlyWithoutConversation
+          ? "LEFT JOIN Conversation c ON n.note_id = c.note_id"
+          : ""
+      }
+      ${
+        onlyWithContent
+          ? `${
+              onlyWithoutConversation ? "WHERE" : "WHERE"
+            } ((n.content_text IS NOT NULL AND n.content_text != '')
+                OR (n.content_pdf_url IS NOT NULL AND n.content_pdf_url != ''))`
+          : ""
+      }
+      ${
+        onlyWithoutConversation
+          ? `${onlyWithContent ? "AND" : "WHERE"} c.note_id IS NULL`
+          : ""
+      }
+      ORDER BY n.last_viewed_at DESC
+      ${limit ? "LIMIT " + limit : ""};
+    `;
 
     const result = await this.db.query(sql);
-
     return result.values as Note[];
   }
 

@@ -33,3 +33,12 @@ ion-segment {
   transform: translateY(5px);
   box-shadow: none;
 }
+ion-checkbox {
+  margin: 0;
+  padding: 0;
+}
+
+ion-checkbox::part(container) {
+  margin: 0;
+  padding: 0;
+}

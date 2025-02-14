@@ -1,10 +1,13 @@
 import {
   IonButton,
+  IonCheckbox,
   IonContent,
   IonHeader,
   IonIcon,
   IonLabel,
   IonPage,
+  IonRadio,
+  IonRadioGroup,
   IonSegment,
   IonSegmentButton,
   IonSegmentContent,
@@ -13,13 +16,18 @@ import {
   IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
+  useIonViewWillLeave,
 } from "@ionic/react";
 import React, { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import QuestionCard from "@/components/Quiz/QuestionCard";
 import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import useStorageService from "@/hooks/useStorageService";
-import { iMCQQuestion, iQuiz } from "@/repository/QuizRepository";
+import {
+  iMCQQuestion,
+  iQuiz,
+  QuestionWithOptions,
+} from "@/repository/QuizRepository";
 import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
 import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
@@ -31,12 +39,13 @@ interface QuizProp
   extends RouteComponentProps<{
     id: string;
   }> {}
+import { useHistory } from "react-router-dom";
+
 const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [quiz, setQuiz] = useState<iMCQQuestion>({
     quiz_name: "",
     question_type: "",
     blooms_taxonomy_level: "",
-    difficulty: "",
     description: "",
     num_questions: 0,
     quiz_id: 0,
@@ -48,14 +57,37 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [isEdit, setIsEdit] = useState(false);
 
   const [shadowColor, setShadowColor] = useState("");
-  const router = useIonRouter();
+  const history = useHistory();
+
+  // State to store selected questions (or any info you need)
+  const [selectedQuestions, setSelectedQuestions] = useState<
+    QuestionWithOptions[]
+  >([]);
+
+  // Callback when a question card toggles its selection
+  const handleSelectionChange = (
+    question: QuestionWithOptions,
+    isChecked: boolean
+  ) => {
+    setSelectedQuestions((prev) => {
+      // If checked, add the question; if unchecked, remove it
+      if (isChecked) {
+        return [...prev, question];
+      } else {
+        return prev.filter((q) => q.question_id !== question.question_id); // assuming each question has a unique id
+      }
+    });
+  };
   useIonViewWillEnter(() => {
+    setSelectedQuestions([]);
     const fetchQuizData = async () => {
       try {
         const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
           match.params.id
         );
-
+        if (quiz_data.question_type === "essay") {
+          setSelectedQuestions(quiz_data.questions);
+        }
         fetchQuizAttemptHistory(quiz_data.quiz_id);
         setQuiz(quiz_data);
       } catch (error) {
@@ -77,8 +109,13 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     };
     fetchQuizData();
     setShadowColor(getShadowColors());
-  }, []);
+  });
 
+  useIonViewWillLeave(() => {
+    setSelectedQuestions([]);
+  });
+
+  console.log(selectedQuestions);
   return (
     <IonPage
       style={{
@@ -168,13 +205,22 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                   alignItems: "center",
                 }}
               >
-                {quiz.questions.map((question_answer, index) => (
-                  <QuestionCard
-                    key={question_answer.question_id}
-                    question_answer={question_answer}
-                    idx={index}
-                  />
-                ))}
+                {quiz.questions.map((question_answer, index) => {
+                  // Determine if this question is selected by checking the parent's selectedQuestions state.
+                  const isSelected = selectedQuestions.some(
+                    (q) => q.question_id === question_answer.question_id
+                  );
+                  return (
+                    <QuestionCard
+                      key={question_answer.question_id}
+                      question_answer={question_answer}
+                      idx={index}
+                      isCheckBox={quiz.question_type !== "essay"}
+                      onSelectionChange={handleSelectionChange}
+                      selected={isSelected} // Pass the controlled value
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div
@@ -190,11 +236,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               >
                 {attemptedQuiz.length !== 0 ? (
                   attemptedQuiz.map((data, index) => (
-                    <AttemptQuizCard
-                      key={data.quiz_attempt_id}
-                      width="360px"
-                      data={data}
-                    />
+                    <AttemptQuizCard key={data.quiz_attempt_id} data={data} />
                   ))
                 ) : (
                   <div
@@ -223,10 +265,13 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             }}
           >
             <IonButton
+              disabled={selectedQuestions.length === 0}
               expand="full"
               color={"tertiary"}
               onClick={() => {
-                router.push(`/take-quiz/${String(quiz.quiz_id)}`);
+                history.push(`/take-quiz/${quiz.quiz_id}`, {
+                  quiz: { ...quiz, questions: selectedQuestions },
+                });
               }}
             >
               Take

@@ -9,6 +9,8 @@ import Quiz from "@/pages/Quiz";
 import QuizResult from "@/pages/QuizResult";
 import Quizzes from "@/pages/Quizzes";
 import TakeQuiz from "@/pages/TakeQuiz";
+import Test from "@/pages/Test";
+import DocumentViewer from "@/pages/Test2";
 import {
   IonTabs,
   IonRouterOutlet,
@@ -20,6 +22,7 @@ import {
   useIonViewDidEnter,
   useIonViewWillEnter,
 } from "@ionic/react";
+import { render } from "@testing-library/react";
 import { chatbubbles, home, fileTray, layers } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, matchPath, useLocation } from "react-router-dom";
@@ -64,6 +67,8 @@ const HomePageLayout = () => {
         <Route path="/chats" render={() => <ChatLists />} exact />
 
         {/* No Nav Tabs Page */}
+        <Route path={"/test"} render={() => <Test />} />
+        <Route path={"/test2"} render={() => <DocumentViewer />} />
 
         <Route path="/chat/:id" render={(props) => <ChatView {...props} />} />
         {/* <Route path="/new-chat/" render={() => <NewChat />} /> */}

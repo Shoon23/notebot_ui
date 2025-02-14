@@ -149,11 +149,7 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
               >
                 {attemptedQuiz.length !== 0 ? (
                   attemptedQuiz.map((data) => (
-                    <AttemptQuizCard
-                      key={data.quiz_attempt_id}
-                      width="360px"
-                      data={data}
-                    />
+                    <AttemptQuizCard key={data.quiz_attempt_id} data={data} />
                   ))
                 ) : (
                   <div
