@@ -78,6 +78,22 @@ export interface iSavedEssay {
   blooms_taxonomy_level: string;
   questions: Array<{ question_id: number; content: string }>;
 }
+interface iSingleShortAnswerOrTFQuestion {
+  content: string;
+  options: {
+    content: string;
+    explanation?: string;
+    is_answer: boolean; // should always be true for the single option
+  }[];
+}
+interface iSingleMCQ {
+  content: String;
+  options: Array<{
+    content: string;
+    is_answer: boolean;
+  }>;
+}
+
 class QuizRepository {
   private db: SQLiteDBConnection;
 
@@ -110,7 +126,7 @@ class QuizRepository {
 
   // Get quiz by ID with questions
   async getQuizWithQuestions(quiz_id: string) {
-    const sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, description, created_at 
+    const sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level,num_questions, description, created_at 
                  FROM Quiz WHERE quiz_id=?;`;
     const result = await this.db.query(sql, [quiz_id]);
     if (!result.values || result.values?.length === 0) {
@@ -364,6 +380,107 @@ class QuizRepository {
       console.error("Error updating quiz details:", error);
       throw new Error("Unable to update quiz details");
     }
+  }
+
+  /**
+   * Save a single MCQ question.
+   * Inserts the question and its options into the database.
+   */
+  async saveSingleMCQQuestion(
+    quiz_id: number,
+    new_question: iSingleMCQ
+  ): Promise<QuestionWithOptions> {
+    // Update Number of Question
+
+    const updateQuiz = await this.db.run(
+      "UPDATE Quiz SET num_questions = num_questions + 1 WHERE quiz_id = ?",
+      [quiz_id]
+    );
+
+    // Insert the question into the Question table.
+    const questionInsertResult = await this.db.run(
+      "INSERT INTO Question (quiz_id, content) VALUES (?, ?)",
+      [quiz_id, new_question.content]
+    );
+    const question_id = questionInsertResult.changes?.lastId;
+    if (!question_id) {
+      throw new Error("saveSingleMCQQuestion: Failed to insert question");
+    }
+
+    // Insert each option into the Option table.
+    const optionPromises = new_question.options.map(async (opt) => {
+      const result = await this.db.run(
+        "INSERT INTO Option (question_id, content, is_answer) VALUES (?, ?, ?)",
+        [Number(question_id), opt.content, opt.is_answer]
+      );
+      return {
+        option_id: result.changes?.lastId as number,
+        content: opt.content,
+        is_answer: opt.is_answer,
+      } as Option;
+    });
+
+    const savedOptions = await Promise.all(optionPromises);
+
+    return {
+      question_id: Number(question_id),
+      content: new_question.content as string,
+      options: savedOptions,
+    };
+  }
+  async saveSingleShortAnswerOrTFQuestion(
+    quiz_id: number,
+    new_question: iSingleShortAnswerOrTFQuestion
+  ): Promise<QuestionWithOptions> {
+    // Update Number of Question
+
+    const updateQuiz = await this.db.run(
+      "UPDATE Quiz SET num_questions = num_questions + 1 WHERE quiz_id = ?",
+      [quiz_id]
+    );
+    // Insert the question into the Question table.
+    const questionInsertResult = await this.db.run(
+      "INSERT INTO Question (quiz_id, content) VALUES (?, ?)",
+      [quiz_id, new_question.content]
+    );
+    const question_id = questionInsertResult.changes?.lastId;
+    if (!question_id) {
+      throw new Error(
+        "saveSingleShortAnswerOrTFQuestion: Failed to insert question"
+      );
+    }
+
+    // For short answer/true-false, we expect exactly one option.
+    const optionData = new_question.options[0];
+    const result = await this.db.run(
+      "INSERT INTO Option (question_id, content, is_answer, explanation) VALUES (?, ?, ?, ?)",
+      [
+        Number(question_id),
+        optionData.content,
+        optionData.is_answer,
+        optionData.explanation,
+      ]
+    );
+    const option_id = result.changes?.lastId;
+    if (!option_id) {
+      throw new Error(
+        "saveSingleShortAnswerOrTFQuestion: Failed to insert option"
+      );
+    }
+
+    const savedOption: Option = {
+      option_id: Number(option_id),
+      content: optionData.content,
+      is_answer: optionData.is_answer,
+      explanation:
+        optionData.explanation !== undefined ? optionData.explanation : "",
+    };
+
+    return {
+      question_id: Number(question_id),
+      content: new_question.content,
+      options: [savedOption],
+    };
   }
 }
 

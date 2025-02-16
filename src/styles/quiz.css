@@ -42,3 +42,102 @@ ion-checkbox::part(container) {
   margin: 0;
   padding: 0;
 }
+.take-quiz-btn-container {
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 50%; /* Makes the container a circle */
+  border: 2px solid black;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.take-quiz-btn-container:disabled {
+  background-color: gray;
+}
+/* Mini button style with scaling and border */
+.mini-btn {
+  transform: scale(0.9);
+  width: 60px;
+  height: 60px;
+  border: 2px solid black;
+  border-radius: 50%; /* Makes the mini button a circle */
+  color: white; /* Ensures text color is white */
+}
+
+/* Ensure text within mini-btn is white */
+.mini-btn > div {
+  color: white;
+}
+
+/* View Note Button */
+.view-note-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center text horizontally */
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #d8a7c7;
+  border: 2px solid black;
+  height: 40px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.view-note-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+
+/* Add Questions Button */
+.add-question-btn {
+  flex: 1;
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center text horizontally */
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #d98f56;
+  border: 2px solid black;
+  height: 40px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  font-size: 1.2rem;
+}
+
+.add-question-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.add-question-btn:disabled {
+  box-shadow: none;
+  transition: none;
+  transform: none;
+  color: gray;
+  border: 2px solid gray;
+}
+
+/* Mini button style with scaling and border */
+.cancel-mini-btn {
+  background-color: #87ceeb;
+
+  transform: scale(0.9);
+  width: 60px;
+  height: 60px;
+  border: 2px solid black;
+  border-radius: 50%; /* Makes the mini button a circle */
+  color: white; /* Ensures text color is white */
+  background-color: #ac4830;
+}
+
+/* Ensure text within mini-btn is white */
+.cancel-mini-btn > div {
+  color: white;
+}

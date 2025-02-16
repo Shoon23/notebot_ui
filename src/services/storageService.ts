@@ -24,6 +24,7 @@ import AttemptQuizRepository from "@/repository/AttemptQuizRepository";
 import AttemptQuizService from "./attemptQuizService";
 import { table } from "console";
 import ConversationRepository from "@/repository/ConversationRepository";
+import OptionRepository from "@/repository/OptionRepository";
 
 export interface IStorageService {
   initializeDatabase(): Promise<void>;
@@ -64,7 +65,7 @@ class StorageService implements IStorageService {
   noteRepo!: NoteRepository;
   quizRepo!: QuizRepository;
   questionRepo!: QuestionRepository;
-  optionRepo!: QuestionRepository;
+  optionRepo!: OptionRepository;
   essayRepo!: EssayRepository;
   attemptQuizRepo!: AttemptQuizRepository;
   attemptQuizService!: AttemptQuizService;
@@ -112,7 +113,7 @@ class StorageService implements IStorageService {
       this.quizRepo = new QuizRepository(this.db);
 
       this.questionRepo = new QuestionRepository(this.db);
-      this.optionRepo = new QuestionRepository(this.db);
+      this.optionRepo = new OptionRepository(this.db);
       this.essayRepo = new EssayRepository(this.db);
       this.attemptQuizRepo = new AttemptQuizRepository(this.db);
       this.conversationRepo = new ConversationRepository(this.db);

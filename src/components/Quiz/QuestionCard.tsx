@@ -1,14 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
   IonCheckbox,
+  IonIcon,
+  IonButton,
+  IonContent,
+  IonPopover,
 } from "@ionic/react";
-import { QuestionWithOptions } from "@/repository/QuizRepository";
+import { iMCQQuestion, QuestionWithOptions } from "@/repository/QuizRepository";
 import { hexToRgb } from "@/utils";
 import "../../styles/quiz.css";
+import { ellipsisVertical } from "ionicons/icons";
+import MoreOptions from "./MoreOptions";
 
 interface QuestionCardProps {
   question_answer: QuestionWithOptions;
@@ -19,6 +25,9 @@ interface QuestionCardProps {
   ) => void;
   isCheckBox: boolean;
   selected: boolean; // Controlled prop
+  question_type: string;
+  isSelectQuestion: boolean;
+  setQuiz: React.Dispatch<React.SetStateAction<iMCQQuestion>>;
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
@@ -27,6 +36,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   onSelectionChange,
   isCheckBox,
   selected,
+  question_type,
+  isSelectQuestion,
+  setQuiz,
 }) => {
   const tempoColor = "#47926B";
   const shadowColors = hexToRgb(tempoColor);
@@ -59,22 +71,34 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             alignSelf: "center",
             margin: "5px",
           }}
-          // Use the controlled prop for checked state
           checked={selected}
           onIonChange={(e) =>
             onSelectionChange(question_answer, e.detail.checked)
           }
-          // Prevent the checkbox's own click from triggering the card click event
           onClick={(e) => e.stopPropagation()}
         />
       )}
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <div style={{ height: "100%" }}>
-          <IonCardHeader style={{ padding: "10px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+          <IonCardHeader
+            style={{
+              flex: 1, // Allow this element to take all remaining space
+              padding: "10px",
+              paddingRight: "0",
+            }}
+          >
             <IonCardTitle style={{ fontSize: "1rem", fontWeight: "bolder" }}>
               {idx + 1}. {question_answer.content}
             </IonCardTitle>
           </IonCardHeader>
+          {/* Pop Over */}
+          {!isSelectQuestion && (
+            <MoreOptions
+              setQuiz={setQuiz}
+              question_answer={question_answer}
+              question_type={question_type}
+            />
+          )}
         </div>
         <IonCardContent style={{ display: "flex", flexDirection: "column" }}>
           {question_answer.options.map((option, idx) => {

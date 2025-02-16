@@ -2,6 +2,9 @@ import {
   IonButton,
   IonCheckbox,
   IonContent,
+  IonFab,
+  IonFabButton,
+  IonFabList,
   IonHeader,
   IonIcon,
   IonLabel,
@@ -32,7 +35,7 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
 import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
 import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
-import { createOutline } from "ionicons/icons";
+import { closeOutline, colorFill, createOutline } from "ionicons/icons";
 import "../styles/quiz.css";
 import EditQuizModal from "@/components/Quiz/EditQuizModal";
 interface QuizProp
@@ -40,6 +43,8 @@ interface QuizProp
     id: string;
   }> {}
 import { useHistory } from "react-router-dom";
+import { differenceInSeconds } from "date-fns";
+import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
 
 const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [quiz, setQuiz] = useState<iMCQQuestion>({
@@ -56,9 +61,10 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [window, setWindow] = useState("questions");
   const [isEdit, setIsEdit] = useState(false);
 
-  const [shadowColor, setShadowColor] = useState("");
+  const [shadowColorDetail, setshadowColorDetail] = useState("");
+  const [shadowColorActions, setshadowColorActions] = useState("");
+  const [isSelectQuestion, setIsSelectQuestion] = useState(false);
   const history = useHistory();
-
   // State to store selected questions (or any info you need)
   const [selectedQuestions, setSelectedQuestions] = useState<
     QuestionWithOptions[]
@@ -79,7 +85,9 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     });
   };
   useIonViewWillEnter(() => {
-    setSelectedQuestions([]);
+    // setSelectedQuestions([]);
+    // setIsSelectQuestion(false);
+
     const fetchQuizData = async () => {
       try {
         const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
@@ -88,6 +96,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         if (quiz_data.question_type === "essay") {
           setSelectedQuestions(quiz_data.questions);
         }
+
+        console.log(quiz_data);
         fetchQuizAttemptHistory(quiz_data.quiz_id);
         setQuiz(quiz_data);
       } catch (error) {
@@ -108,14 +118,15 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       }
     };
     fetchQuizData();
-    setShadowColor(getShadowColors());
+    setshadowColorDetail(getShadowColors());
+    setshadowColorActions(getShadowColors());
   });
 
-  useIonViewWillLeave(() => {
-    setSelectedQuestions([]);
-  });
-
-  console.log(selectedQuestions);
+  // useIonViewWillLeave(() => {
+  //   setSelectedQuestions([]);
+  //   setIsSelectQuestion(false);
+  // });
+  console.log(quiz);
   return (
     <IonPage
       style={{
@@ -166,13 +177,19 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
           quiz_id={quiz.quiz_id}
         />
         <section className="ion-padding">
-          <QuizDetailCard data={quiz} shadowColor={shadowColor} />
+          <QuizDetailCard data={quiz} shadowColor={shadowColorDetail} />
           {quiz.description && (
             <QuizDescriptionCard
-              shadowColor={shadowColor}
+              shadowColor={shadowColorDetail}
               description={quiz.description}
             />
           )}
+          <QuizQuickActions
+            setQuiz={setQuiz}
+            quiz_id={quiz.quiz_id}
+            question_type={quiz.question_type}
+          />
+
           <IonSegment
             mode="ios"
             style={{
@@ -214,8 +231,13 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                     <QuestionCard
                       key={question_answer.question_id}
                       question_answer={question_answer}
+                      question_type={quiz.question_type}
                       idx={index}
-                      isCheckBox={quiz.question_type !== "essay"}
+                      isCheckBox={
+                        quiz.question_type !== "essay" && isSelectQuestion
+                      }
+                      isSelectQuestion={isSelectQuestion}
+                      setQuiz={setQuiz}
                       onSelectionChange={handleSelectionChange}
                       selected={isSelected} // Pass the controlled value
                     />
@@ -254,31 +276,129 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               </div>
             )}
           </div>
-          <div
+        </section>
+      </IonContent>
+
+      <IonFab
+        style={{
+          position: "fixed",
+          bottom: "60px",
+          right: "20px",
+          zIndex: "5px",
+        }}
+        slot="fixed"
+        horizontal="end"
+      >
+        <IonFabButton
+          className="take-quiz-btn-container animated-button"
+          disabled={isSelectQuestion && selectedQuestions.length === 0}
+        >
+          Start Quiz
+        </IonFabButton>
+
+        {!isSelectQuestion ? (
+          <IonFabList
+            side="top"
             style={{
-              display: "flex",
-              justifyContent: "flex-end", // Align horizontally to the right
-              alignItems: "flex-end", // Align vertically to the bottom
-              height: "100%", // Make sure the parent container has full height
-              marginTop: "5px",
-              marginBottom: "5px",
+              width: "100%",
             }}
           >
-            <IonButton
-              disabled={selectedQuestions.length === 0}
-              expand="full"
-              color={"tertiary"}
+            <IonFabButton
+              style={{ zIndex: 1000 }}
+              className="mini-btn animated-button"
+              onClick={() => {
+                history.push(`/take-quiz/${quiz.quiz_id}`, {
+                  quiz: quiz,
+                });
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div>All</div>
+              </div>
+            </IonFabButton>
+
+            {quiz.question_type !== "essay" && (
+              <IonFabButton
+                style={{ zIndex: 1000 }}
+                className="mini-btn animated-button"
+                onClick={() => setIsSelectQuestion(!isSelectQuestion)}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div>Select</div>
+                </div>
+              </IonFabButton>
+            )}
+          </IonFabList>
+        ) : (
+          <IonFabList
+            side="top"
+            style={{
+              width: "100%",
+            }}
+          >
+            <IonFabButton
+              style={{ zIndex: 1000 }}
+              className="cancel-mini-btn animated-button"
+              onClick={() => {
+                setIsSelectQuestion(false);
+                setSelectedQuestions([]);
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <IonIcon
+                  icon={closeOutline}
+                  style={{
+                    fontSize: "24px",
+                    color: "#ac4830",
+                  }}
+                ></IonIcon>
+                <div style={{}}>Cancel</div>
+              </div>
+            </IonFabButton>
+            <IonFabButton
+              style={{ zIndex: 1000 }}
+              className="mini-btn animated-button"
               onClick={() => {
                 history.push(`/take-quiz/${quiz.quiz_id}`, {
                   quiz: { ...quiz, questions: selectedQuestions },
                 });
               }}
             >
-              Take
-            </IonButton>
-          </div>
-        </section>
-      </IonContent>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div>Start</div>
+              </div>
+            </IonFabButton>
+          </IonFabList>
+        )}
+      </IonFab>
     </IonPage>
   );
 };

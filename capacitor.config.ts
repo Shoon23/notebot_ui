@@ -19,9 +19,6 @@ const config: CapacitorConfig = {
         biometricSubTitle: "Log in using your biometric",
       },
     },
-    Filesystem: {
-      androidPublicDirectory: "DOCUMENTS",
-    },
   },
 };
 

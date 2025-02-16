@@ -31,7 +31,12 @@ interface QuizCardProps {
   width?: string;
   data: iQuiz;
 }
-
+const questionTypes = {
+  mcq: "Multiple Choice",
+  "short-answer": "Short Answer",
+  "true-or-false": "True or False",
+  essay: "Essay",
+};
 const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
@@ -92,7 +97,12 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
                 {capitlizedFirstLetter(data.blooms_taxonomy_level)}
               </div>
               <div>
-                Question Type: {capitlizedFirstLetter(data.question_type)}
+                Question Type:{" "}
+                {capitlizedFirstLetter(
+                  questionTypes[
+                    data.question_type as keyof typeof questionTypes
+                  ]
+                )}
               </div>
             </IonCardSubtitle>
           </IonCardHeader>

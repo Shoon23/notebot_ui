@@ -58,7 +58,6 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
           Number(match.params.id)
         );
 
-        console.log(data);
         setQuizResult(data);
       } catch (error) {
         console.log(error);
@@ -70,7 +69,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     <IonPage>
       <IonContent>
         <Header
-          backRoute={`/quizzes/generated_quiz`}
+          backRoute={`/quiz/${quizResult.quiz_id}`}
           nameComponent={
             <h1
               style={{

@@ -9,7 +9,7 @@ class QuestionRepository {
 
   // Save a question
   async saveQuestion(quiz_id: string, content: string): Promise<number> {
-    const sql = `INSERT INTO questions (quiz_id, content) VALUES (?, ?);`;
+    const sql = `INSERT INTO Question (quiz_id, content) VALUES (?, ?);`;
     const res = await this.db.run(sql, [quiz_id, content]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
@@ -40,6 +40,21 @@ class QuestionRepository {
     }
 
     return result.values;
+  }
+
+  // Update the content of a question by its id
+  async updateQuestionContent(
+    question_id: number,
+    newContent: string
+  ): Promise<void> {
+    const sql = `UPDATE Question SET content = ? WHERE question_id = ?;`;
+    const res = await this.db.run(sql, [newContent, question_id]);
+    if (res.changes) {
+      return;
+    }
+    throw new Error(
+      `QuestionRepository.updateQuestionContent: Update failed for question_id ${question_id}`
+    );
   }
 }
 

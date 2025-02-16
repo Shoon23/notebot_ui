@@ -84,6 +84,13 @@ const QuizDetailCard: React.FC<QuizDetailCardProps> = ({
                   marginBottom: 4,
                 }}
               >
+                Number of Questions: {data.num_questions}
+              </div>
+              <div
+                style={{
+                  marginBottom: 4,
+                }}
+              >
                 Blooms Level:{" "}
                 {capitlizedFirstLetter(data.blooms_taxonomy_level)}
               </div>
