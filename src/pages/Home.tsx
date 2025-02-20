@@ -52,6 +52,7 @@ const Home: React.FC<HomeProps> = ({}) => {
         const fetchNote = async () => {
           const noteList = await storageServ.noteRepo.getListOfNotes({
             limit: 5,
+            onlyNotArchived: true,
           });
 
           setNotes(noteList);
@@ -60,6 +61,7 @@ const Home: React.FC<HomeProps> = ({}) => {
         const fetchQuizAttempts = async () => {
           const quizList = await storageServ.attemptQuizRepo.getManyAttempts({
             is_recent: true,
+            onlyNotArchived: true,
           });
           setAttemptedQuiz(quizList);
         };
@@ -114,11 +116,7 @@ const Home: React.FC<HomeProps> = ({}) => {
               >
                 {attemptedQuiz.map((data) => {
                   return (
-                    <AttemptQuizCard
-                      key={data.quiz_attempt_id}
-                      width="360px"
-                      data={data}
-                    />
+                    <AttemptQuizCard key={data.quiz_attempt_id} data={data} />
                   );
                 })}
                 <MoreButton

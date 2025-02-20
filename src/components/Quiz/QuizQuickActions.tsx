@@ -7,6 +7,8 @@ import {
   IonModal,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
+  useIonViewWillLeave,
 } from "@ionic/react";
 import TextAreaInput from "../GenerateQuiz/TextAreaInput";
 import useStorageService from "@/hooks/useStorageService";
@@ -124,6 +126,25 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
       console.log(error);
     }
   };
+  // Hardware back button handler that resets edit mode
+  const backButtonHandler = (event: any) => {
+    // Register with a high priority so it overrides default behavior
+    event.detail.register(100, (processNextHandler: any) => {
+      setIsdAdd(false);
+      setQuestionData(initQuestion);
+      processNextHandler();
+    });
+  };
+
+  // Register the back button handler when the view is active
+  useIonViewDidEnter(() => {
+    document.addEventListener("ionBackButton", backButtonHandler);
+  });
+
+  // Remove the back button handler when leaving the view
+  useIonViewWillLeave(() => {
+    document.removeEventListener("ionBackButton", backButtonHandler);
+  });
 
   return (
     <>

@@ -107,12 +107,21 @@ class ConversationRepository {
       throw new Error(`Error retrieving messages: ${error}`);
     }
   }
+  async getConversationsWithNoteName(filters?: {
+    onlyNotArchived?: boolean;
+  }): Promise<iConversationWithNote[]> {
+    const onlyNotArchived = filters?.onlyNotArchived ?? false;
+    let sql = `
+      SELECT c.conversation_id, n.note_name, c.last_viewed_at, c.is_archived
+      FROM Conversation c
+      JOIN Note n ON c.note_id = n.note_id
+    `;
 
-  async getConversationsWithNoteName(): Promise<iConversationWithNote[]> {
-    const sql = `SELECT c.conversation_id, n.note_name, c.last_viewed_at
-                 FROM Conversation c
-                 JOIN Note n ON c.note_id = n.note_id
-                 ORDER BY c.last_viewed_at DESC;`;
+    if (onlyNotArchived) {
+      sql += " WHERE c.is_archived = 0";
+    }
+
+    sql += " ORDER BY c.last_viewed_at DESC;";
 
     try {
       const result = await this.db.query(sql);

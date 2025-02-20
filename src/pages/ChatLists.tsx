@@ -31,7 +31,9 @@ const ChatLists = () => {
   useIonViewWillEnter(() => {
     const fetchConversation = async () => {
       const conversations =
-        await storageServ.conversationRepo.getConversationsWithNoteName();
+        await storageServ.conversationRepo.getConversationsWithNoteName({
+          onlyNotArchived: true,
+        });
       setConversations(conversations);
     };
     fetchConversation();

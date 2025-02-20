@@ -51,6 +51,7 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
           const quizAttemptList =
             await storageServ.attemptQuizRepo.getManyAttempts({
               is_recent: true,
+              onlyNotArchived: true,
             });
           setAttemptedQuiz(quizAttemptList);
         };
@@ -58,6 +59,7 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
           const quizList = await storageServ.quizRepo.getManyQuiz({
             is_recent: true,
             search_key_word: null,
+            onlyNotArchived: true,
           });
           setQuiz(quizList);
         };

@@ -11,6 +11,7 @@ export const QuizUpgradeStatements = [
            blooms_taxonomy_level TEXT NOT NULL,
            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
            description TEXT,
+          is_archived INTEGER DEFAULT 0,
            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
            FOREIGN KEY (note_id) REFERENCES Note(note_id) ON DELETE CASCADE
          );`,

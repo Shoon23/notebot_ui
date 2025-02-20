@@ -49,6 +49,7 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
     const fethNotes = async () => {
       const notes = await storageServ.noteRepo.getListOfNotes({
         onlyWithContent: true,
+        onlyNotArchived: true,
       });
       setNotes(notes);
     };

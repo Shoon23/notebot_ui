@@ -151,26 +151,36 @@ class QuizRepository {
     return quiz;
   }
 
-  // Get a list of quizzes with optional filters
   async getManyQuiz(filters: {
     is_recent: boolean;
     search_key_word: string | null;
+    onlyNotArchived?: boolean; // New optional filter for archived quizzes
   }): Promise<iQuiz[]> {
-    const { is_recent, search_key_word } = filters;
-    let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, created_at ,num_questions
+    const { is_recent, search_key_word, onlyNotArchived } = filters;
+    let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, created_at, num_questions
                FROM Quiz`;
+    const conditions: string[] = [];
+    const params: any[] = [];
 
+    // Add search condition if provided
     if (search_key_word) {
-      sql += ` WHERE quiz_name LIKE ?`;
+      conditions.push(`quiz_name LIKE ?`);
+      params.push(`%${search_key_word}%`);
+    }
+
+    // Add archive filter if requested
+    if (onlyNotArchived) {
+      conditions.push(`is_archived = 0`);
+    }
+
+    // Combine conditions if there are any
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
     }
 
     sql += ` ORDER BY created_at ${is_recent ? "DESC" : "ASC"} LIMIT 10;`;
 
-    const result = await this.db.query(
-      sql,
-      search_key_word ? [`%${search_key_word}%`] : []
-    );
-
+    const result = await this.db.query(sql, params);
     return result.values as iQuiz[];
   }
 

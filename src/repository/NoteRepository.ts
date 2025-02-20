@@ -95,12 +95,14 @@ class NoteRepository {
   async getListOfNotes(filters: {
     limit?: number;
     onlyWithContent?: boolean;
-    onlyWithoutConversation?: boolean; // New filter
+    onlyWithoutConversation?: boolean; // Existing filter
+    onlyNotArchived?: boolean; // New filter: only fetch non-archived notes
   }): Promise<Note[]> {
-    const { limit, onlyWithContent, onlyWithoutConversation } = filters;
+    const { limit, onlyWithContent, onlyWithoutConversation, onlyNotArchived } =
+      filters;
 
     const sql = `
-      SELECT n.note_id, n.note_name, n.content_text, n.last_viewed_at 
+      SELECT n.note_id, n.note_name, n.content_text, n.last_viewed_at, n.is_archived
       FROM Note n
       ${
         onlyWithoutConversation
@@ -108,16 +110,25 @@ class NoteRepository {
           : ""
       }
       ${
+        onlyWithContent || onlyNotArchived || onlyWithoutConversation
+          ? "WHERE"
+          : ""
+      }
+      ${
         onlyWithContent
-          ? `${
-              onlyWithoutConversation ? "WHERE" : "WHERE"
-            } ((n.content_text IS NOT NULL AND n.content_text != '')
-                OR (n.content_pdf_url IS NOT NULL AND n.content_pdf_url != ''))`
+          ? "((n.content_text IS NOT NULL AND n.content_text != '') OR (n.content_pdf_url IS NOT NULL AND n.content_pdf_url != ''))"
+          : ""
+      }
+      ${
+        onlyNotArchived
+          ? `${onlyWithContent ? " AND " : ""} n.is_archived = 0`
           : ""
       }
       ${
         onlyWithoutConversation
-          ? `${onlyWithContent ? "AND" : "WHERE"} c.note_id IS NULL`
+          ? `${
+              onlyWithContent || onlyNotArchived ? " AND " : ""
+            } c.note_id IS NULL`
           : ""
       }
       ORDER BY n.last_viewed_at DESC
@@ -133,6 +144,71 @@ class NoteRepository {
     const res = await this.db.run(sql, [new Date().toISOString(), note_id]);
     if (res.changes?.changes === 0) {
       throw new Error("Note not found to update");
+    }
+  }
+  async archiveNote(noteId: number): Promise<void> {
+    const sql = `UPDATE Note SET is_archived = 1 WHERE note_id = ?;`;
+    await this.db.query(sql, [noteId]);
+  }
+  async archiveRecordsByNoteId(noteId: number): Promise<void> {
+    try {
+      // Begin the transaction
+      await this.db.beginTransaction();
+      // Verify that the transaction is active
+      const isTransActive = await this.db.isTransactionActive();
+      if (!isTransActive) {
+        throw new Error("Transaction not active");
+      }
+
+      // Archive the Note record(s)
+      await this.db.run(
+        `UPDATE Note SET is_archived = 1 WHERE note_id = ?;`,
+        [noteId],
+        false // false means autosave is disabled in transaction mode
+      );
+
+      // Archive the Conversation record(s) associated with the note
+      await this.db.run(
+        `UPDATE Conversation SET is_archived = 1 WHERE note_id = ?;`,
+        [noteId],
+        false
+      );
+
+      // Archive the Quiz record(s) associated with the note
+      await this.db.run(
+        `UPDATE Quiz SET is_archived = 1 WHERE note_id = ?;`,
+        [noteId],
+        false
+      );
+
+      // Fetch all quiz_ids from Quiz table associated with the note_id
+      const result = await this.db.query(
+        `SELECT quiz_id FROM Quiz WHERE note_id = ?;`,
+        [noteId]
+      );
+
+      if (!result.values) return;
+      const quizIds = result?.values.map((row: any) => row.quiz_id);
+
+      // If there are any quiz IDs, archive all related QuizAttempt records
+      if (quizIds.length > 0) {
+        // Dynamically create placeholders for the IN clause
+        const placeholders = quizIds.map(() => "?").join(", ");
+        await this.db.run(
+          `UPDATE QuizAttempt SET is_archived = 1 WHERE quiz_id IN (${placeholders});`,
+          quizIds,
+          false
+        );
+      }
+
+      // Commit the transaction if all updates succeed
+      await this.db.commitTransaction();
+    } catch (error) {
+      // Roll back the transaction on error to avoid partial updates
+      await this.db.rollbackTransaction();
+      throw new Error(
+        `Error archiving records for note_id ${noteId}: ${error}`
+      );
     }
   }
 }

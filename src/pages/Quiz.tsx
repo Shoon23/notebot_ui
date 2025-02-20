@@ -14,15 +14,15 @@ import {
   IonSegment,
   IonSegmentButton,
   IonSegmentContent,
-  IonSegmentView,
   IonTitle,
   IonToolbar,
   useIonRouter,
+  useIonViewDidEnter,
   useIonViewWillEnter,
   useIonViewWillLeave,
 } from "@ionic/react";
 import React, { useState } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import QuestionCard from "@/components/Quiz/QuestionCard";
 import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import useStorageService from "@/hooks/useStorageService";
@@ -35,16 +35,16 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
 import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
 import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
-import { closeOutline, colorFill, createOutline } from "ionicons/icons";
+import { closeOutline, createOutline } from "ionicons/icons";
 import "../styles/quiz.css";
 import EditQuizModal from "@/components/Quiz/EditQuizModal";
+import { differenceInSeconds } from "date-fns";
+import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
+
 interface QuizProp
   extends RouteComponentProps<{
     id: string;
   }> {}
-import { useHistory } from "react-router-dom";
-import { differenceInSeconds } from "date-fns";
-import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
 
 const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [quiz, setQuiz] = useState<iMCQQuestion>({
@@ -60,34 +60,35 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [attemptedQuiz, setAttemptedQuiz] = useState<iAttemptQuiz[]>([]);
   const [window, setWindow] = useState("questions");
   const [isEdit, setIsEdit] = useState(false);
-
   const [shadowColorDetail, setshadowColorDetail] = useState("");
   const [shadowColorActions, setshadowColorActions] = useState("");
   const [isSelectQuestion, setIsSelectQuestion] = useState(false);
   const history = useHistory();
-  // State to store selected questions (or any info you need)
+  // State to store selected questions
   const [selectedQuestions, setSelectedQuestions] = useState<
     QuestionWithOptions[]
   >([]);
 
-  // Callback when a question card toggles its selection
-  const handleSelectionChange = (
-    question: QuestionWithOptions,
-    isChecked: boolean
-  ) => {
-    setSelectedQuestions((prev) => {
-      // If checked, add the question; if unchecked, remove it
-      if (isChecked) {
-        return [...prev, question];
-      } else {
-        return prev.filter((q) => q.question_id !== question.question_id); // assuming each question has a unique id
-      }
+  // Hardware back button handler that resets edit mode
+  const backButtonHandler = (event: any) => {
+    // Register with a high priority so it overrides default behavior
+    event.detail.register(100, (processNextHandler: any) => {
+      setIsEdit(false);
+      processNextHandler();
     });
   };
-  useIonViewWillEnter(() => {
-    // setSelectedQuestions([]);
-    // setIsSelectQuestion(false);
 
+  // Register the back button handler when the view is active
+  useIonViewDidEnter(() => {
+    document.addEventListener("ionBackButton", backButtonHandler);
+  });
+
+  // Remove the back button handler when leaving the view
+  useIonViewWillLeave(() => {
+    document.removeEventListener("ionBackButton", backButtonHandler);
+  });
+
+  useIonViewWillEnter(() => {
     const fetchQuizData = async () => {
       try {
         const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
@@ -96,7 +97,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         if (quiz_data.question_type === "essay") {
           setSelectedQuestions(quiz_data.questions);
         }
-
         console.log(quiz_data);
         fetchQuizAttemptHistory(quiz_data.quiz_id);
         setQuiz(quiz_data);
@@ -104,6 +104,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         console.log(error);
       }
     };
+
     const fetchQuizAttemptHistory = async (quiz_id: number) => {
       try {
         const quizAttempt =
@@ -111,28 +112,36 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             is_recent: true,
             quiz_id: quiz_id,
           });
-
         setAttemptedQuiz(quizAttempt);
       } catch (error) {
         console.log(error);
       }
     };
+
     fetchQuizData();
     setshadowColorDetail(getShadowColors());
     setshadowColorActions(getShadowColors());
   });
 
-  // useIonViewWillLeave(() => {
-  //   setSelectedQuestions([]);
-  //   setIsSelectQuestion(false);
-  // });
+  // Callback when a question card toggles its selection
+  const handleSelectionChange = (
+    question: QuestionWithOptions,
+    isChecked: boolean
+  ) => {
+    setSelectedQuestions((prev) => {
+      // If checked, add the question; if unchecked, remove it.
+      if (isChecked) {
+        return [...prev, question];
+      } else {
+        return prev.filter((q) => q.question_id !== question.question_id);
+      }
+    });
+  };
+
   console.log(quiz);
+
   return (
-    <IonPage
-      style={{
-        overflow: "hidden",
-      }}
-    >
+    <IonPage style={{ overflow: "hidden" }}>
       <IonContent>
         {/* backBtnText */}
         <Header
@@ -163,7 +172,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                   style={{
                     fontSize: "30px",
                   }}
-                ></IonIcon>
+                />
               </button>
             </h1>
           }
@@ -189,7 +198,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             quiz_id={quiz.quiz_id}
             question_type={quiz.question_type}
           />
-
           <IonSegment
             mode="ios"
             style={{
@@ -199,7 +207,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               marginBottom: "3px",
             }}
             value={window}
-            onIonChange={(e) => setWindow(e.detail.value as string)} // Set the state for the active segment
+            onIonChange={(e) => setWindow(e.detail.value as string)}
           >
             <IonSegmentButton value="questions">
               <IonLabel>Questions</IonLabel>
@@ -208,7 +216,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               <IonLabel>History</IonLabel>
             </IonSegmentButton>
           </IonSegment>
-
           <div>
             {window === "questions" ? (
               <div
@@ -223,7 +230,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                 }}
               >
                 {quiz.questions.map((question_answer, index) => {
-                  // Determine if this question is selected by checking the parent's selectedQuestions state.
                   const isSelected = selectedQuestions.some(
                     (q) => q.question_id === question_answer.question_id
                   );
@@ -239,7 +245,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                       isSelectQuestion={isSelectQuestion}
                       setQuiz={setQuiz}
                       onSelectionChange={handleSelectionChange}
-                      selected={isSelected} // Pass the controlled value
+                      selected={isSelected}
                     />
                   );
                 })}
@@ -278,24 +284,22 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
           </div>
         </section>
       </IonContent>
-
       <IonFab
         style={{
           position: "fixed",
           bottom: "60px",
           right: "20px",
-          zIndex: "5px",
+          zIndex: "5",
         }}
         slot="fixed"
         horizontal="end"
       >
         <IonFabButton
           className="take-quiz-btn-container animated-button"
-          disabled={isSelectQuestion && selectedQuestions.length === 0}
+          // disabled={}
         >
           Start Quiz
         </IonFabButton>
-
         {!isSelectQuestion ? (
           <IonFabList
             side="top"
@@ -323,7 +327,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                 <div>All</div>
               </div>
             </IonFabButton>
-
             {quiz.question_type !== "essay" && (
               <IonFabButton
                 style={{ zIndex: 1000 }}
@@ -372,12 +375,16 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                     fontSize: "24px",
                     color: "#ac4830",
                   }}
-                ></IonIcon>
-                <div style={{}}>Cancel</div>
+                />
+                <div>Cancel</div>
               </div>
             </IonFabButton>
             <IonFabButton
-              style={{ zIndex: 1000 }}
+              disabled={selectedQuestions.length === 0}
+              style={{
+                zIndex: 1000,
+                opacity: selectedQuestions.length === 0 ? 0.5 : 1,
+              }}
               className="mini-btn animated-button"
               onClick={() => {
                 history.push(`/take-quiz/${quiz.quiz_id}`, {
@@ -417,9 +424,7 @@ export const getShadowColors = () => {
     "#9E7C5E",
   ];
   const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
-
-  return shadowColor;
+  return colors[randomIndex];
 };
 
 export default Quiz;

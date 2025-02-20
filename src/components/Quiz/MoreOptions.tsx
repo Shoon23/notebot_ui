@@ -8,6 +8,8 @@ import {
   IonPopover,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
+  useIonViewWillLeave,
 } from "@ionic/react";
 import { ellipsisVertical } from "ionicons/icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -113,7 +115,24 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
       console.log(error);
     }
   };
+  // Hardware back button handler that resets edit mode
+  const backButtonHandler = (event: any) => {
+    // Register with a high priority so it overrides default behavior
+    event.detail.register(100, (processNextHandler: any) => {
+      setIsEdit(false);
+      processNextHandler();
+    });
+  };
 
+  // Register the back button handler when the view is active
+  useIonViewDidEnter(() => {
+    document.addEventListener("ionBackButton", backButtonHandler);
+  });
+
+  // Remove the back button handler when leaving the view
+  useIonViewWillLeave(() => {
+    document.removeEventListener("ionBackButton", backButtonHandler);
+  });
   return (
     <>
       <IonButton

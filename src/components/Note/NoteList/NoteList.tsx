@@ -39,31 +39,6 @@ const NoteList: React.FC<NoteListProps> = ({
   const storageServ = useStorageService();
   const router = useIonRouter();
   // Updated function to create a folder in the application’s data directory
-  async function ensureDirectoryExists(
-    folderName: string,
-    baseDirectory: Directory = Directory.Data // default to Directory.Data
-  ): Promise<void> {
-    try {
-      await Filesystem.mkdir({
-        path: folderName,
-        directory: baseDirectory,
-        recursive: true, // Create intermediate folders if needed
-      });
-      console.log(
-        `Folder '${folderName}' created (or already exists) in ${baseDirectory}.`
-      );
-    } catch (error: any) {
-      // If the error indicates the folder already exists, ignore it
-      if (error.message && error.message.toLowerCase().includes("exists")) {
-        console.log(
-          `Folder '${folderName}' already exists, no need to create.`
-        );
-      } else {
-        console.error(`Error creating folder '${folderName}':`, error);
-        throw error;
-      }
-    }
-  }
 
   const pickAndSaveFile = async () => {
     try {
@@ -80,8 +55,8 @@ const NoteList: React.FC<NoteListProps> = ({
         // Define a subfolder name within the app's data directory
         const folderName = "Notes";
 
-        // Ensure the folder exists in Directory.Data
-        await ensureDirectoryExists(folderName, Directory.Data);
+        // // Ensure the folder exists in Directory.Data
+        // await ensureDirectoryExists(folderName, Directory.Data);
 
         // Create the target path using the folder name and file name.
         const targetPath = `${folderName}/${file.name}`;

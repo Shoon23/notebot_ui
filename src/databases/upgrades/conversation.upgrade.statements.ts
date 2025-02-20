@@ -7,6 +7,8 @@ export const ConversationUpgradeStatements = [
   note_id INTEGER UNIQUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,  
   last_viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,  
+          is_archived INTEGER DEFAULT 0,
+
   FOREIGN KEY (note_id) REFERENCES Note(note_id) ON DELETE CASCADE
 );
 `,

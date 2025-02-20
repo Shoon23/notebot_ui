@@ -130,31 +130,33 @@ class AttemptQuizRepository {
     return result.values[0];
   }
 
-  // Get many quiz attempts
   async getManyAttempts(filters: {
     is_recent: boolean;
     limit?: string;
+    onlyNotArchived?: boolean; // New filter: fetch only non-archived records
   }): Promise<iAttemptQuiz[]> {
-    const { is_recent, limit } = filters;
-    const sql = `SELECT 
-          qa.quiz_attempt_id, 
-          qa.created_at, 
-          qa.score, 
-    q.quiz_name,
-    qa.num_questions,
-    q.question_type,
-    q.blooms_taxonomy_level
-
-FROM 
-    QuizAttempt qa
-JOIN 
-    Quiz q 
-ON 
-    qa.quiz_id = q.quiz_id
-ORDER BY 
-    qa.created_at ${is_recent ? "DESC" : "ASC"} ${
-      limit ? "LIMIT " + limit : ""
-    };`;
+    const { is_recent, limit, onlyNotArchived } = filters;
+    const sql = `
+      SELECT 
+        qa.quiz_attempt_id, 
+        qa.created_at, 
+        qa.score, 
+        q.quiz_name,
+        qa.num_questions,
+        q.question_type,
+        q.blooms_taxonomy_level,
+        qa.is_archived AS attempt_archived,
+        q.is_archived AS quiz_archived
+      FROM 
+        QuizAttempt qa
+      JOIN 
+        Quiz q 
+        ON qa.quiz_id = q.quiz_id
+      ${onlyNotArchived ? "WHERE qa.is_archived = 0 AND q.is_archived = 0" : ""}
+      ORDER BY 
+        qa.created_at ${is_recent ? "DESC" : "ASC"}
+      ${limit ? "LIMIT " + limit : ""};
+    `;
 
     const result = await this.db.query(sql);
     return result.values as iAttemptQuiz[];

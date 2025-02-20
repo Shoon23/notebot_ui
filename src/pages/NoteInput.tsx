@@ -1,6 +1,7 @@
 import {
   IonAlert,
   IonBackButton,
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -14,7 +15,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/note-input.css";
-import { chevronBack, colorWand, trashBin } from "ionicons/icons";
+import { chevronBack, colorWand, text, trashBin } from "ionicons/icons";
 import useStorageService from "@/hooks/useStorageService";
 import { iNote } from "@/repository/NoteRepository";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -50,7 +51,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
 
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
-
+  const [isShowDelete, setIsShowDelete] = useState(false);
   // Utility: Convert a Base64 string to an ArrayBuffer
   const base64ToArrayBuffer = (base64: string) => {
     const binaryString = atob(base64);
@@ -69,6 +70,8 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
 
   useIonViewWillEnter(() => {
     const id = Number(match.params.id);
+
+    console.log(id);
     const fetchNote = async () => {
       try {
         // Fetch the note and update the last viewed time.
@@ -212,14 +215,17 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
             <span style={{ fontSize: "20px" }}>Back</span>
           </button>
 
-          <button id="alert-del-note" className="del-note-btn">
+          <button
+            className="del-note-btn"
+            onClick={() => {
+              setIsShowDelete(true);
+            }}
+          >
             <IonIcon icon={trashBin} style={{ fontSize: "30px" }} />
           </button>
-
           <IonAlert
-            className="custom-alert"
-            header="Do you want to delete this note?"
-            trigger="alert-del-note"
+            isOpen={isShowDelete}
+            header="Do you want to ARCHIVE this note?"
             buttons={[
               { text: "Cancel", role: "cancel" },
               {
@@ -227,15 +233,15 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
                 text: "Yes",
                 role: "confirm",
                 handler: async () => {
-                  await storageServ.noteRepo.deleteNote(note.note_id);
+                  await storageServ.noteRepo.archiveRecordsByNoteId(
+                    note.note_id
+                  );
                   router.push("/notes");
                 },
               },
             ]}
-            onDidDismiss={({ detail }) =>
-              console.log(`Dismissed with role: ${detail.role}`)
-            }
-          />
+            onDidDismiss={() => setIsShowDelete(false)}
+          ></IonAlert>
         </header>
         <section style={{ height: "94%" }}>
           <div className="note-name-container">

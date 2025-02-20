@@ -8,6 +8,7 @@ export const NoteUpgradeStatements = [
            summarize TEXT,
            content_text TEXT,
            content_pdf_url TEXT,
+          is_archived INTEGER DEFAULT 0,
            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
            last_viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP
          );`,

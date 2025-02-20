@@ -8,6 +8,8 @@ export const QuizAttemptUpgradeStatements = [
            score INTEGER NOT NULL,
            num_questions INTEGER NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          is_archived INTEGER DEFAULT 0,
+
            FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id) ON DELETE CASCADE
          );`,
     ],
