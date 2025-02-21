@@ -35,7 +35,16 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/note-input.css";
-import { archive, chevronBack } from "ionicons/icons";
+import {
+  archive,
+  chevronBack,
+  colorWand,
+  refresh,
+  refreshCircle,
+  refreshCircleOutline,
+  text,
+  trashBin,
+} from "ionicons/icons";
 import useStorageService from "@/hooks/useStorageService";
 import { iNote } from "@/repository/NoteRepository";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -51,9 +60,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-interface NoteInputProp extends RouteComponentProps<{ id: string }> {}
+interface NoteArchivedProp extends RouteComponentProps<{ id: string }> {}
 
-const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
+const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
   const storageServ = useStorageService();
   const router = useIonRouter();
 
@@ -96,7 +105,6 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
       try {
         // Fetch the note and update the last viewed time.
         const fetchedNote = await storageServ.noteRepo.getNoteById(id);
-        await storageServ.noteRepo.updateLastViewed(id);
         setNote({
           ...fetchedNote,
           note_id: id,
@@ -184,44 +192,6 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     fetchNote();
   });
 
-  const handleOnChangeName = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const value = e.target.value;
-      setNote((prev) => ({
-        ...prev,
-        note_name: value,
-      }));
-
-      storageServ.noteRepo.updateNoteContent({
-        note_name: value,
-        note_id: Number(match.params.id),
-        content_text: note.content_text,
-      });
-    } catch (error) {
-      console.error("Error updating note name:", error);
-    }
-  };
-
-  const handleOnNoteContent = async (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    try {
-      const value = e.target.value;
-      setNote((prev) => ({
-        ...prev,
-        content_text: value,
-      }));
-
-      storageServ.noteRepo.updateNoteContent({
-        content_text: value,
-        note_id: parseInt(match.params.id, 10),
-        note_name: note.note_name,
-      });
-    } catch (error) {
-      console.error("Error updating note content:", error);
-    }
-  };
-
   const onLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   };
@@ -229,6 +199,22 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   return (
     <IonPage>
       <IonContent>
+        <div
+          style={{
+            backgroundColor: "#ac4830",
+            color: "white",
+            padding: "10px",
+            fontSize: "1.3rem",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          Archive
+          <IonIcon icon={archive} style={{}}></IonIcon>
+        </div>
+
         <header className="notes-header">
           <button className="back-btn" onClick={() => router.goBack()}>
             <IonIcon icon={chevronBack} style={{ fontSize: "30px" }} />
@@ -236,16 +222,16 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
           </button>
 
           <button
-            className="del-note-btn"
+            className="refresh-note-btn"
             onClick={() => {
               setIsShowDelete(true);
             }}
           >
-            <IonIcon icon={archive} style={{ fontSize: "30px" }} />
+            <IonIcon icon={refresh} style={{ fontSize: "30px" }} />
           </button>
           <IonAlert
             isOpen={isShowDelete}
-            header="Do you want to ARCHIVE this note?"
+            header="Do you want to RESTORE this note?"
             buttons={[
               { text: "Cancel", role: "cancel" },
               {
@@ -253,7 +239,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
                 text: "Yes",
                 role: "confirm",
                 handler: async () => {
-                  await storageServ.noteRepo.archiveRecordsByNoteId(
+                  await storageServ.noteRepo.unarchiveRecordsByNoteId(
                     note.note_id
                   );
                   router.push("/notes");
@@ -267,7 +253,8 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
           <div className="note-name-container">
             <input
               disabled={!!note.content_pdf_url}
-              onChange={handleOnChangeName}
+              //   onChange={handleOnChangeName}
+              readOnly
               className="note-name-input"
               type="text"
               placeholder="Enter Note Name..."
@@ -302,10 +289,10 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
             </>
           ) : (
             <textarea
+              readOnly
               className="note-input"
               placeholder="Enter Here...."
               value={note.content_text}
-              onChange={handleOnNoteContent}
             />
           )}
         </section>
@@ -314,4 +301,4 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   );
 };
 
-export default NoteInput;
+export default NoteArchived;

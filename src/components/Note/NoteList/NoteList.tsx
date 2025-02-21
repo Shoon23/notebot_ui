@@ -27,6 +27,9 @@ interface NoteListProps {
   notes: Note[];
   handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
   isShowAdd: boolean;
+  isCheckBox: boolean;
+  selectedNotes: Note[];
+  setSelectedNotes: React.Dispatch<React.SetStateAction<Note[]>>;
 }
 
 const NoteList: React.FC<NoteListProps> = ({
@@ -34,12 +37,14 @@ const NoteList: React.FC<NoteListProps> = ({
   notes,
   handleSelectNote,
   isShowAdd,
+  isCheckBox,
+  selectedNotes,
+  setSelectedNotes,
 }) => {
   // Create a reference for the file input
   const storageServ = useStorageService();
   const router = useIonRouter();
   // Updated function to create a folder in the application’s data directory
-
   const pickAndSaveFile = async () => {
     try {
       const { files: pickedFiles } = await FilePicker.pickFiles({
@@ -94,6 +99,17 @@ const NoteList: React.FC<NoteListProps> = ({
       console.log(error);
     }
   };
+
+  const handleSelectArchive = (question: Note, isChecked: boolean) => {
+    setSelectedNotes((prev) => {
+      // If checked, add the question; if unchecked, remove it.
+      if (isChecked) {
+        return [...prev, question];
+      } else {
+        return prev.filter((q) => q.note_id !== question.note_id);
+      }
+    });
+  };
   return (
     <>
       {/* <SearchInput /> */}
@@ -112,12 +128,18 @@ const NoteList: React.FC<NoteListProps> = ({
           }}
         >
           {notes.map((data, index) => {
+            const isSelected = selectedNotes.some(
+              (q) => q.note_id === data.note_id
+            );
+
             return (
               <NoteCard
+                isCheckBox={isCheckBox}
                 key={index}
-                width="360px"
                 data={data}
                 handleSelectNote={handleSelectNote}
+                handleSelectArchive={handleSelectArchive}
+                isSelected={isSelected}
               />
             );
           })}

@@ -6,6 +6,7 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonCheckbox,
   IonIcon,
   useIonRouter,
 } from "@ionic/react";
@@ -29,13 +30,18 @@ const colors = [
 interface QuizCardProps {
   width?: string;
   data: Note;
+  isCheckBox: boolean;
+  handleSelectArchive: (question: Note, isChecked: boolean) => void;
+  isSelected: boolean;
   handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
 }
 
 const NoteCard: React.FC<QuizCardProps> = ({
-  width,
   data,
   handleSelectNote,
+  isCheckBox,
+  isSelected,
+  handleSelectArchive,
 }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
@@ -46,9 +52,28 @@ const NoteCard: React.FC<QuizCardProps> = ({
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
+    display: "flex",
+  };
+
+  // When the card is clicked, toggle the parent's state.
+  const handleCardClick = () => {
+    if (!isCheckBox) return;
+    handleSelectArchive(data, !isSelected);
   };
   return (
-    <IonCard style={cardsStyles}>
+    <IonCard style={cardsStyles} type="button" onClick={handleCardClick}>
+      {isCheckBox && (
+        <IonCheckbox
+          style={{
+            alignSelf: "center",
+            margin: "5px",
+          }}
+          checked={isSelected}
+          onIonChange={(e) => handleSelectArchive(data, e.detail.checked)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+
       <div
         style={{
           display: "flex",
@@ -69,8 +94,10 @@ const NoteCard: React.FC<QuizCardProps> = ({
             }}
           >
             <span>
-              Last Viewed:
-              {formatDate(data.last_viewed_at as string)}
+              {!data.is_archived
+                ? ` Last Viewed:
+              ${formatDate(data.last_viewed_at as string)}`
+                : `Archived At: ${formatDate(data.archived_at as string)}`}
             </span>
             <IonCardTitle
               style={{

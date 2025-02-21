@@ -3,6 +3,7 @@ import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import QuizCard from "@/components/Quizzes/AttemptQuizCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import {
+  IonAlert,
   IonButton,
   IonButtons,
   IonContent,
@@ -25,22 +26,33 @@ import {
   archive,
   caretDown,
   caretUp,
+  checkmark,
+  checkmarkDone,
   chevronDown,
   createOutline,
+  close,
   fileTray,
+  archiveOutline,
 } from "ionicons/icons";
-import { useContext, useEffect, useState } from "react";
+import { SetStateAction, useContext, useEffect, useState } from "react";
 import NoteList from "@/components/Note/NoteList/NoteList";
 import { StorageServiceContext } from "@/App";
 import { Note } from "@/databases/models/note";
 import ArchiveList from "@/components/Note/ArchiveList";
-
+import "../styles/note.css";
 const Notes = () => {
   const router = useIonRouter();
-  const [notes, setNotes] = useState<Note[]>([]);
   const [archives, setArchives] = useState<Note[]>([]);
   const storageServ = useContext(StorageServiceContext);
+  const [notes, setNotes] = useState<Note[]>([]);
 
+  const [selectedNotes, setSelectedNotes] = useState<Note[]>([]);
+  const fetchArchive = async () => {
+    const archiveList = await storageServ.noteRepo.getListOfNotes({
+      onlyNotArchived: false,
+    });
+    setArchives(archiveList);
+  };
   useIonViewWillEnter(() => {
     const fetchNote = async () => {
       const noteList = await storageServ.noteRepo.getListOfNotes({
@@ -49,13 +61,6 @@ const Notes = () => {
       setNotes(noteList);
     };
 
-    const fetchArchive = async () => {
-      const archiveList = await storageServ.noteRepo.getListOfNotes({
-        onlyNotArchived: false,
-      });
-
-      setArchives(archiveList);
-    };
     fetchNote();
     fetchArchive();
   }, []);
@@ -69,7 +74,8 @@ const Notes = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isShowNote, setIShowNote] = useState(true);
-
+  const [isSelect, setIsSelect] = useState(false);
+  const [isShowDelAlert, setIsShowDelAlert] = useState(false);
   return (
     <IonPage>
       {/* Header */}
@@ -92,6 +98,80 @@ const Notes = () => {
               icon={!isOpen ? caretDown : caretUp}
             />
           </IonTitle>
+          <div
+            slot="end"
+            style={{
+              marginRight: "8px",
+            }}
+          >
+            {isSelect && (
+              <>
+                <button
+                  disabled={selectedNotes.length === 0}
+                  style={{
+                    marginRight: "3px",
+                  }}
+                  className="del-note-btn"
+                  onClick={() => {
+                    setIsShowDelAlert(true);
+                  }}
+                >
+                  <IonIcon icon={archiveOutline} style={{ fontSize: "30px" }} />
+                </button>
+                <IonAlert
+                  isOpen={isShowDelAlert}
+                  header="Do you want to ARCHIVE all this note?"
+                  buttons={[
+                    { text: "Cancel", role: "cancel" },
+                    {
+                      cssClass: "alert-button-confirm",
+                      text: "Yes",
+                      role: "confirm",
+                      handler: async () => {
+                        await storageServ.noteRepo.archiveRecordsManyNotes(
+                          selectedNotes
+                        );
+                        setNotes((prevNotes) =>
+                          prevNotes.filter(
+                            (note) =>
+                              !selectedNotes.some(
+                                (selected) => selected.note_id === note.note_id
+                              )
+                          )
+                        );
+                        setIsSelect(false);
+
+                        fetchArchive();
+                        setSelectedNotes([]);
+                      },
+                    },
+                  ]}
+                  onDidDismiss={() => {
+                    setIsShowDelAlert(false);
+
+                    setIsSelect(false);
+                  }}
+                ></IonAlert>
+              </>
+            )}
+
+            {isShowNote && (
+              <button
+                disabled={notes.length === 0}
+                className="multi-sel-note-btn"
+                onClick={() => {
+                  setIsSelect(!isSelect);
+                }}
+              >
+                <IonIcon
+                  icon={!isSelect ? checkmarkDone : close}
+                  style={{ fontSize: "30px" }}
+                />
+              </button>
+            )}
+          </div>
+
+          {/* <IonButton></IonButton> */}
         </IonToolbar>
       </IonHeader>
 
@@ -103,6 +183,9 @@ const Notes = () => {
               isShowAdd={true}
               notes={notes}
               handleSelectNote={handleSelectNote}
+              isCheckBox={isSelect}
+              selectedNotes={selectedNotes}
+              setSelectedNotes={setSelectedNotes}
             />
           ) : (
             <ArchiveList
@@ -111,7 +194,7 @@ const Notes = () => {
                 note_id: number;
                 note_name: string;
               }): void {
-                throw new Error("Function not implemented.");
+                router.push(`/note-archive/${note_data.note_id}`);
               }}
             />
           )}

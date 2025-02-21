@@ -5,5 +5,7 @@ export interface Note {
   content_text?: string;
   content_pdf_url?: string;
   created_at?: string;
+  is_archived?: boolean;
+  archived_at?: string;
   last_viewed_at?: string;
 }

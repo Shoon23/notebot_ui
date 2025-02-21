@@ -3,6 +3,7 @@ import ChatView from "@/pages/ChatView";
 import GenerateQuiz from "@/pages/GenerateQuiz";
 import Home from "@/pages/Home";
 import NewChat from "@/pages/NewChat";
+import NoteArchived from "@/pages/NoteArchived";
 import NoteInput from "@/pages/NoteInput";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
@@ -62,6 +63,7 @@ const HomePageLayout = () => {
           exact
         />
         <Route path="/notes" render={() => <Notes />} exact />
+
         <Route path="/chats" render={() => <ChatLists />} exact />
 
         {/* No Nav Tabs Page */}
@@ -71,6 +73,10 @@ const HomePageLayout = () => {
         <Route
           path={"/note/:id"}
           render={(props) => <NoteInput {...props} />}
+        />
+        <Route
+          path={"/note-archive/:id"}
+          render={(props) => <NoteArchived {...props} />}
         />
         <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
         <Route path={"/generate-quiz"} render={(props) => <GenerateQuiz />} />

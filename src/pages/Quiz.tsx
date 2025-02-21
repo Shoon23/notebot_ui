@@ -138,8 +138,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     });
   };
 
-  console.log(quiz);
-
   return (
     <IonPage style={{ overflow: "hidden" }}>
       <IonContent>
@@ -245,7 +243,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                       isSelectQuestion={isSelectQuestion}
                       setQuiz={setQuiz}
                       onSelectionChange={handleSelectionChange}
-                      selected={isSelected}
+                      isSelected={isSelected}
                     />
                   );
                 })}

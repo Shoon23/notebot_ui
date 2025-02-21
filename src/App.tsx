@@ -41,6 +41,7 @@ export const StorageServiceContext = React.createContext(
   new StorageService(SqliteService, DbVersionService)
 );
 
+// In your index.tsx or App.tsx (run this once at startup)
 setupIonicReact();
 
 const App: React.FC = () => {

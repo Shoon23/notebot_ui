@@ -24,7 +24,7 @@ interface QuestionCardProps {
     isChecked: boolean
   ) => void;
   isCheckBox: boolean;
-  selected: boolean; // Controlled prop
+  isSelected: boolean; // Controlled prop
   question_type: string;
   isSelectQuestion: boolean;
   setQuiz: React.Dispatch<React.SetStateAction<iMCQQuestion>>;
@@ -35,7 +35,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   idx,
   onSelectionChange,
   isCheckBox,
-  selected,
+  isSelected,
   question_type,
   isSelectQuestion,
   setQuiz,
@@ -52,7 +52,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     minHeight: "150px",
     borderRadius: "1.5rem",
     boxShadow:
-      selected &&
+      isSelected &&
       `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
     display: "flex",
   };
@@ -60,7 +60,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   // When the card is clicked, toggle the parent's state.
   const handleCardClick = () => {
     if (!isCheckBox) return;
-    onSelectionChange(question_answer, !selected);
+    onSelectionChange(question_answer, !isSelected);
   };
 
   return (
@@ -71,7 +71,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             alignSelf: "center",
             margin: "5px",
           }}
-          checked={selected}
+          checked={isSelected}
           onIonChange={(e) =>
             onSelectionChange(question_answer, e.detail.checked)
           }

@@ -59,11 +59,33 @@ const ChatLists = () => {
               alignItems: "center",
             }}
           >
-            {conversations.map((convo) => {
-              return (
-                <ConversationCard key={convo.conversation_id} data={convo} />
-              );
-            })}
+            {conversations.length !== 0 ? (
+              <>
+                {conversations.map((convo) => {
+                  return (
+                    <ConversationCard
+                      key={convo.conversation_id}
+                      data={convo}
+                    />
+                  );
+                })}
+              </>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+
+                  whiteSpace: "nowrap",
+                  scrollBehavior: "smooth", // Optional: for smooth scrolling
+                  flexDirection: "column",
+                  height: "650px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                No Interaction
+              </div>
+            )}
             <br />
             <br />
             <br />

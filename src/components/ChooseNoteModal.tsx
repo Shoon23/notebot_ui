@@ -110,6 +110,13 @@ const ChooseNoteModal: React.FC<CHooseNoteModalProps> = ({
             buttonPosBottom="120px"
             notes={notes}
             handleSelectNote={handleSelectNote}
+            isCheckBox={false}
+            selectedNotes={[]}
+            setSelectedNotes={function (
+              value: React.SetStateAction<Note[]>
+            ): void {
+              throw new Error("Function not implemented.");
+            }}
           />
         </IonContent>
       </IonModal>
