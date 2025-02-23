@@ -36,6 +36,10 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     num_questions: 0,
     quiz_id: 0,
     questions: [],
+    chain_id: "",
+    note_id: 0,
+    created_at: "",
+    description: "",
   });
   const lastShortAnswerRef = useRef<{
     content: string;

@@ -22,6 +22,25 @@ import Input from "./Input";
 import TextAreaInput from "./TextAreaInput";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 
+export const b64toBlob = (
+  b64Data: string,
+  contentType = "",
+  sliceSize = 512
+): Blob => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+  return new Blob(byteArrays, { type: contentType });
+};
+
 const GenerateQuizForm = () => {
   const [genQuizForm, setGenQuizForm] = useState<{
     quiz_name: string;
@@ -113,20 +132,6 @@ const GenerateQuizForm = () => {
     updateForm("num_questions", Number(selectedValue));
   };
   // Helper function to convert a base64 string to a Blob
-  function b64toBlob(b64Data: string, contentType = "", sliceSize = 512): Blob {
-    const byteCharacters = atob(b64Data);
-    const byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-    return new Blob(byteArrays, { type: contentType });
-  }
 
   const handleSubmit = async () => {
     try {
@@ -184,23 +189,23 @@ const GenerateQuizForm = () => {
         body: formData,
         // Do not manually set the Content-Type header; the browser sets it automatically.
       });
-      console.log(response);
       // Validate the response.
       const data = await response.json();
-      console.log(data);
       let quiz_data = null;
       const { quiz_name, note_id, ...others } = genQuizForm;
       switch (genQuizForm.question_type) {
         case "essay":
           quiz_data = await storageServ.quizRepo.saveEssayQuestion(
             { note_id, quiz_name, ...others },
-            data
+            data,
+            null
           );
           break;
         case "mcq":
           quiz_data = await storageServ.quizRepo.save_generated_mcq(
             { note_id, quiz_name, ...others },
-            data
+            data,
+            null
           );
           break;
         case "true-or-false":
@@ -208,7 +213,8 @@ const GenerateQuizForm = () => {
           quiz_data =
             await storageServ.quizRepo.saved_gen_true_false_or_short_answer(
               { note_id, quiz_name, ...others },
-              data
+              data,
+              null
             );
           break;
         default:

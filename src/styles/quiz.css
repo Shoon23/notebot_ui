@@ -141,3 +141,32 @@ ion-checkbox::part(container) {
 .cancel-mini-btn > div {
   color: white;
 }
+/* View Note Button */
+.regen-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center text horizontally */
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #44819e;
+  border: 2px solid black;
+  height: 40px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.regen-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.regen-btn:disabled {
+  box-shadow: none;
+  transition: none;
+  transform: none;
+  color: gray;
+  border: 2px solid gray;
+}

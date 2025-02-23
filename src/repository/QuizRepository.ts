@@ -1,14 +1,18 @@
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { Quiz } from "@/databases/models/quiz";
+import { v4 as uuidv4 } from "uuid";
 
 export interface iMCQQuestion {
   quiz_name: string;
   question_type: string;
   blooms_taxonomy_level: string;
   created_at?: string;
-  num_questions: number;
+
   quiz_id: number;
   description?: string;
+  chain_id: string;
+  num_questions: number;
+  note_id: number;
   questions: QuestionWithOptions[];
 }
 
@@ -32,6 +36,7 @@ export interface Option {
 export interface QuestionWithOptions {
   question_id: number;
   content: string;
+
   options: Option[];
 }
 
@@ -41,6 +46,8 @@ interface SavedMCQQuiz {
   question_type: string;
   blooms_taxonomy_level: string;
   questions: QuestionWithOptions[];
+  num_questions: number;
+  chain_id: string;
 }
 
 type QuizData = {
@@ -77,6 +84,8 @@ export interface iSavedEssay {
   question_type: string;
   blooms_taxonomy_level: string;
   questions: Array<{ question_id: number; content: string }>;
+  chain_id: string;
+  num_questions: number;
 }
 interface iSingleShortAnswerOrTFQuestion {
   content: string;
@@ -92,6 +101,11 @@ interface iSingleMCQ {
     content: string;
     is_answer: boolean;
   }>;
+}
+
+export interface iQuizSet {
+  chain_id: string;
+  quiz_id: number;
 }
 
 class QuizRepository {
@@ -125,8 +139,8 @@ class QuizRepository {
   }
 
   // Get quiz by ID with questions
-  async getQuizWithQuestions(quiz_id: string) {
-    const sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level,num_questions, description, created_at 
+  async getQuizWithQuestions(quiz_id: number) {
+    const sql = `SELECT quiz_id, note_id, quiz_name, question_type, blooms_taxonomy_level,num_questions, description, created_at,chain_id 
                  FROM Quiz WHERE quiz_id=?;`;
     const result = await this.db.query(sql, [quiz_id]);
     if (!result.values || result.values?.length === 0) {
@@ -154,7 +168,7 @@ class QuizRepository {
   async getManyQuiz(filters: {
     is_recent: boolean;
     search_key_word: string | null;
-    onlyNotArchived?: boolean; // New optional filter for archived quizzes
+    onlyNotArchived?: boolean; // Optional filter for archived quizzes
   }): Promise<iQuiz[]> {
     const { is_recent, search_key_word, onlyNotArchived } = filters;
     let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, created_at, num_questions
@@ -162,22 +176,28 @@ class QuizRepository {
     const conditions: string[] = [];
     const params: any[] = [];
 
-    // Add search condition if provided
+    // Add search condition if provided.
     if (search_key_word) {
       conditions.push(`quiz_name LIKE ?`);
       params.push(`%${search_key_word}%`);
     }
 
-    // Add archive filter if requested
+    // Add archive filter if requested.
     if (onlyNotArchived) {
       conditions.push(`is_archived = 0`);
     }
 
-    // Combine conditions if there are any
+    // Add condition to only select the oldest quiz for each chain_id.
+    conditions.push(
+      `created_at = (SELECT MIN(q2.created_at) FROM Quiz q2 WHERE q2.chain_id = Quiz.chain_id)`
+    );
+
+    // Combine conditions into the SQL query.
     if (conditions.length > 0) {
       sql += " WHERE " + conditions.join(" AND ");
     }
 
+    // Order by created_at based on is_recent flag and limit the results.
     sql += ` ORDER BY created_at ${is_recent ? "DESC" : "ASC"} LIMIT 10;`;
 
     const result = await this.db.query(sql, params);
@@ -186,13 +206,16 @@ class QuizRepository {
 
   async save_generated_mcq(
     quiz_data: QuizData,
-    generated_questions: iMCQQuestionGen[]
+    generated_questions: iMCQQuestionGen[],
+    chain_id: string | null
   ): Promise<SavedMCQQuiz> {
     try {
       // Start a new transaction
       // Insert quiz data
+
+      const chainId = chain_id ?? uuidv4();
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level,num_questions,note_id,description) VALUES ( ?, ?, ?,?,?,?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level,num_questions,note_id,description,chain_id,raw_text) VALUES (?, ?, ?, ?,?,?,?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -200,6 +223,8 @@ class QuizRepository {
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
+          chainId,
+          JSON.stringify(generated_questions),
         ]
       );
       const quiz_id = quizInsertResult.changes?.lastId;
@@ -259,6 +284,8 @@ class QuizRepository {
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
         questions: questionsWithOptions,
+        num_questions: questionsWithOptions.length,
+        chain_id: chainId,
       };
     } catch (error) {
       console.log(`Error: ${error}`);
@@ -268,12 +295,14 @@ class QuizRepository {
 
   async saved_gen_true_false_or_short_answer(
     quiz_data: QuizData,
-    generated_questions: iTForShortAnswerQuestionGen[]
+    generated_questions: iTForShortAnswerQuestionGen[],
+    chain_id: string | null
   ) {
     try {
       // Save quiz data
+      const chainId = chain_id ?? uuidv4();
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description,chain_id,raw_text) VALUES (?,?, ?, ?, ?, ?, ?.?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -281,6 +310,8 @@ class QuizRepository {
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
+          chainId,
+          JSON.stringify(generated_questions),
         ]
       );
       const quiz_id = quizInsertResult.changes?.lastId;
@@ -321,6 +352,8 @@ class QuizRepository {
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
         questions: questions_with_answer,
+        num_questions: questions_with_answer.length,
+        chain_id: chainId,
       };
     } catch (error) {
       console.log(error);
@@ -330,12 +363,15 @@ class QuizRepository {
   // Save quiz and essay questions
   async saveEssayQuestion(
     quiz_data: QuizData,
-    generated_questions: iEssayQuestionGen[]
+    generated_questions: iEssayQuestionGen[],
+    chain_id: string | null
   ): Promise<iSavedEssay> {
     try {
       // Start a new transaction
+      const chainId = chain_id ?? uuidv4();
+
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description,chain_id,raw_text) VALUES (?,?, ?, ?, ?, ?, ?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -343,6 +379,8 @@ class QuizRepository {
           quiz_data.num_questions,
           quiz_data.note_id,
           quiz_data.description ?? null,
+          chainId,
+          JSON.stringify(generated_questions),
         ]
       );
       const quiz_id = quizInsertResult.changes?.lastId;
@@ -366,12 +404,15 @@ class QuizRepository {
       const saved_questions = await Promise.all(questionPromises);
 
       // Return the result
+
       return {
         quiz_id: Number(quiz_id),
         quiz_name: quiz_data.quiz_name,
         question_type: quiz_data.question_type,
         blooms_taxonomy_level: quiz_data.blooms_taxonomy_level,
         questions: saved_questions,
+        num_questions: 1,
+        chain_id: chainId,
       };
     } catch (error) {
       console.log(`Error: ${error}`);
@@ -491,6 +532,57 @@ class QuizRepository {
       content: new_question.content,
       options: [savedOption],
     };
+  }
+
+  async getQuizzesByChain(chainId: string): Promise<iQuizSet[]> {
+    try {
+      const query = `
+  SELECT quiz_id,chain_id FROM Quiz
+  WHERE chain_id = ?
+  ORDER BY created_at
+`;
+      const result = await this.db.query(query, [chainId]);
+      return result.values as iQuizSet[];
+    } catch (error) {
+      throw new Error("Unable to Retreive Chained Quiz");
+    }
+  }
+  async getQuizzesByChainRawText(chainId: string): Promise<
+    Array<{
+      raw_text: string;
+    }>
+  > {
+    try {
+      const query = `
+  SELECT raw_text FROM Quiz
+  WHERE chain_id = ?
+  ORDER BY created_at
+`;
+      const result = await this.db.query(query, [chainId]);
+      return result.values as Array<{
+        raw_text: string;
+      }>;
+    } catch (error) {
+      throw new Error("Unable to Retreive Chained Quiz");
+    }
+  }
+  async createRegeneratedQuiz(
+    quizId: string,
+    noteId: string,
+    chainId: string,
+    quizName: string
+  ): Promise<void> {
+    try {
+      const query = `
+    INSERT INTO Quiz 
+      (quiz_id, note_id, chain_id,  quiz_name)
+    VALUES 
+      (?, ?, ?, ?))
+  `;
+      await this.db.run(query, [quizId, noteId, chainId, quizName]);
+    } catch (error) {
+      throw new Error("Unable to Saved Chained Quiz");
+    }
   }
 }
 

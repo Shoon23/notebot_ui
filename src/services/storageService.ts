@@ -16,6 +16,7 @@ import { EssayFeedbackUpgradeStatements } from "../databases/upgrades/essayfeedb
 import { EssayEvaluationUpgradeStatements } from "../databases/upgrades/essayevaluation.upgrade.statements";
 import { EssayAnswerUpgradeStatements } from "../databases/upgrades/essayanswer.upgrade.statements";
 import { ConversationUpgradeStatements } from "../databases/upgrades/conversation.upgrade.statements";
+import { QuizGenHistoryUpgradeStatements } from "@/databases/upgrades/quiz-gen-history.upgrade.statement";
 import NoteRepository from "@/repository/NoteRepository";
 import QuizRepository from "@/repository/QuizRepository";
 import QuestionRepository from "@/repository/QuestionRepository";
@@ -50,6 +51,7 @@ class StorageService implements IStorageService {
     ...EssayAreaOfImprovementUpgradeStatements,
     ...EssayStrengthUpgradeStatements,
     ...ConversationUpgradeStatements,
+    ...QuizGenHistoryUpgradeStatements,
   ].map((upgrade) => ({
     toVersion: upgrade.toVersion, // Use toVersion as the version
     statements: upgrade.statements, // The SQL statements for the upgrade

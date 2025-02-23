@@ -19,12 +19,14 @@ interface QuizQuickActionsProps {
   question_type: string;
   setQuiz: React.Dispatch<React.SetStateAction<iMCQQuestion>>;
   quiz_id: number;
+  isSelectQuestion: boolean;
 }
 
 const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
   question_type,
   quiz_id,
   setQuiz,
+  isSelectQuestion,
 }) => {
   const [isAdd, setIsdAdd] = useState(false);
   const [questionData, setQuestionData] = useState(initQuestion);
@@ -161,7 +163,7 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
         <button className="view-note-btn">View Note</button>
         <button
           className="add-question-btn"
-          disabled={question_type === "essay"}
+          disabled={question_type === "essay" || isSelectQuestion}
           onClick={() => setIsdAdd(true)}
         >
           Add Questions
