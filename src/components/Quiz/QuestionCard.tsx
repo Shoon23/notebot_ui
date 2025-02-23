@@ -11,7 +11,7 @@ import {
   IonPopover,
 } from "@ionic/react";
 import { iMCQQuestion, QuestionWithOptions } from "@/repository/QuizRepository";
-import { hexToRgb } from "@/utils";
+import { capitlizedFirstLetter, hexToRgb } from "@/utils";
 import "../../styles/quiz.css";
 import { ellipsisVertical } from "ionicons/icons";
 import MoreOptions from "./MoreOptions";
@@ -56,7 +56,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
     display: "flex",
   };
-
   // When the card is clicked, toggle the parent's state.
   const handleCardClick = () => {
     if (!isCheckBox) return;
@@ -100,48 +99,50 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             />
           )}
         </div>
-        <IonCardContent style={{ display: "flex", flexDirection: "column" }}>
-          {question_answer.options.map((option, idx) => {
-            if (option.is_answer) {
-              return (
-                <div key={option.option_id}>
-                  <div
-                    style={{
-                      fontSize: ".9rem",
-                      fontWeight: "bold",
-                      color: option.is_answer ? "green" : "black",
-                      backgroundColor: option.is_answer
-                        ? "#e8f5e9"
-                        : "transparent",
-                      padding: option.is_answer ? "5px" : "0",
-                      borderRadius: option.is_answer ? "0.5rem" : "0",
-                    }}
-                  >
-                    {option.content}
+        {question_answer.options && (
+          <IonCardContent style={{ display: "flex", flexDirection: "column" }}>
+            {question_answer.options.map((option, idx) => {
+              if (option.is_answer) {
+                return (
+                  <div key={option.option_id}>
+                    <div
+                      style={{
+                        fontSize: ".9rem",
+                        fontWeight: "bold",
+                        color: option.is_answer ? "green" : "black",
+                        backgroundColor: option.is_answer
+                          ? "#e8f5e9"
+                          : "transparent",
+                        padding: option.is_answer ? "5px" : "0",
+                        borderRadius: option.is_answer ? "0.5rem" : "0",
+                      }}
+                    >
+                      {capitlizedFirstLetter(option.content)}
+                    </div>
+                    <br />
+                    {option.explanation && (
+                      <>
+                        <p>Explanation:</p>
+                        <span
+                          style={{
+                            fontSize: ".9rem",
+                            fontWeight: "bold",
+                            color: option.is_answer ? "green" : "black",
+                            padding: option.is_answer ? "5px" : "0",
+                            borderRadius: option.is_answer ? "0.5rem" : "0",
+                          }}
+                        >
+                          {option.explanation}
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <br />
-                  {option.explanation && (
-                    <>
-                      <p>Explanation:</p>
-                      <span
-                        style={{
-                          fontSize: ".9rem",
-                          fontWeight: "bold",
-                          color: option.is_answer ? "green" : "black",
-                          padding: option.is_answer ? "5px" : "0",
-                          borderRadius: option.is_answer ? "0.5rem" : "0",
-                        }}
-                      >
-                        {option.explanation}
-                      </span>
-                    </>
-                  )}
-                </div>
-              );
-            }
-            return null;
-          })}
-        </IonCardContent>
+                );
+              }
+              return null;
+            })}
+          </IonCardContent>
+        )}
       </div>
     </IonCard>
   );

@@ -281,7 +281,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       }
 
       if (!quiz_data) return;
-      console.log(quiz_data);
       setQuizSets((prev) => [
         ...prev,
         {
@@ -291,12 +290,12 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       ]);
       setCurrSet(quiz_data?.quiz_id);
       if (quiz_data.question_type === "essay") {
-        setSelectedQuestions(quiz_data.questions as QuestionWithOptions[]);
+        setSelectedQuestions(quiz_data.questions as any);
       }
       setQuiz((prev) => ({
         ...prev,
         quiz_id: quiz_data?.quiz_id,
-        questions: quiz_data.questions as QuestionWithOptions[],
+        questions: quiz_data.questions as any,
       }));
     } catch (error) {
       console.error(error);
@@ -448,7 +447,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                     disabled={
                       quiz.question_type === "essay"
                         ? quizSets.length === 3
-                        : quizSets.length === 5
+                        : quizSets.length === 10
                     }
                   >
                     Regenerate Quiz

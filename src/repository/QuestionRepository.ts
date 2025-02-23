@@ -36,7 +36,6 @@ class QuestionRepository {
         true,
       ]);
       question.options = optionsResult.values;
-      console.log(optionsResult);
     }
 
     return result.values;

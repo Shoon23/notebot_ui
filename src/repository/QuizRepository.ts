@@ -72,7 +72,7 @@ export interface iMCQQuestionGen {
 
 export interface iTForShortAnswerQuestionGen {
   question: string;
-  answer: boolean;
+  answer: boolean | string;
   explanation: string;
 }
 export interface iEssayQuestionGen {
@@ -302,7 +302,7 @@ class QuizRepository {
       // Save quiz data
       const chainId = chain_id ?? uuidv4();
       const quizInsertResult = await this.db.run(
-        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description,chain_id,raw_text) VALUES (?,?, ?, ?, ?, ?, ?.?)",
+        "INSERT INTO Quiz (quiz_name, question_type, blooms_taxonomy_level, num_questions, note_id,description,chain_id,raw_text) VALUES (?,?, ?, ?, ?, ?, ?,?)",
         [
           quiz_data.quiz_name,
           quiz_data.question_type,
@@ -335,12 +335,14 @@ class QuizRepository {
         return {
           question_id: Number(question_id),
           content: question.question,
-          answer: {
-            option_id: Number(option_id),
-            content: question.answer,
-            is_answer: true,
-          },
-          explanation: question.explanation,
+          options: [
+            {
+              option_id: Number(option_id),
+              content: question.answer,
+              is_answer: true,
+              explanation: question.explanation,
+            },
+          ],
         };
       });
 
@@ -359,6 +361,11 @@ class QuizRepository {
       console.log(error);
       throw new Error("Something Went Wrong");
     }
+  }
+
+  async isBoolString(str: string) {
+    const lower = str.toLowerCase();
+    return lower === "true" || lower === "false";
   }
   // Save quiz and essay questions
   async saveEssayQuestion(

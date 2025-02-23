@@ -242,7 +242,6 @@ class AttemptQuizService {
     const correct_answers = await this.questionRepo.getQuestionsWithAnswer(
       quiz_id
     );
-    console.log(correct_answers);
     // Normalize the correct answers
     const correct_answers_map = this.answers_to_map(correct_answers);
     let score = 0;

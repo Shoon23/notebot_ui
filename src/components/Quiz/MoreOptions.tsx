@@ -72,7 +72,7 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
     }
   }, [isEdit]);
 
-  // Compute whether any changes have been made compared to the initial data
+  // Compute whether any changes have been made compared to the initial data.
   const hasChanges =
     JSON.stringify(questionData) !== JSON.stringify(initialData);
 
@@ -115,6 +115,7 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
       console.log(error);
     }
   };
+
   // Hardware back button handler that resets edit mode
   const backButtonHandler = (event: any) => {
     // Register with a high priority so it overrides default behavior
@@ -123,7 +124,6 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
       processNextHandler();
     });
   };
-
   // Register the back button handler when the view is active
   useIonViewDidEnter(() => {
     document.addEventListener("ionBackButton", backButtonHandler);
@@ -133,6 +133,7 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
   useIonViewWillLeave(() => {
     document.removeEventListener("ionBackButton", backButtonHandler);
   });
+
   return (
     <>
       <IonButton
@@ -196,89 +197,92 @@ const MoreOptions: React.FC<MoreOptionsProps> = ({
               label="Question"
             />
 
-            {/* Answer Input or Dropdown */}
-            {question_type !== "true-or-false" ? (
-              <TextAreaInput
-                value={questionData.options[0].content}
-                handleOnChangeDescription={(e) => {
-                  setQuestionData((prev) => {
-                    const newOptions = [...prev.options];
-                    newOptions[0] = {
-                      ...newOptions[0],
-                      content: e.target.value,
-                    };
-                    return { ...prev, options: newOptions };
-                  });
-                }}
-                rows={3}
-                placeHolder="Enter the answer"
-                label="Answer"
-              />
-            ) : (
-              <SelectOption
-                initialValue={questionData.options[0].content}
-                label="Answer"
-                options={[
-                  { label: "True", value: "True" },
-                  { label: "False", value: "False" },
-                ]}
-                selectHandler={(selectedValue: string): void => {
-                  setQuestionData((prev) => {
-                    const newOptions = [...prev.options];
-                    newOptions[0] = {
-                      ...newOptions[0],
-                      content: selectedValue,
-                    };
-                    return { ...prev, options: newOptions };
-                  });
-                }}
-              />
-            )}
-
-            {/* Triple Condition Rendering */}
-            {question_type === "mcq" ? (
-              // For MCQ: render distractor option inputs.
+            {/* Only render Answer and Explanation inputs if the question type is not "essay" */}
+            {question_type !== "essay" && (
               <>
-                <br />
-                {questionData.options.slice(1).map((option, index) => (
+                {/* Answer Input or Dropdown */}
+                {question_type !== "true-or-false" ? (
                   <TextAreaInput
-                    key={index}
-                    value={option.content}
+                    value={questionData.options[0].content || ""}
                     handleOnChangeDescription={(e) => {
                       setQuestionData((prev) => {
                         const newOptions = [...prev.options];
-                        // Since we sliced out the first option, use index+1.
-                        newOptions[index + 1] = {
-                          ...newOptions[index + 1],
+                        newOptions[0] = {
+                          ...newOptions[0],
                           content: e.target.value,
                         };
                         return { ...prev, options: newOptions };
                       });
                     }}
                     rows={3}
-                    placeHolder={`Enter Option ${index + 1}`}
-                    label={`Option ${index + 1}`}
+                    placeHolder="Enter the answer"
+                    label="Answer"
                   />
-                ))}
+                ) : (
+                  <SelectOption
+                    initialValue={questionData.options[0].content || ""}
+                    label="Answer"
+                    options={[
+                      { label: "True", value: "True" },
+                      { label: "False", value: "False" },
+                    ]}
+                    selectHandler={(selectedValue: string): void => {
+                      setQuestionData((prev) => {
+                        const newOptions = [...prev.options];
+                        newOptions[0] = {
+                          ...newOptions[0],
+                          content: selectedValue,
+                        };
+                        return { ...prev, options: newOptions };
+                      });
+                    }}
+                  />
+                )}
+
+                {/* Render distractor options for MCQ or explanation for other types */}
+                {question_type === "mcq" ? (
+                  <>
+                    <br />
+                    {questionData.options.slice(1).map((option, index) => (
+                      <TextAreaInput
+                        key={index}
+                        value={option.content}
+                        handleOnChangeDescription={(e) => {
+                          setQuestionData((prev) => {
+                            const newOptions = [...prev.options];
+                            // Since we sliced out the first option, use index+1.
+                            newOptions[index + 1] = {
+                              ...newOptions[index + 1],
+                              content: e.target.value,
+                            };
+                            return { ...prev, options: newOptions };
+                          });
+                        }}
+                        rows={3}
+                        placeHolder={`Enter Option ${index + 1}`}
+                        label={`Option ${index + 1}`}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <TextAreaInput
+                    value={questionData.options[0].explanation || ""}
+                    handleOnChangeDescription={(e) => {
+                      setQuestionData((prev) => {
+                        const newOptions = [...prev.options];
+                        newOptions[0] = {
+                          ...newOptions[0],
+                          explanation: e.target.value,
+                        };
+                        return { ...prev, options: newOptions };
+                      });
+                    }}
+                    rows={4}
+                    placeHolder="Enter the explanation"
+                    label="Explanation"
+                  />
+                )}
               </>
-            ) : (
-              // For any other question type (e.g. short answer), render explanation input.
-              <TextAreaInput
-                value={questionData.options[0].explanation || ""}
-                handleOnChangeDescription={(e) => {
-                  setQuestionData((prev) => {
-                    const newOptions = [...prev.options];
-                    newOptions[0] = {
-                      ...newOptions[0],
-                      explanation: e.target.value,
-                    };
-                    return { ...prev, options: newOptions };
-                  });
-                }}
-                rows={4}
-                placeHolder="Enter the explanation"
-                label="Explanation"
-              />
             )}
 
             <button

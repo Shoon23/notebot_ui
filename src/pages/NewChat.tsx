@@ -36,10 +36,6 @@ const NewChat = () => {
     note_content: "",
   });
 
-  console.log(chatForm);
-
-  console.log(selectedNote);
-
   return (
     <IonPage>
       <IonContent>

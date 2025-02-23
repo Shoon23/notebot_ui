@@ -100,7 +100,6 @@ const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
   useIonViewWillEnter(() => {
     const id = Number(match.params.id);
 
-    console.log(id);
     const fetchNote = async () => {
       try {
         // Fetch the note and update the last viewed time.

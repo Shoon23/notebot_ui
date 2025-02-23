@@ -355,7 +355,6 @@ WHERE
         if (!essay_eval) {
           throw new Error("Missing Essay Evaluation");
         }
-        console.log(essay_eval);
         const essay_strength_sql = `
         SELECT 
           str.strength_id,

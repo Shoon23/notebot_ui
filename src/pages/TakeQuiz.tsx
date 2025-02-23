@@ -74,7 +74,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
         // const quiz_data = await storageServ.quizRepo.getQuizWithQuestions(
         //   match.params.id
         // );
-        console.log(quiz_data);
         if (quiz_data.question_type === "essay") {
           setAttemptQuiz({
             quiz_id: Number(match.params.id),
@@ -137,7 +136,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           };
           const response: HttpResponse = await CapacitorHttp.post(options);
           const evaluated_answer = response.data as AttemptEssayType;
-          console.log(evaluated_answer);
           result = await storageServ.attemptQuizService.processEssayAnswer(
             evaluated_answer
           );

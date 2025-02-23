@@ -314,7 +314,6 @@ class NoteRepository {
       // Extract note_ids from the provided notes.
       const noteIds = notes.map((note) => note.note_id);
       const notePlaceholders = noteIds.map(() => "?").join(", ");
-      console.log(noteIds);
       // Archive the Note records.
       await this.db.run(
         `UPDATE Note SET is_archived = 1 WHERE note_id IN (${notePlaceholders});`,
