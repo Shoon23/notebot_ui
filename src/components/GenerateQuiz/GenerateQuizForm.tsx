@@ -58,6 +58,8 @@ const GenerateQuizForm = () => {
     question_type: "",
   });
 
+  const [isError, setIsError] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
   const [selectedNote, setSelectedNote] = useState<{
     note_name: string;
     note_content: string | null;
@@ -89,12 +91,12 @@ const GenerateQuizForm = () => {
     { value: "medium", label: "Medium" },
     { value: "hard", label: "Hard" },
   ];
-  const [isOpen, setIsOpen] = useState(false);
 
   const numbers = [
     { value: "5", label: "5" },
     { value: "10", label: "10" },
-    // { value: "15", label: "15" },
+    { value: "15", label: "15" },
+    { value: "20", label: "20" },
   ];
 
   const essayNumbers = [{ value: "1", label: "1" }];
@@ -183,12 +185,29 @@ const GenerateQuizForm = () => {
       formData.append("question_type", genQuizForm.question_type);
       // Append note content (or fallback to an empty string).
       formData.append("content_text", selectedNote.note_content || "");
-
+      console.log(formData);
       const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
-        // Do not manually set the Content-Type header; the browser sets it automatically.
       });
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          setIsError(true);
+          const res = await response.json();
+          setErrMsg(res[0].message || "Something Went Wrong");
+        } else {
+          console.log(response);
+          setIsError(true);
+          setErrMsg("Something Went Wrong");
+        }
+        const res = await response.json();
+        console.log(res);
+        dismiss();
+
+        return;
+      }
+
       // Validate the response.
       const data = await response.json();
       let quiz_data = null;
@@ -222,81 +241,88 @@ const GenerateQuizForm = () => {
       }
       router.push("/quiz/" + quiz_data?.quiz_id, "forward", "pop");
     } catch (error) {
-      setIsOpen(true);
+      setIsError(true);
+      setErrMsg("Something Went Wrong");
       console.error(error);
     } finally {
       dismiss();
     }
   };
   return (
-    <form
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Input
-        placeHolder="Enter Quiz Name"
-        value={genQuizForm.quiz_name}
-        handleOnChangeName={handleOnChangeName}
-        label={"Quiz Name"}
-      />
-      <IonAlert
-        isOpen={isOpen}
-        header="Something Went Wrong"
-        buttons={["Action"]}
-        onDidDismiss={() => setIsOpen(false)}
-      ></IonAlert>
-      <SelectOption
-        selectHandler={handleSelectQuizType}
-        label="Quiz Type"
-        options={quizType}
-      />
-      <SelectOption
-        selectHandler={handleSelectBloomLevel}
-        label="Blooms Level"
-        options={bloomsLevel}
-      />
+    <>
+      <form
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Input
+          placeHolder="Enter Quiz Name"
+          value={genQuizForm.quiz_name}
+          handleOnChangeName={handleOnChangeName}
+          label={"Quiz Name"}
+        />
 
-      <SelectOption
-        selectHandler={handleSelectNumQuestions}
-        label="Number Of Question"
-        options={genQuizForm.question_type !== "essay" ? numbers : essayNumbers}
-      />
+        <SelectOption
+          selectHandler={handleSelectQuizType}
+          label="Quiz Type"
+          options={quizType}
+        />
+        <SelectOption
+          selectHandler={handleSelectBloomLevel}
+          label="Blooms Level"
+          options={bloomsLevel}
+        />
 
-      {/* {!selectedNote.note_name ? ( */}
-      <ChooseNoteModal
-        setForms={setGenQuizForm}
-        setSelectedNote={setSelectedNote}
-        selectedNote={selectedNote}
-      ></ChooseNoteModal>
-      {/* // ) : (
+        <SelectOption
+          selectHandler={handleSelectNumQuestions}
+          label="Number Of Question"
+          options={
+            genQuizForm.question_type !== "essay" ? numbers : essayNumbers
+          }
+        />
+
+        {/* {!selectedNote.note_name ? ( */}
+        <ChooseNoteModal
+          setForms={setGenQuizForm}
+          setSelectedNote={setSelectedNote}
+          selectedNote={selectedNote}
+        ></ChooseNoteModal>
+        {/* // ) : (
       //   <>{selectedNote.note_name}</>
       // )} */}
-      <TextAreaInput
-        placeHolder="Enter description here..."
-        label="Description"
-        value={genQuizForm.description}
-        handleOnChangeDescription={handleOnChangeDescription}
-        rows={10}
-      />
-      <button
-        onClick={handleSubmit}
-        type="button"
-        className="quiz-gen-generate-btn"
-        disabled={
-          !genQuizForm.quiz_name ||
-          !genQuizForm.blooms_taxonomy_level ||
-          genQuizForm.note_id === 0 ||
-          !genQuizForm.question_type ||
-          genQuizForm.num_questions === 0
-        }
-      >
-        Generate
-        <IonIcon icon={colorWand}></IonIcon>
-      </button>
-    </form>
+        <TextAreaInput
+          placeHolder="Enter description here..."
+          label="Description"
+          value={genQuizForm.description}
+          handleOnChangeDescription={handleOnChangeDescription}
+          rows={10}
+        />
+        <button
+          onClick={handleSubmit}
+          type="button"
+          className="quiz-gen-generate-btn"
+          disabled={
+            !genQuizForm.quiz_name ||
+            !genQuizForm.blooms_taxonomy_level ||
+            genQuizForm.note_id === 0 ||
+            !genQuizForm.question_type ||
+            genQuizForm.num_questions === 0
+          }
+        >
+          Generate
+          <IonIcon icon={colorWand}></IonIcon>
+        </button>
+      </form>
+
+      <IonAlert
+        isOpen={isError}
+        header={errMsg}
+        buttons={[{ text: "Okay", role: "cancel" }]}
+        onDidDismiss={() => setIsError(false)}
+      ></IonAlert>
+    </>
   );
 };
 

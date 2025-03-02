@@ -1,6 +1,7 @@
 import NoteCard from "@/components/NoteCard";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import {
+  IonAlert,
   IonFab,
   IonFabButton,
   IonFabList,
@@ -21,6 +22,7 @@ import StorageService from "@/services/storageService";
 import useStorageService from "@/hooks/useStorageService";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { validateAndGetFile } from "@/utils/pick-file-utils";
 
 interface NoteListProps {
   buttonPosBottom?: string;
@@ -44,6 +46,8 @@ const NoteList: React.FC<NoteListProps> = ({
   // Create a reference for the file input
   const storageServ = useStorageService();
   const router = useIonRouter();
+  const [isError, setIsError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   // Updated function to create a folder in the application’s data directory
   const pickAndSaveFile = async () => {
     try {
@@ -54,35 +58,33 @@ const NoteList: React.FC<NoteListProps> = ({
         ],
         readData: true,
       });
+      const file = validateAndGetFile(pickedFiles);
+      // Define a subfolder name within the app's data directory
+      const folderName = "Notes";
 
-      if (pickedFiles.length > 0) {
-        const file = pickedFiles[0];
-        // Define a subfolder name within the app's data directory
-        const folderName = "Notes";
+      // // Ensure the folder exists in Directory.Data
+      // await ensureDirectoryExists(folderName, Directory.Data);
 
-        // // Ensure the folder exists in Directory.Data
-        // await ensureDirectoryExists(folderName, Directory.Data);
+      // Create the target path using the folder name and file name.
+      const targetPath = `${folderName}/${file.name}`;
 
-        // Create the target path using the folder name and file name.
-        const targetPath = `${folderName}/${file.name}`;
+      // Save the file locally with proper base64 encoding
+      await Filesystem.writeFile({
+        path: targetPath,
+        data: file.data as string, // Ensure file.data is a valid Base64 string
+        directory: Directory.Data,
+      });
 
-        // Save the file locally with proper base64 encoding
-        await Filesystem.writeFile({
-          path: targetPath,
-          data: file.data as string, // Ensure file.data is a valid Base64 string
-          directory: Directory.Data,
-        });
+      const noteId = await storageServ.noteRepo.saveNote({
+        content_text: null,
+        note_name: file.name,
+        content_pdf_url: targetPath,
+      });
 
-        const noteId = await storageServ.noteRepo.saveNote({
-          content_text: null,
-          note_name: file.name,
-          content_pdf_url: targetPath,
-        });
-
-        router.push(`/note/${noteId}`);
-      }
+      router.push(`/note/${noteId}`);
     } catch (error) {
-      console.error("File pick/save error:", error);
+      setErrorMsg((error as any).message as string);
+      setIsError(true);
     }
   };
 
@@ -235,6 +237,12 @@ const NoteList: React.FC<NoteListProps> = ({
           </IonFabList>
         </IonFab>
       )}
+      <IonAlert
+        isOpen={isError}
+        header={errorMsg}
+        buttons={[{ text: "Okay", role: "cancel" }]}
+        onDidDismiss={() => setIsError(false)}
+      ></IonAlert>
     </>
   );
 };

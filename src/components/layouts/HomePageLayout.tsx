@@ -38,14 +38,15 @@ const HomePageLayout = () => {
     setSelectedTab(matchedTab ? matchedTab.href : "/home");
   }, [location.pathname]);
   const tabs = [
-    { tab: "home", href: "/home", icon: home, label: "Home" },
+    // { tab: "home", href: "/home", icon: home, label: "Home" },
+    { tab: "note", href: "/notes", icon: fileTray, label: "Notes" },
+
     {
       tab: "quiz",
       href: "/quizzes",
       icon: layers,
       label: "Quizzes",
     },
-    { tab: "note", href: "/notes", icon: fileTray, label: "Notes" },
     { tab: "chat", href: "/chats", icon: chatbubbles, label: "Chats" },
   ];
 
@@ -55,8 +56,8 @@ const HomePageLayout = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
-        <Redirect exact path="/" to="/home" />
-        <Route path="/home" render={() => <Home />} exact />
+        <Redirect exact path="/" to="/notes" />
+        {/* <Route path="/home" render={() => <Home />} exact /> */}
         <Route
           path="/quizzes/:window"
           render={(props) => <Quizzes {...props} />}

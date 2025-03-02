@@ -1,3 +1,4 @@
+import { Scores } from "@/services/attemptQuizService";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 
 interface EvaluationScores {
@@ -8,7 +9,11 @@ interface EvaluationScores {
   grammar_and_mechanics: Array<number>; // Score for grammar and mechanics
   critical_thinking: Array<number>; // Score for critical thinking
 }
-
+export interface Rubric {
+  rubric_id: number;
+  file_path: string;
+  file_name: string;
+}
 interface EssayStrength {
   essay_fb_id: number;
   content: string;
@@ -44,23 +49,15 @@ class EssayRepository {
 
   // Save essay evaluation
   async saveEssayEvaluation(
-    scores: EvaluationScores,
-    essay_answer_id: number
+    essay_answer_id: number,
+    rubric_id: number
   ): Promise<number> {
     const sql = `
       INSERT INTO EssayEvaluation (
-        content, organization, thesis_statement, style_and_voice, 
-        grammar_and_mechanics, critical_thinking, essay_answer_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?);`;
-    const res = await this.db.run(sql, [
-      scores.content[0],
-      scores.organization[0],
-      scores.thesis_statement[0],
-      scores.style_and_voice[0],
-      scores.grammar_and_mechanics[0],
-      scores.critical_thinking[0],
-      essay_answer_id,
-    ]);
+       essay_answer_id,
+       rubric_id
+      ) VALUES (?,?);`;
+    const res = await this.db.run(sql, [essay_answer_id]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
     }
@@ -104,6 +101,132 @@ class EssayRepository {
 
     for (const improvement of essay_improvements) {
       await this.db.run(sql, [improvement.essay_fb_id, improvement.content]);
+    }
+  }
+  // Save criteria record
+  async saveCriteria(
+    essay_eval_id: number,
+    score: number,
+    max_score: number,
+    criteria_name: string,
+    break_down: string
+  ): Promise<number> {
+    const sql = `
+        INSERT INTO Criteria (essay_eval_id, score, max_score, criteria_name, break_down)
+        VALUES (?, ?, ?, ?, ?);`;
+    const res = await this.db.run(sql, [
+      essay_eval_id,
+      score,
+      max_score,
+      criteria_name,
+      break_down,
+    ]);
+    if (res.changes?.lastId) {
+      return res.changes.lastId;
+    }
+    throw new Error("EssayRepository.saveCriteria: lastId not returned");
+  }
+  // Single insert for multiple score records
+  async saveScores(essay_eval_id: number, scores: Scores[]): Promise<number[]> {
+    if (scores.length === 0) return [];
+
+    // Build a string of placeholders for each record: "(?,?,?,?,?)"
+    const placeholders = scores.map(() => "(?,?,?,?,?)").join(", ");
+
+    // Flatten the parameters for all records
+    const params: (number | string)[] = [];
+    for (const score of scores) {
+      params.push(
+        essay_eval_id,
+        score.score,
+        score.max,
+        score.criterion,
+        score.breakdown
+      );
+    }
+
+    const sql = `
+        INSERT INTO Criteria (essay_eval_id, score, max_score, criteria_name, break_down)
+        VALUES ${placeholders};`;
+
+    const res = await this.db.run(sql, params);
+    if (res.changes && res.changes.lastId !== undefined) {
+      // If the database returns the last inserted ID, and IDs are sequential,
+      // we can calculate the list of inserted IDs.
+      const lastId = res.changes.lastId;
+      const insertedCount = scores.length;
+      const firstId = lastId - insertedCount + 1;
+      const ids = Array.from(
+        { length: insertedCount },
+        (_, index) => firstId + index
+      );
+      return ids;
+    }
+    throw new Error("EssayRepository.saveScores: lastId not returned");
+  }
+  // Save rubric record
+  async saveRubric(filePath: string, fileName: string): Promise<number> {
+    const sql = `
+      INSERT INTO Rubric (file_path,file_name)
+      VALUES (?,?);
+    `;
+    const res = await this.db.run(sql, [filePath, fileName]);
+    if (res.changes?.lastId) {
+      return res.changes.lastId;
+    }
+    throw new Error("RubricRepository.saveRubric: lastId not returned");
+  }
+  async getRubric(rubricId: number): Promise<Rubric> {
+    try {
+      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE id = ?;`;
+      const res = await this.db.query(sql, [rubricId]);
+      if (res.values && res.values.length > 0) {
+        return res.values[0];
+      }
+      throw new Error(`No rubric found with id ${rubricId}`);
+    } catch (error) {
+      throw new Error("RubricRepository.getRubric: " + error);
+    }
+  }
+
+  async getRubrics(): Promise<Rubric[]> {
+    try {
+      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE is_used = 0 ORDER BY created_at DESC;`;
+      const res = await this.db.query(sql);
+      if (res.values) {
+        return res.values;
+      }
+      return [];
+    } catch (error) {
+      throw new Error("RubricRepository.getRubrics: " + error);
+    }
+  }
+  async getUsedRubrics(): Promise<Rubric | null> {
+    try {
+      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE is_used = 1;`;
+      const res = await this.db.query(sql);
+      if (!res.values) {
+        return null;
+      }
+      return res.values[0];
+    } catch (error) {
+      throw new Error("RubricRepository.getUsedRubrics: " + error);
+    }
+  }
+  async updateRubricIsUsed(rubricId: number, isUsed: boolean): Promise<void> {
+    try {
+      const sql = `UPDATE Rubric SET is_used = ? WHERE rubric_id = ?;`;
+      await this.db.run(sql, [isUsed ? 1 : 0, rubricId]);
+    } catch (error) {
+      throw new Error("RubricRepository.updateRubricIsUsed: " + error);
+    }
+  }
+  async deleteRubric(rubricId: number): Promise<void> {
+    try {
+      const sql = `DELETE FROM Rubric WHERE rubric_id = ?;`;
+      await this.db.run(sql, [rubricId]);
+    } catch (error) {
+      throw new Error("RubricRepository.deleteRubric: " + error);
     }
   }
 }

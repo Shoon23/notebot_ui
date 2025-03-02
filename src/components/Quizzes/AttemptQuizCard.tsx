@@ -91,7 +91,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ data }) => {
                     marginBottom: 2,
                   }}
                 >
-                  Score: {data.score}/{data.num_questions}
+                  Score: {data.score}/{data.max_score}
                 </div>
               )}
               <div

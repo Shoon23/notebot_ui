@@ -14,27 +14,25 @@ export interface iAttemptQuiz {
   }>;
 }
 export interface AttemptEssayType {
-  quiz_id: number;
-  question_id: number;
-  answer: string;
-  evaluation: EssayEvaluation;
+  scores: Scores[];
+  feedbacks: Feedbacks;
 }
-export interface Feedback {
+
+export interface Scores {
+  criterion: string;
+  score: number;
+  max: number;
+  breakdown: string;
+}
+export interface Feedbacks {
   feedback: string;
   strength: string[];
   areas_of_improvement: string[];
 }
 
 // Define the structure for each item in the array
-export interface EssayEvaluation {
-  content: Array<number>; // Score for content
-  organization: Array<number>; // Score for organization
-  thesis_statement: Array<number>; // Score for thesis statement
-  style_and_voice: Array<number>; // Score for style and voice
-  grammar_and_mechanics: Array<number>; // Score for grammar and mechanics
-  critical_thinking: Array<number>; // Score for critical thinking
-  feedbacks: Feedback; // The feedback structure for this evaluation
-}
+export interface EssayEvaluation {}
+
 class AttemptQuizService {
   private attemptQuizRepo: AttemptQuizRepository;
   private questionRepo: QuestionRepository;
@@ -50,14 +48,14 @@ class AttemptQuizService {
   }
 
   async processMCQAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id, num_questions } =
+    const { checked_answers, score, quiz_id, max_score } =
       await this.check_answers(answers, "option_id");
     try {
       // saving the quiz attempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
+        max_score,
       });
       // Saving the answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -82,14 +80,14 @@ class AttemptQuizService {
     }
   }
   async processTrueFalseAnswers(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id, num_questions } =
+    const { checked_answers, score, quiz_id, max_score } =
       await this.check_answers(answers, "content");
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
+        max_score,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -112,7 +110,7 @@ class AttemptQuizService {
     }
   }
   async processShortAnswer(answers: iAttemptQuiz) {
-    const { checked_answers, score, quiz_id, num_questions } =
+    const { checked_answers, score, quiz_id, max_score } =
       await this.check_answers(answers, "content");
 
     try {
@@ -120,7 +118,7 @@ class AttemptQuizService {
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
         score,
-        num_questions,
+        max_score,
       });
       // Save the Answers
       const answers_promises = checked_answers.map(async (user_answer) => {
@@ -146,17 +144,25 @@ class AttemptQuizService {
     }
   }
 
-  async processEssayAnswer(answers: AttemptEssayType) {
-    const { evaluation, quiz_id, answer, question_id } = answers;
+  async processEssayAnswer(
+    answers: AttemptEssayType & {
+      answer: string;
+      quiz_id: number;
+      question_id: number;
+      rubric_id: number;
+    }
+  ) {
+    const { feedbacks, scores, quiz_id, answer, question_id, rubric_id } =
+      answers;
 
     try {
       // Calculate total essay score
-      const total_score = this.calculateTotalEssayScore(evaluation);
+      const { totalMax, totalScore } = this.calculateTotalEssayScore(scores);
       // Save Quiz Attempt
       const quiz_attempt_id = await this.attemptQuizRepo.saveQuizAttempt({
         quiz_id,
-        score: total_score,
-        num_questions: 1,
+        score: totalScore,
+        max_score: totalMax,
       });
       // Save Essay Answer
       const essay_answer_id = await this.essayRepo.saveEssayAnswer(
@@ -166,10 +172,15 @@ class AttemptQuizService {
       );
 
       // Save Essay Evaluation
-      const { feedbacks, ...essay_scores } = evaluation;
       const essay_eval_id = await this.essayRepo.saveEssayEvaluation(
-        essay_scores,
-        essay_answer_id
+        essay_answer_id,
+        rubric_id
+      );
+
+      //Save Essay Scores
+      const essay_scores_id = await this.essayRepo.saveScores(
+        essay_eval_id,
+        scores
       );
       // Save Feedback
       const { areas_of_improvement, feedback, strength } = feedbacks;
@@ -199,26 +210,29 @@ class AttemptQuizService {
         quiz_id,
         quiz_attempt_id,
         results: {
-          essay_scores,
-          total_score,
+          criteria: scores,
+          score: totalScore,
+          maxScore: totalMax,
           feedback,
           strength,
           areas_of_improvement,
         },
       };
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
 
-  private calculateTotalEssayScore = (evaluation: EssayEvaluation): number => {
-    return (
-      Number(evaluation.content[0]) +
-      Number(evaluation.organization[0]) +
-      Number(evaluation.thesis_statement[0]) +
-      Number(evaluation.style_and_voice[0]) +
-      Number(evaluation.grammar_and_mechanics[0]) +
-      Number(evaluation.critical_thinking[0])
+  private calculateTotalEssayScore = (
+    scores: Scores[]
+  ): { totalScore: number; totalMax: number } => {
+    return scores.reduce(
+      (acc, current) => ({
+        totalScore: acc.totalScore + current.score,
+        totalMax: acc.totalMax + current.max,
+      }),
+      { totalScore: 0, totalMax: 0 }
     );
   };
 
@@ -283,7 +297,7 @@ class AttemptQuizService {
     return {
       score,
       checked_answers,
-      num_questions: checked_answers.length,
+      max_score: checked_answers.length,
       quiz_id,
     };
   };

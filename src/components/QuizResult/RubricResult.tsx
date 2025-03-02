@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonCard,
@@ -15,6 +15,9 @@ import { caretForwardOutline } from "ionicons/icons";
 import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
 import { capitlizedFirstLetter } from "@/utils";
+import { Scores } from "@/services/attemptQuizService";
+import RubricCard from "../Rubrics/RubricCard";
+import { Rubric } from "@/repository/EssayRepository";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -29,17 +32,15 @@ const colors = [
 ];
 
 interface RubricResultProps {
-  data: {
-    content: number;
-    critical_thinking: number;
-    grammar_and_mechanics: number;
-    organization: number;
-    style_and_voice: number;
-    thesis_statement: number;
-  };
+  scores: Array<{
+    criteria_name: string;
+    score: string;
+    max_score: number;
+    break_down: number;
+  }>;
 }
 
-const RubricResult: React.FC<RubricResultProps> = ({ data }) => {
+const RubricResult: React.FC<RubricResultProps> = ({ scores }) => {
   const randomIndex = Math.floor(Math.random() * colors.length);
   const shadowColor = colors[randomIndex];
   const cardsStyles = {
@@ -51,8 +52,22 @@ const RubricResult: React.FC<RubricResultProps> = ({ data }) => {
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
     marginTop: "5px",
   };
+
+  useEffect(() => {}, []);
   return (
     <IonCard style={cardsStyles}>
+      {/* <RubricCard
+        usedRubrics={null}
+        rubric={null}
+        setRubrics={function (value: React.SetStateAction<Rubric[]>): void {
+          throw new Error("Function not implemented.");
+        }}
+        setRubric={function (value: React.SetStateAction<Rubric | null>): void {
+          throw new Error("Function not implemented.");
+        }}
+        rubrics={[]}
+        isSingle={true}
+      /> */}
       <div
         style={{
           display: "flex",
@@ -89,17 +104,32 @@ const RubricResult: React.FC<RubricResultProps> = ({ data }) => {
                 marginTop: 5,
               }}
             >
-              {}
-              {Object.entries(data).map(([key, value]) => (
-                <div
-                  key={key}
-                  style={{
-                    marginBottom: 2,
-                  }}
-                >
-                  {`${capitlizedFirstLetter(key)}: ${value}/4`}
-                </div>
-              ))}
+              {scores.map((score, idx) => {
+                return (
+                  <div key={idx}>
+                    <div
+                      style={{
+                        marginBottom: 2,
+                        fontWeight: "bolder",
+                        color: "black",
+                      }}
+                    >
+                      {`${capitlizedFirstLetter(score.criteria_name)}: ${
+                        score.score
+                      }/${score.max_score}`}
+                    </div>
+                    <p
+                      style={{
+                        marginLeft: 5,
+                        padding: 0,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {score.break_down}
+                    </p>
+                  </div>
+                );
+              })}
             </IonCardSubtitle>
           </IonCardHeader>
         </div>

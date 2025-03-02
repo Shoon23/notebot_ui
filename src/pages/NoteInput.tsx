@@ -44,13 +44,15 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "../styles/test.css";
 import mammoth from "mammoth";
-
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
-
+// Utility: Convert a Base64 string to an ArrayBuffer
+export const base64ToArrayBuffer = (base64: string) => {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
 interface NoteInputProp extends RouteComponentProps<{ id: string }> {}
 
 const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
@@ -72,15 +74,6 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [isShowDelete, setIsShowDelete] = useState(false);
-  // Utility: Convert a Base64 string to an ArrayBuffer
-  const base64ToArrayBuffer = (base64: string) => {
-    const binaryString = atob(base64);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  };
 
   // Utility: Extract file extension from a filename string
   const getFileExtension = (filename: string): string =>
@@ -264,14 +257,19 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
         </header>
         <section style={{ height: "94%" }}>
           <div className="note-name-container">
-            <input
-              disabled={!!note.content_pdf_url}
-              onChange={handleOnChangeName}
-              className="note-name-input"
-              type="text"
-              placeholder="Enter Note Name..."
-              value={note.note_name}
-            />
+            {note.content_pdf_url ? (
+              <div className="note-name-input">{note.note_name}</div>
+            ) : (
+              <div>
+                <input
+                  onChange={handleOnChangeName}
+                  className="note-name-input"
+                  type="text"
+                  placeholder="Enter Note Name..."
+                  value={note.note_name}
+                />
+              </div>
+            )}
           </div>
           {note.content_pdf_url ? (
             <>
@@ -279,7 +277,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
               {fileData.type === "pdf" && fileData.blob && (
                 <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
                   {[...Array(numPages)].map((_, index) => (
-                    <Page key={index} pageNumber={index + 1} scale={0.75} />
+                    <Page key={index} pageNumber={index + 1} scale={0.6} />
                   ))}
                 </Document>
               )}

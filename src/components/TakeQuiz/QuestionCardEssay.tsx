@@ -12,6 +12,8 @@ import {
 import { caretForwardOutline } from "ionicons/icons";
 import React, { useState } from "react";
 import TextAreaInput from "../GenerateQuiz/TextAreaInput";
+import Rubrics from "../Rubrics/Rubrics";
+import { Rubric } from "@/repository/EssayRepository";
 
 interface QuestionCardEssayProps {
   question_answer: QuestionWithOptions;
@@ -21,6 +23,8 @@ interface QuestionCardEssayProps {
   ) => void;
   answer: string;
   totalWord: number;
+  usedRubric: Rubric | null;
+  setUsedRubric: React.Dispatch<React.SetStateAction<Rubric | null>>;
 }
 const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
   question_answer,
@@ -28,6 +32,8 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
   handleOnChangeEssayAnswer,
   answer,
   totalWord,
+  setUsedRubric,
+  usedRubric,
 }) => {
   const tempoColor = "#47926B";
   const shadowColors = hexToRgb(tempoColor);
@@ -41,34 +47,11 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
   return (
-    <IonCard style={cardsStyles}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+    <>
+      <Rubrics usedRubric={usedRubric} setUsedRubric={setUsedRubric} />
+
+      <IonCard style={cardsStyles}>
         <div
-          style={{
-            height: "100%",
-          }}
-        >
-          <IonCardHeader
-            style={{
-              padding: "10px",
-            }}
-          >
-            <IonCardTitle
-              style={{
-                fontSize: "1rem", // Scaled for mobile readability
-                fontWeight: "bolder",
-              }}
-            >
-              {idx + 1}. {question_answer.content}
-            </IonCardTitle>
-          </IonCardHeader>
-        </div>
-        <IonCardContent
           style={{
             display: "flex",
             flexDirection: "column",
@@ -76,32 +59,59 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
         >
           <div
             style={{
-              fontWeight: "bold",
+              height: "100%",
             }}
           >
-            Minimum Word: <span>250</span>
+            <IonCardHeader
+              style={{
+                padding: "10px",
+              }}
+            >
+              <IonCardTitle
+                style={{
+                  fontSize: "1rem", // Scaled for mobile readability
+                  fontWeight: "bolder",
+                }}
+              >
+                {idx + 1}. {question_answer.content}
+              </IonCardTitle>
+            </IonCardHeader>
           </div>
-          <div
+          <IonCardContent
             style={{
-              fontWeight: "bold",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            Maximum Word: <span style={{}}>650</span>
-          </div>
-          <br />
-          <div className="">
-            Total Word: <span>{totalWord}</span>
-          </div>
-          <TextAreaInput
-            value={answer}
-            handleOnChangeDescription={handleOnChangeEssayAnswer}
-            rows={15}
-            placeHolder={"Enter Answer Here"}
-            label={"Answer"}
-          />
-        </IonCardContent>
-      </div>
-    </IonCard>
+            <div
+              style={{
+                fontWeight: "bold",
+              }}
+            >
+              Minimum Word: <span>100</span>
+            </div>
+            <div
+              style={{
+                fontWeight: "bold",
+              }}
+            >
+              Maximum Word: <span style={{}}>650</span>
+            </div>
+            <br />
+            <div className="">
+              Total Word: <span>{totalWord}</span>
+            </div>
+            <TextAreaInput
+              value={answer}
+              handleOnChangeDescription={handleOnChangeEssayAnswer}
+              rows={15}
+              placeHolder={"Enter Answer Here"}
+              label={"Answer"}
+            />
+          </IonCardContent>
+        </div>
+      </IonCard>
+    </>
   );
 };
 

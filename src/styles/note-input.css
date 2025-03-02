@@ -21,9 +21,8 @@
   width: 100%;
   font-size: 18px;
   font-weight: bold;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  height: 80px;
+  min-height: 50px;
+  padding: 10px;
 }
 
 .note-name-container {

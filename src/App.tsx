@@ -20,8 +20,6 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
 // React Query Init
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Routes from "./Routes";
 import HomePageLayout from "./components/layouts/HomePageLayout";
 import Quiz from "./pages/Quiz";
@@ -33,6 +31,7 @@ import AppInitializer from "./components/AppInitializer/AppInitializer";
 import GenerateQuiz from "./pages/GenerateQuiz";
 import TakeQuiz from "./pages/TakeQuiz";
 import QuizResult from "./pages/QuizResult";
+import { pdfjs } from "react-pdf";
 
 // Singleton Services
 export const SqliteServiceContext = React.createContext(SqliteService);
@@ -43,6 +42,11 @@ export const StorageServiceContext = React.createContext(
 
 // In your index.tsx or App.tsx (run this once at startup)
 setupIonicReact();
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 const App: React.FC = () => {
   return (

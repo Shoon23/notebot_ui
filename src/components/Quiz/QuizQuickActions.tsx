@@ -157,7 +157,7 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
           alignItems: "center",
           justifyContent: "center",
           height: "55px",
-          marginBottom: "20px",
+          marginBottom: "10px",
         }}
       >
         <button className="view-note-btn">View Note</button>

@@ -6,7 +6,7 @@ export const QuizAttemptUpgradeStatements = [
            quiz_attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
            quiz_id INTEGER NOT NULL,
            score INTEGER NOT NULL,
-           num_questions INTEGER NOT NULL,
+          max_score INTEGET NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           is_archived INTEGER DEFAULT 0,
 

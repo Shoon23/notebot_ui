@@ -44,6 +44,8 @@ const AppInitializer: FC<AppInitializerProps> = ({ children }) => {
     const initApp = async (): Promise<void> => {
       try {
         await ensureDirectoryExists("Notes", Directory.Data);
+        await ensureDirectoryExists("Rubrics", Directory.Data);
+
         const appInit = await initializeAppService.initializeApp();
         return;
       } catch (error: any) {

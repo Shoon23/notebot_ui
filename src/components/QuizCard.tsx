@@ -44,8 +44,8 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
 
   const cardsStyles = {
     flex: "0 0 auto",
-    width: width || "300px", // Minimum width for the cards,
-    height: "130px",
+    width: width || "95%", // Minimum width for the cards,
+    minHeight: "130px",
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
@@ -72,7 +72,9 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
                 fontWeight: "bold",
               }}
             >
-              {data.quiz_name}
+              {(data.quiz_name?.length as number) > 20
+                ? data.quiz_name?.slice(0, 20) + "..." // Truncate to 30 characters and add ellipsis
+                : data.quiz_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{

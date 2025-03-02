@@ -179,6 +179,14 @@ const Home: React.FC<HomeProps> = ({}) => {
                       handleSelectNote={(note_data) => {
                         router.push(`/note/${note_data.note_id}`);
                       }}
+                      isCheckBox={false}
+                      handleSelectArchive={function (
+                        question: Note,
+                        isChecked: boolean
+                      ): void {
+                        throw new Error("Function not implemented.");
+                      }}
+                      isSelected={false}
                     />
                   );
                 })}

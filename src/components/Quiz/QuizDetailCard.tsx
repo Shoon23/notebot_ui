@@ -68,6 +68,7 @@ const QuizDetailCard: React.FC<QuizDetailCardProps> = ({
               style={{
                 fontSize: "1.2rem", // Scaled for mobile readability
                 fontWeight: "bold",
+                width: "35%",
               }}
             >
               {data.quiz_name}

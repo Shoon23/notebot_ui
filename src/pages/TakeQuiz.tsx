@@ -5,10 +5,13 @@ import QuestionCardMCQ from "@/components/TakeQuiz/QuestionCardMCQ";
 import QuestionShortAnswer from "@/components/TakeQuiz/QuestionCardShortAnswer";
 import QuestionCardTF from "@/components/TakeQuiz/QuestionCardTF";
 import useStorageService from "@/hooks/useStorageService";
+import { Rubric } from "@/repository/EssayRepository";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import { AttemptEssayType, iAttemptQuiz } from "@/services/attemptQuizService";
 import { HttpResponse, CapacitorHttp } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import {
+  IonAlert,
   IonButton,
   IonContent,
   IonHeader,
@@ -22,6 +25,8 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { base64ToArrayBuffer } from "./NoteInput";
+import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
 
 interface TakeQuizProp
   extends RouteComponentProps<{
@@ -29,6 +34,8 @@ interface TakeQuizProp
   }> {}
 const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
   const storageServ = useStorageService();
+  const [isError, setIsError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [quiz, setQuiz] = useState<iMCQQuestion>({
     quiz_name: "",
     question_type: "",
@@ -51,6 +58,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
     question_id: 0,
   });
   const [totalWord, setTotalWorld] = useState(0);
+  const [usedRubric, setUsedRubric] = useState<Rubric | null>(null);
 
   const [attemptQuiz, setAttemptQuiz] = useState<iAttemptQuiz>({
     quiz_id: 0,
@@ -127,24 +135,74 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           );
           break;
         case "essay":
-          const options = {
-            url: "https://test-backend-9dqr.onrender.com/evaluate-essay",
-            headers: {
-              "Content-Type": "application/json", // Set the content type to JSON
-            },
-            data: attemptQuiz,
-          };
-          const response: HttpResponse = await CapacitorHttp.post(options);
-          const evaluated_answer = response.data as AttemptEssayType;
-          result = await storageServ.attemptQuizService.processEssayAnswer(
-            evaluated_answer
+          let fileBlob: Blob | null = null;
+          let filename: string | null = null;
+          let filePath = usedRubric?.file_path as string;
+          if (filePath.startsWith("file://")) {
+            filePath = filePath.replace("file://", "");
+          }
+
+          const fileResult = await Filesystem.readFile({
+            path: filePath,
+            directory: Directory.Data,
+          });
+
+          const base64Data = fileResult.data as any; // Base64 encoded string
+          // Convert the Base64 string to a Blob.
+          fileBlob = b64toBlob(base64Data, "application/pdf");
+          filename = filePath.split("/").pop() || "uploadfile";
+
+          const formData = new FormData();
+
+          // Append the answer and question fields (assuming these are string values)
+          formData.append(
+            "answer",
+            attemptQuiz.attempted_answers[0].answer.content
           );
+          formData.append(
+            "question",
+            attemptQuiz.attempted_answers[0].question as string
+          );
+
+          formData.append("rubric", fileBlob, filename);
+
+          const response = await fetch(
+            "https://test-backend-9dqr.onrender.com/evaluate-essay",
+            {
+              method: "POST",
+              body: formData,
+              // Do not manually set the Content-Type header; the browser sets it automatically.
+            }
+          );
+          // const response: HttpResponse = await CapacitorHttp.post(options);
+          console.log(response);
+          if (!response.ok) {
+            const res = await response.json();
+            console.log(res);
+            setIsError(true);
+            setErrorMsg(res.message || "Something Went Wrong");
+            dismiss();
+
+            return;
+          }
+
+          const evaluated_answer = (await response.json()) as AttemptEssayType;
+
+          result = await storageServ.attemptQuizService.processEssayAnswer({
+            ...evaluated_answer,
+            answer: attemptQuiz.attempted_answers[0].answer.content,
+            question_id: attemptQuiz.attempted_answers[0].question_id,
+            quiz_id: quiz.quiz_id,
+            rubric_id: usedRubric?.rubric_id as number,
+          });
+          console.log(result);
           break;
       }
 
       router.push(`/quiz-result/${result?.quiz_attempt_id}`);
     } catch (error) {
-      console.log(error);
+      setIsError(true);
+      setErrorMsg("Something Went Wrong");
     } finally {
       dismiss();
     }
@@ -289,29 +347,32 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
       };
     });
   };
+
   return (
-    <IonPage>
-      <IonContent>
-        <Header
-          nameComponent={
-            <h1
-              style={{
-                alignSelf: "center",
-                marginTop: "60px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 10,
-              }}
-            >
-              Quiz Time!
-            </h1>
-          }
-          backRoute={`/quiz/${quiz.quiz_id}`}
-        />
-        <form className="ion-padding" onSubmit={handleCheckAnswer}>
-          <div
+    <>
+      <IonPage>
+        <IonContent>
+          <Header
+            nameComponent={
+              <h1
+                style={{
+                  alignSelf: "center",
+                  marginTop: "60px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
+                }}
+              >
+                Quiz Time!
+              </h1>
+            }
+            backRoute={`/quiz/${quiz.quiz_id}`}
+          />
+          <form
+            className="ion-padding"
             style={{
+              overflowX: "hidden",
               height: "100%",
               width: "100%",
               marginTop: "20px",
@@ -320,6 +381,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
               flexDirection: "column",
               alignItems: "center",
             }}
+            onSubmit={handleCheckAnswer}
           >
             {quiz.questions.map((question_answer, index) => {
               // Determine the question type and assign the correct card component
@@ -359,6 +421,8 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
                 case "essay":
                   return (
                     <QuestionCardEssay
+                      usedRubric={usedRubric}
+                      setUsedRubric={setUsedRubric}
                       totalWord={totalWord}
                       answer={
                         attemptQuiz.attempted_answers[0].answer.content ?? ""
@@ -371,34 +435,42 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
                   );
               }
             })}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end", // Align horizontally to the right
-              alignItems: "flex-end", // Align vertically to the bottom
-              height: "100%", // Make sure the parent container has full height
-              marginTop: "5px",
-              marginBottom: "5px",
-            }}
-          >
-            <IonButton
-              disabled={
-                quiz.question_type !== "essay"
-                  ? attemptQuiz.attempted_answers.length !==
-                    quiz.questions.length
-                  : !attemptQuiz.attempted_answers[0].answer.content ||
-                    totalWord < 250
-              }
-              color={"tertiary"}
-              type="submit"
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end", // Align horizontally to the right
+                alignItems: "flex-end", // Align vertically to the bottom
+                height: "100%", // Make sure the parent container has full height
+                marginTop: "5px",
+                marginBottom: "5px",
+              }}
             >
-              Submit
-            </IonButton>
-          </div>
-        </form>
-      </IonContent>
-    </IonPage>
+              <IonButton
+                disabled={
+                  quiz.question_type !== "essay"
+                    ? attemptQuiz.attempted_answers.length !==
+                      quiz.questions.length
+                    : !attemptQuiz.attempted_answers[0].answer.content ||
+                      totalWord < 100 ||
+                      !usedRubric
+                }
+                color={"tertiary"}
+                type="submit"
+              >
+                Submit
+              </IonButton>
+            </div>
+          </form>
+        </IonContent>
+      </IonPage>
+
+      <IonAlert
+        isOpen={isError}
+        header={errorMsg}
+        buttons={[{ text: "Okay", role: "cancel" }]}
+        onDidDismiss={() => setIsError(false)}
+      ></IonAlert>
+    </>
   );
 };
 

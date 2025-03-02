@@ -99,10 +99,7 @@ const ResultTitle: React.FC<ResultTitleProps> = ({ data }) => {
                   marginBottom: 2,
                 }}
               >
-                Score: {data.score}/
-                {data.question_type !== "essay"
-                  ? Array.isArray(data.quiz_results) && data.quiz_results.length
-                  : 24}
+                Score: {data.score}/{data.max_score}
               </div>
               <div
                 style={{

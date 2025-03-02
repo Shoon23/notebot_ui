@@ -121,7 +121,7 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
               >
                 {quiz.length !== 0 ? (
                   quiz.map((data, index) => (
-                    <QuizCard key={index} width="360px" data={data} />
+                    <QuizCard key={index} data={data} />
                   ))
                 ) : (
                   <div

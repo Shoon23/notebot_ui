@@ -49,6 +49,8 @@ import { differenceInSeconds } from "date-fns";
 import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
+import Rubrics from "@/components/Rubrics/Rubrics";
+import { Rubric } from "@/repository/EssayRepository";
 
 interface QuizProp
   extends RouteComponentProps<{
@@ -75,6 +77,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const [shadowColorActions, setshadowColorActions] = useState("");
   const [isSelectQuestion, setIsSelectQuestion] = useState(false);
   const history = useHistory();
+
+  const [usedRubric, setUsedRubric] = useState<Rubric | null>(null);
   // State to store selected questionsj
   const [selectedQuestions, setSelectedQuestions] = useState<
     QuestionWithOptions[]
@@ -151,6 +155,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             is_recent: true,
             quiz_id: quiz_id,
           });
+
+        console.log(quizAttempt);
         setAttemptedQuiz(quizAttempt);
       } catch (error) {
         console.log(error);
@@ -184,7 +190,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       const quizHistory = await storageServ.quizRepo.getQuizzesByChainRawText(
         quiz.chain_id as string
       );
-      const apiUrl = "http://192.168.56.1:9090/generate-questions-set";
+      const apiUrl =
+        "https://test-backend-9dqr.onrender.com/generate-questions-set";
       let fileBlob: Blob | null = null;
       let filename: string | null = null;
 
@@ -233,6 +240,11 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         body: formData,
       });
 
+      if (!response.ok) {
+        dismiss();
+
+        return;
+      }
       const data = await response.json();
       let quiz_data = null;
       const {
@@ -317,7 +329,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       console.log(error);
     }
   };
-
+  console.log(quiz);
   return (
     <IonPage style={{ overflow: "hidden" }}>
       <IonContent>
@@ -377,6 +389,9 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             quiz_id={quiz.quiz_id}
             question_type={quiz.question_type}
           />
+          {quiz.question_type === "essay" && (
+            <Rubrics usedRubric={usedRubric} setUsedRubric={setUsedRubric} />
+          )}
           <IonSegment
             mode="ios"
             style={{

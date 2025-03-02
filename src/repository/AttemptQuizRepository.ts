@@ -1,9 +1,10 @@
+import { Scores } from "@/services/attemptQuizService";
 import { SQLiteDBConnection } from "@capacitor-community/sqlite";
 
 type QuizAttemptType = {
   quiz_id: number;
   score: number;
-  num_questions: number;
+  max_score: number;
 };
 
 type OptionAnswerType = {
@@ -25,23 +26,22 @@ export interface iAttemptQuiz {
   created_at: string;
   score: number;
   quiz_name: string;
-  num_questions: number;
+  max_score: number;
   question_type: string;
   blooms_taxonomy_level: string;
   quiz_id: number;
 }
 export interface iEssayResults {
+  rubric_id: number;
   answer: string;
   question: string;
   feedback: string;
-  scores: {
-    content: number;
-    critical_thinking: number;
-    grammar_and_mechanics: number;
-    organization: number;
-    style_and_voice: number;
-    thesis_statement: number;
-  };
+  scores: Array<{
+    criteria_name: string;
+    score: string;
+    max_score: number;
+    break_down: number;
+  }>;
   strength: Array<{
     content: string;
     strength_id: number;
@@ -73,10 +73,10 @@ class AttemptQuizRepository {
 
   // Save quiz attempt
   async saveQuizAttempt(quiz_attempt_data: QuizAttemptType): Promise<number> {
-    const { quiz_id, score, num_questions } = quiz_attempt_data;
-    const sql = `INSERT INTO QuizAttempt (quiz_id, score,num_questions) 
+    const { quiz_id, score, max_score } = quiz_attempt_data;
+    const sql = `INSERT INTO QuizAttempt (quiz_id, score,max_score) 
                  VALUES (?, ?,?);`;
-    const res = await this.db.run(sql, [quiz_id, score, num_questions]);
+    const res = await this.db.run(sql, [quiz_id, score, max_score]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
     }
@@ -142,7 +142,7 @@ class AttemptQuizRepository {
         qa.created_at, 
         qa.score, 
         q.quiz_name,
-        qa.num_questions,
+        qa.max_score,
         q.question_type,
         q.blooms_taxonomy_level,
         qa.is_archived AS attempt_archived,
@@ -173,7 +173,7 @@ class AttemptQuizRepository {
     qa.created_at, 
     qa.score,
     q.quiz_name,
-    qa.num_questions,
+    qa.max_score,
      q.question_type,
     q.blooms_taxonomy_level
 FROM 
@@ -201,7 +201,7 @@ ${limit ? "LIMIT " + limit : ""};`;
     qa.created_at, 
     qa.score,
     q.quiz_name,
-    qa.num_questions,
+    qa.max_score,
     q.question_type,
     q.quiz_id
 FROM 
@@ -324,88 +324,86 @@ WHERE
         break;
       case "essay":
         const essay_eval_sql = `
-       SELECT 
-        ea.essay_answer_id,
-        ea.quiz_attempt_id,
-         ea.question_id,
-         ea.answer,
-         ev.content,
-        ev.organization,
-        ev.thesis_statement,
-         ev.style_and_voice,
-         ev.grammar_and_mechanics,
-         ev.critical_thinking,
-         ev.essay_eval_id,
-         fb.feedback,
-         fb.essay_fb_id
-        FROM 
-        EssayAnswer AS ea
-        INNER JOIN 
-        EssayEvaluation AS ev
-        ON 
-        ea.essay_answer_id = ev.essay_answer_id
-        INNER JOIN 
-         EssayFeedback AS fb
-        ON 
-        fb.essay_eval_id = ev.essay_eval_id
-        WHERE 
-          ea.quiz_attempt_id = ${quiz_attempt.quiz_attempt_id};
-      `;
+            SELECT 
+              ea.essay_answer_id,
+              ea.quiz_attempt_id,
+              ea.question_id,
+              ea.answer,
+              ev.essay_eval_id,
+              ev.rubric_id,
+              fb.feedback,
+              fb.essay_fb_id
+            FROM 
+              EssayAnswer AS ea
+              INNER JOIN EssayEvaluation AS ev
+                ON ea.essay_answer_id = ev.essay_answer_id
+              INNER JOIN EssayFeedback AS fb
+                ON fb.essay_eval_id = ev.essay_eval_id
+            WHERE 
+              ea.quiz_attempt_id = ${quiz_attempt.quiz_attempt_id};
+          `;
         const essay_eval = (await this.db.query(essay_eval_sql)).values;
         if (!essay_eval) {
           throw new Error("Missing Essay Evaluation");
         }
-        const essay_strength_sql = `
-        SELECT 
-          str.strength_id,
-          str.content
-        FROM 
-        EssayStrength AS str 
-        WHERE 
-        str.essay_fb_id = ${essay_eval[0].essay_fb_id};
-`;
 
+        // Fetch evaluation criteria from the Criteria table using the essay_eval_id
+        const criteria_sql = `
+            SELECT 
+              criteria_name,
+              score,
+              max_score,
+              break_down
+            FROM Criteria
+            WHERE essay_eval_id = ${essay_eval[0].essay_eval_id};
+                `;
+        const criteria = (await this.db.query(criteria_sql)).values;
+        if (!criteria) {
+          throw new Error("Missing Criteria");
+        }
+
+        const essay_strength_sql = `
+            SELECT 
+              str.strength_id,
+              str.content
+            FROM EssayStrength AS str 
+            WHERE str.essay_fb_id = ${essay_eval[0].essay_fb_id};
+            `;
         const essay_strength = (await this.db.query(essay_strength_sql)).values;
         if (!essay_strength) {
           throw new Error("Missing Essay Strength");
         }
-        const essay_aoi_sql = `
-        SELECT 
-          aio.area_of_improvement_id,
-          aio.content
-        FROM 
-        EssayAreaOfImprovement AS aio 
-        WHERE 
-        aio.essay_fb_id = ${essay_eval[0].essay_fb_id};
-`;
 
+        const essay_aoi_sql = `
+          SELECT 
+            aio.area_of_improvement_id,
+            aio.content
+          FROM EssayAreaOfImprovement AS aio 
+          WHERE aio.essay_fb_id = ${essay_eval[0].essay_fb_id};
+`;
         const essay_aoi = (await this.db.query(essay_aoi_sql)).values;
         if (!essay_aoi) {
-          throw new Error("Missing Essay Strength");
+          throw new Error("Missing Essay Improvements");
         }
+
         const question_sql = `SELECT content FROM Question WHERE question_id = ${essay_eval[0].question_id}`;
-
         const question = (await this.db.query(question_sql)).values;
-
         if (!question) {
           throw new Error("Missing Question");
         }
+
         quiz_res = {
+          rubric_id: essay_eval[0].rubric_id,
           answer: essay_eval[0].answer,
           question: question[0].content,
           feedback: essay_eval[0].feedback,
-          scores: {
-            content: essay_eval[0].content,
-            critical_thinking: essay_eval[0].critical_thinking,
-            grammar_and_mechanics: essay_eval[0].grammar_and_mechanics,
-            organization: essay_eval[0].organization,
-            style_and_voice: essay_eval[0].style_and_voice,
-            thesis_statement: essay_eval[0].thesis_statement,
-          },
-
+          scores: criteria,
+          // Replace the original "scores" object with the criteria fetched from the Criteria table.
+          criteria: criteria,
           strength: essay_strength,
           improvements: essay_aoi,
         };
+
         break;
     }
     return {

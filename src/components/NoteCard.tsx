@@ -84,7 +84,7 @@ const NoteCard: React.FC<QuizCardProps> = ({
         <div
           style={{
             marginLeft: 10,
-            width: "100%",
+            width: "80%",
           }}
         >
           <IonCardHeader
@@ -101,12 +101,15 @@ const NoteCard: React.FC<QuizCardProps> = ({
             </span>
             <IonCardTitle
               style={{
-                fontSize: "1.2rem", // Scaled for mobile readability
+                fontSize: "1.2rem",
                 fontWeight: "bold",
                 marginBottom: 0,
+                width: "80%",
               }}
             >
-              {data.note_name}
+              {(data.note_name?.length as number) > 20
+                ? data.note_name?.slice(0, 15) + "..." // Truncate to 30 characters and add ellipsis
+                : data.note_name}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -146,13 +149,13 @@ const NoteCard: React.FC<QuizCardProps> = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: 60,
+            width: "20%",
           }}
         >
           <IonButton
             style={{
               height: "100%",
-              width: 60,
+              width: "20%",
             }}
             fill="clear"
             color={"dark"}

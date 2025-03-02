@@ -42,7 +42,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     }
   >({
     created_at: "",
-    num_questions: 0,
+    max_score: 0,
     quiz_attempt_id: 0,
     quiz_name: "",
     score: 0,
@@ -65,6 +65,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     };
     fetchQuizAttemptAnswers();
   }, []);
+
   return (
     <IonPage>
       <IonContent>
@@ -121,7 +122,7 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
           ></div>
           {!Array.isArray(quizResult.quiz_results) && (
             <>
-              <RubricResult data={quizResult.quiz_results.scores} />
+              <RubricResult scores={quizResult.quiz_results.scores} />
               <FeedBackCard
                 name={"Feedback"}
                 feedbacks={quizResult.quiz_results.feedback}
