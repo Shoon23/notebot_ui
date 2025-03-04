@@ -2,7 +2,7 @@ import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "ionic.notebot",
-  appName: "notebot",
+  appName: "Notebot",
   webDir: "dist",
   server: {
     cleartext: true, // Enable HTTP requests during development
