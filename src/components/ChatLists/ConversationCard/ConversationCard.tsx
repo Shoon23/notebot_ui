@@ -77,19 +77,6 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
             justifyContent: "center",
           }}
         >
-          {/* <div
-            style={{
-              flex: 1,
-            }}
-          >
-            <IonAvatar>
-              <img
-                alt="Silhouette of a person's head"
-                src="https://ionicframework.com/docs/img/demos/avatar.svg"
-              />
-            </IonAvatar>
-          </div> */}
-
           <IonCardHeader
             style={{
               width: "365px",
@@ -110,7 +97,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
                 marginBottom: 5,
               }}
             >
-              <div style={{}}>*last message</div>
+              {/* <div style={{}}>*last message</div> */}
             </IonCardSubtitle>
           </IonCardHeader>
           <div

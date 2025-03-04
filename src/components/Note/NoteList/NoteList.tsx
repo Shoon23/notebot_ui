@@ -22,7 +22,7 @@ import StorageService from "@/services/storageService";
 import useStorageService from "@/hooks/useStorageService";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
-import { validateAndGetFile } from "@/utils/pick-file-utils";
+import { validateAndGetFileNote } from "@/utils/pick-file-utils";
 
 interface NoteListProps {
   buttonPosBottom?: string;
@@ -58,7 +58,10 @@ const NoteList: React.FC<NoteListProps> = ({
         ],
         readData: true,
       });
-      const file = validateAndGetFile(pickedFiles);
+
+      console.log(pickedFiles);
+      const file = validateAndGetFileNote(pickedFiles);
+      console.log(file);
       // Define a subfolder name within the app's data directory
       const folderName = "Notes";
 
@@ -83,6 +86,7 @@ const NoteList: React.FC<NoteListProps> = ({
 
       router.push(`/note/${noteId}`);
     } catch (error) {
+      console.log(error);
       setErrorMsg((error as any).message as string);
       setIsError(true);
     }

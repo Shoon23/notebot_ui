@@ -1,8 +1,5 @@
 import ResultCard from "@/components/QuizResult/ResultCard";
 import ResultTitle from "@/components/QuizResult/ResultTitle";
-import QuestionCardMCQ from "@/components/TakeQuiz/QuestionCardMCQ";
-import QuestionShortAnswer from "@/components/TakeQuiz/QuestionCardShortAnswer";
-import QuestionCardTF from "@/components/TakeQuiz/QuestionCardTF";
 import useStorageService from "@/hooks/useStorageService";
 import {
   iAttemptQuiz,
@@ -13,16 +10,9 @@ import "../styles/note-input.css";
 import {
   IonPage,
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButton,
   useIonViewWillEnter,
-  IonIcon,
   useIonRouter,
 } from "@ionic/react";
-import { match } from "assert";
-import { chevronBack, colorWand, logoGithub } from "ionicons/icons";
 import React, { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Header from "@/components/Header";
@@ -51,13 +41,14 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     question_type: "",
     quiz_id: 0,
   });
+
   useIonViewWillEnter(() => {
     const fetchQuizAttemptAnswers = async () => {
       try {
         const data = await storageServ.attemptQuizRepo.getAttemptQuizResults(
           Number(match.params.id)
         );
-
+        console.log(data);
         setQuizResult(data);
       } catch (error) {
         console.log(error);
@@ -70,7 +61,8 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
     <IonPage>
       <IonContent>
         <Header
-          backRoute={`/quiz/${quizResult.quiz_id}`}
+          // backRoute={`/quiz/${quizResult.quiz_id}`}
+          backRoute={`/quizzes/attempted_quiz`}
           nameComponent={
             <h1
               style={{
@@ -88,7 +80,26 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
         />
         <section className="ion-padding">
           <ResultTitle data={quizResult} />
-
+          <div
+            style={{
+              display: "flex",
+              gap: 5,
+              alignItems: "center",
+              justifyContent: "center",
+              height: "55px",
+              marginBottom: "10px",
+            }}
+          >
+            {/* <button className="view-note-btn">View Note</button> */}
+            <button
+              className="add-question-btn"
+              onClick={() => {
+                router.push(`/quiz/${quizResult.quiz_id}`, "back", "pop");
+              }}
+            >
+              View Quiz
+            </button>
+          </div>
           <div
             style={{
               height: "100%",

@@ -20,22 +20,17 @@ if (typeof Promise.withResolvers !== "function") {
 
 import {
   IonAlert,
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonTitle,
-  IonToolbar,
   useIonRouter,
   useIonViewWillEnter,
 } from "@ionic/react";
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/note-input.css";
-import { archive, chevronBack } from "ionicons/icons";
+import { add, archive, chevronBack, remove } from "ionicons/icons";
 import useStorageService from "@/hooks/useStorageService";
 import { iNote } from "@/repository/NoteRepository";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -44,6 +39,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "../styles/test.css";
 import mammoth from "mammoth";
+
 // Utility: Convert a Base64 string to an ArrayBuffer
 export const base64ToArrayBuffer = (base64: string) => {
   const binaryString = atob(base64);
@@ -53,11 +49,18 @@ export const base64ToArrayBuffer = (base64: string) => {
   }
   return bytes;
 };
+
+export const getFileExtension = (filename: string): string =>
+  filename.lastIndexOf(".") !== -1
+    ? filename.slice(filename.lastIndexOf(".") + 1)
+    : "";
+
 interface NoteInputProp extends RouteComponentProps<{ id: string }> {}
 
 const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   const storageServ = useStorageService();
   const router = useIonRouter();
+  const [scale, setScale] = useState(0.5);
 
   const [note, setNote] = useState<iNote>({
     content_pdf_url: "",
@@ -70,16 +73,14 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     blob: Blob | null;
     type: "pdf" | "docx" | null;
   }>({ blob: null, type: null });
+  const viewerRef = useRef<HTMLDivElement>(null);
 
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
+  // Ref for the container that will handle pinch gestures
   const [isShowDelete, setIsShowDelete] = useState(false);
 
   // Utility: Extract file extension from a filename string
-  const getFileExtension = (filename: string): string =>
-    filename.lastIndexOf(".") !== -1
-      ? filename.slice(filename.lastIndexOf(".") + 1)
-      : "";
 
   useIonViewWillEnter(() => {
     const id = Number(match.params.id);
@@ -175,6 +176,59 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
 
     fetchNote();
   });
+
+  // Pinch-to-zoom handling on the viewer container
+  const initialPinchDistance = useRef<number | null>(null);
+  const getDistance = (touch1: Touch, touch2: Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  useEffect(() => {
+    const container = viewerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        initialPinchDistance.current = getDistance(e.touches[0], e.touches[1]);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && initialPinchDistance.current !== null) {
+        const newDistance = getDistance(e.touches[0], e.touches[1]);
+        const scaleChange = newDistance / initialPinchDistance.current;
+        setScale((prev) => Math.max(prev * scaleChange, 0.1));
+        initialPinchDistance.current = newDistance;
+        e.preventDefault(); // Prevent default pinch-zoom behavior
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        initialPinchDistance.current = null;
+      }
+    };
+
+    container.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    container.addEventListener("touchmove", handleTouchMove, {
+      passive: false,
+    });
+    container.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
+  // Zoom control buttons for non-touch adjustments
+  const handleZoomIn = () => setScale((prev) => prev + 0.1);
+  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.1));
 
   const handleOnChangeName = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -273,29 +327,47 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
           </div>
           {note.content_pdf_url ? (
             <>
-              {/* PDF Renderer */}
-              {fileData.type === "pdf" && fileData.blob && (
-                <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
-                  {[...Array(numPages)].map((_, index) => (
-                    <Page key={index} pageNumber={index + 1} scale={0.6} />
-                  ))}
-                </Document>
-              )}
+              {/* Zoom Controls */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <IonButton onClick={handleZoomOut}>
+                  <IonIcon icon={remove} />
+                </IonButton>
+                <IonButton onClick={handleZoomIn}>
+                  <IonIcon icon={add} />
+                </IonButton>
+              </div>
+              {/* Viewer Container with pinch-to-zoom support */}
+              <div ref={viewerRef}>
+                {/* PDF Renderer */}
+                {fileData.type === "pdf" && fileData.blob && (
+                  <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
+                    {[...Array(numPages)].map((_, index) => (
+                      <Page key={index} pageNumber={index + 1} scale={scale} />
+                    ))}
+                  </Document>
+                )}
 
-              {/* DOCX Renderer */}
-              {fileData.type === "docx" && (
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <div
-                    className="docx-container"
-                    style={{
-                      transform: "scale(0.5)",
-                      transformOrigin: "top center",
-                    }}
-                  >
-                    <div ref={docxContainerRef} className="docx-content" />
+                {/* DOCX Renderer */}
+                {fileData.type === "docx" && (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div
+                      className="docx-container"
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: "top center",
+                      }}
+                    >
+                      <div ref={docxContainerRef} className="docx-content" />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </>
           ) : (
             <textarea

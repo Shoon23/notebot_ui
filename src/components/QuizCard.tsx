@@ -14,6 +14,7 @@ import { caretForwardOutline } from "ionicons/icons";
 import { iQuiz } from "@/repository/QuizRepository";
 import { capitlizedFirstLetter } from "@/utils";
 import { useHistory } from "react-router-dom";
+import { truncateText } from "@/utils/text-utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -72,9 +73,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
                 fontWeight: "bold",
               }}
             >
-              {(data.quiz_name?.length as number) > 20
-                ? data.quiz_name?.slice(0, 20) + "..." // Truncate to 30 characters and add ellipsis
-                : data.quiz_name}
+              {truncateText(data.quiz_name, 20, 20)}
             </IonCardTitle>
             <IonCardSubtitle
               style={{

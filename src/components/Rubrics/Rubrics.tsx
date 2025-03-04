@@ -19,7 +19,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import useStorageService from "@/hooks/useStorageService";
 import { Rubric } from "@/repository/EssayRepository";
-import { validateAndGetFile } from "@/utils/pick-file-utils";
+import { validateAndGetFileRubrics } from "@/utils/pick-file-utils";
 import { fireEvent } from "@testing-library/react";
 
 interface RubricsProps {
@@ -48,7 +48,7 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
         types: ["application/pdf"],
         readData: true,
       });
-      const file = validateAndGetFile(pickedFiles);
+      const file = validateAndGetFileRubrics(pickedFiles);
       // Define a subfolder name within the app's data directory
       const folderName = "Rubrics";
 

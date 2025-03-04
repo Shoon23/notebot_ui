@@ -8,26 +8,21 @@ import useStorageService from "@/hooks/useStorageService";
 import { Rubric } from "@/repository/EssayRepository";
 import { iMCQQuestion } from "@/repository/QuizRepository";
 import { AttemptEssayType, iAttemptQuiz } from "@/services/attemptQuizService";
-import { HttpResponse, CapacitorHttp } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import {
   IonAlert,
   IonButton,
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   useIonLoading,
   useIonRouter,
   useIonViewWillEnter,
 } from "@ionic/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { base64ToArrayBuffer } from "./NoteInput";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
-
+import "../styles/take-quiz.css";
 interface TakeQuizProp
   extends RouteComponentProps<{
     id: string;
@@ -180,7 +175,9 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             const res = await response.json();
             console.log(res);
             setIsError(true);
-            setErrorMsg(res.message || "Something Went Wrong");
+            setErrorMsg(
+              res?.message || res[0].message || "Something Went Wrong"
+            );
             dismiss();
 
             return;
@@ -195,7 +192,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             quiz_id: quiz.quiz_id,
             rubric_id: usedRubric?.rubric_id as number,
           });
-          console.log(result);
           break;
       }
 
@@ -347,130 +343,114 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
       };
     });
   };
-
   return (
-    <>
-      <IonPage>
-        <IonContent>
-          <Header
-            nameComponent={
-              <h1
-                style={{
-                  alignSelf: "center",
-                  marginTop: "60px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                }}
-              >
-                Quiz Time!
-              </h1>
-            }
-            backRoute={`/quiz/${quiz.quiz_id}`}
-          />
-          <form
-            className="ion-padding"
-            style={{
-              overflowX: "hidden",
-              height: "100%",
-              width: "100%",
-              marginTop: "20px",
-              overflowY: "scroll",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-            onSubmit={handleCheckAnswer}
-          >
-            {quiz.questions.map((question_answer, index) => {
-              // Determine the question type and assign the correct card component
-              const attemptedAnswer = attemptQuiz.attempted_answers.find(
-                (answer) => answer.question === question_answer.content
-              );
-              switch (quiz.question_type) {
-                case "mcq":
-                  return (
-                    <QuestionCardMCQ
-                      key={index}
-                      question_answer={question_answer}
-                      idx={index}
-                      handleSelectAnswer={handleSelectAnswer}
-                    />
-                  );
-                case "true-or-false":
-                  return (
-                    <QuestionCardTF
-                      key={index}
-                      question_answer={question_answer}
-                      idx={index}
-                      handleSelectAnswer={handleSelectAnswer}
-                    />
-                  );
-                case "short-answer":
-                  return (
-                    <QuestionShortAnswer
-                      lastShortAnswerRef={lastShortAnswerRef}
-                      key={index}
-                      question_answer={question_answer}
-                      idx={index}
-                      handleOnChangeAnswer={handleOnChangeAnswer}
-                      value={attemptedAnswer?.answer.content || ""}
-                    />
-                  );
-                case "essay":
-                  return (
-                    <QuestionCardEssay
-                      usedRubric={usedRubric}
-                      setUsedRubric={setUsedRubric}
-                      totalWord={totalWord}
-                      answer={
-                        attemptQuiz.attempted_answers[0].answer.content ?? ""
-                      }
-                      question_answer={question_answer}
-                      idx={index}
-                      key={index}
-                      handleOnChangeEssayAnswer={handleOnChangeEssayAnswer}
-                    />
-                  );
-              }
-            })}
-            <div
+    <IonPage>
+      <IonContent>
+        <Header
+          nameComponent={
+            <h1
               style={{
+                alignSelf: "center",
+                marginTop: "60px",
                 display: "flex",
-                justifyContent: "flex-end", // Align horizontally to the right
-                alignItems: "flex-end", // Align vertically to the bottom
-                height: "100%", // Make sure the parent container has full height
-                marginTop: "5px",
-                marginBottom: "5px",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
               }}
             >
-              <IonButton
-                disabled={
-                  quiz.question_type !== "essay"
-                    ? attemptQuiz.attempted_answers.length !==
-                      quiz.questions.length
-                    : !attemptQuiz.attempted_answers[0].answer.content ||
-                      totalWord < 100 ||
-                      !usedRubric
-                }
-                color={"tertiary"}
-                type="submit"
-              >
-                Submit
-              </IonButton>
-            </div>
-          </form>
-        </IonContent>
-      </IonPage>
+              Quiz Time!
+            </h1>
+          }
+          backRoute={`/quiz/${quiz.quiz_id}`}
+        />
+        <form
+          className="ion-padding"
+          style={{
+            overflowX: "hidden",
+            height: "100%",
+            width: "100%",
+            marginTop: "20px",
+            overflowY: "scroll",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+          onSubmit={handleCheckAnswer}
+        >
+          {quiz.questions.map((question_answer, index) => {
+            // Determine the question type and assign the correct card component
+            const attemptedAnswer = attemptQuiz.attempted_answers.find(
+              (answer) => answer.question === question_answer.content
+            );
+            switch (quiz.question_type) {
+              case "mcq":
+                return (
+                  <QuestionCardMCQ
+                    key={index}
+                    question_answer={question_answer}
+                    idx={index}
+                    handleSelectAnswer={handleSelectAnswer}
+                  />
+                );
+              case "true-or-false":
+                return (
+                  <QuestionCardTF
+                    key={index}
+                    question_answer={question_answer}
+                    idx={index}
+                    handleSelectAnswer={handleSelectAnswer}
+                  />
+                );
+              case "short-answer":
+                return (
+                  <QuestionShortAnswer
+                    lastShortAnswerRef={lastShortAnswerRef}
+                    key={index}
+                    question_answer={question_answer}
+                    idx={index}
+                    handleOnChangeAnswer={handleOnChangeAnswer}
+                    value={attemptedAnswer?.answer.content || ""}
+                  />
+                );
+              case "essay":
+                return (
+                  <QuestionCardEssay
+                    usedRubric={usedRubric}
+                    setUsedRubric={setUsedRubric}
+                    totalWord={totalWord}
+                    answer={
+                      attemptQuiz.attempted_answers[0].answer.content ?? ""
+                    }
+                    question_answer={question_answer}
+                    idx={index}
+                    key={index}
+                    handleOnChangeEssayAnswer={handleOnChangeEssayAnswer}
+                  />
+                );
+            }
+          })}
 
+          <button
+            disabled={
+              quiz.question_type !== "essay"
+                ? attemptQuiz.attempted_answers.length !== quiz.questions.length
+                : !attemptQuiz.attempted_answers[0].answer.content ||
+                  totalWord < 100 ||
+                  !usedRubric
+            }
+            className="submit-quiz-btn"
+          >
+            Submit
+          </button>
+        </form>
+      </IonContent>
       <IonAlert
         isOpen={isError}
         header={errorMsg}
         buttons={[{ text: "Okay", role: "cancel" }]}
         onDidDismiss={() => setIsError(false)}
       ></IonAlert>
-    </>
+    </IonPage>
   );
 };
 

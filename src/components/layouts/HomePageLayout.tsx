@@ -10,6 +10,7 @@ import Quiz from "@/pages/Quiz";
 import QuizResult from "@/pages/QuizResult";
 import Quizzes from "@/pages/Quizzes";
 import TakeQuiz from "@/pages/TakeQuiz";
+import Test from "@/pages/Test";
 import {
   IonTabs,
   IonRouterOutlet,
@@ -66,6 +67,7 @@ const HomePageLayout = () => {
         <Route path="/notes" render={() => <Notes />} exact />
 
         <Route path="/chats" render={() => <ChatLists />} exact />
+        <Route path="/test" render={() => <Test />} exact />
 
         {/* No Nav Tabs Page */}
 

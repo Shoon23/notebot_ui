@@ -15,6 +15,7 @@ import {
 import { caretForwardOutline } from "ionicons/icons";
 import React from "react";
 import "./style.css";
+import "../../styles/take-quiz.css";
 interface QuestionCardTFProps {
   question_answer: QuestionWithOptions;
   idx: number;
@@ -95,25 +96,24 @@ const QuestionCardTF: React.FC<QuestionCardTFProps> = ({
             {["True", "False"].map((val, idx) => {
               return (
                 <IonRadio
+                  className="custom-ion-radio"
                   key={idx}
                   labelPlacement="end"
+                  justify="start"
+                  alignment="start"
                   style={{
                     width: "100%",
+                    display: "flex",
                   }}
                   value={{
                     content: val,
                     question_id: question_answer.question_id,
                     question: question_answer.content,
                   }}
-                  //   value={{
-                  //     content: option.content,
-                  //     question_id: question_answer.question_id,
-                  //     option_id: option.option_id,
-                  //     question: question_answer.content,
-                  //   }}
                 >
                   <div
                     style={{
+                      marginLeft: "5px",
                       fontSize: ".9rem", // Scaled for mobile readability
                       fontWeight: "bold",
                       wordBreak: "break-word", // Ensures text breaks at the container edge

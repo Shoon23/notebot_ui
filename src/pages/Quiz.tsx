@@ -1,28 +1,19 @@
 import {
   IonAlert,
-  IonButton,
-  IonCheckbox,
   IonContent,
   IonFab,
   IonFabButton,
   IonFabList,
-  IonHeader,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonPage,
-  IonRadio,
-  IonRadioGroup,
   IonSegment,
   IonSegmentButton,
-  IonSegmentContent,
   IonSelect,
   IonSelectOption,
-  IonTitle,
-  IonToolbar,
   useIonLoading,
-  useIonRouter,
   useIonViewDidEnter,
   useIonViewWillEnter,
   useIonViewWillLeave,
@@ -34,7 +25,6 @@ import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
 import useStorageService from "@/hooks/useStorageService";
 import {
   iMCQQuestion,
-  iQuiz,
   iQuizSet,
   QuestionWithOptions,
 } from "@/repository/QuizRepository";
@@ -45,7 +35,6 @@ import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
 import { closeOutline, createOutline } from "ionicons/icons";
 import "../styles/quiz.css";
 import EditQuizModal from "@/components/Quiz/EditQuizModal";
-import { differenceInSeconds } from "date-fns";
 import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
@@ -98,6 +87,10 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
 
   const [quizSets, setQuizSets] = useState<Array<iQuizSet>>([]);
   const [present, dismiss] = useIonLoading();
+  const [isError, setIsError] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+
+  const [disableRegen, setDisableRegen] = useState(false);
   // Hardware back button handler that resets edit mode
   const backButtonHandler = (event: any) => {
     // Register with a high priority so it overrides default behavior
@@ -241,6 +234,12 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       });
 
       if (!response.ok) {
+        const res = await response.json();
+
+        console.log(res);
+
+        setIsError(true);
+        setErrMsg(res?.message || res[0].message || "Something Went Wrong");
         dismiss();
 
         return;
@@ -310,6 +309,8 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         questions: quiz_data.questions as any,
       }));
     } catch (error) {
+      setIsError(true);
+      setErrMsg("Something Went Wrong");
       console.error(error);
     } finally {
       dismiss();
@@ -329,7 +330,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
       console.log(error);
     }
   };
-  console.log(quiz);
   return (
     <IonPage style={{ overflow: "hidden" }}>
       <IonContent>
@@ -384,6 +384,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
             />
           )}
           <QuizQuickActions
+            note={note}
             isSelectQuestion={isSelectQuestion}
             setQuiz={setQuiz}
             quiz_id={quiz.quiz_id}
@@ -434,6 +435,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                   <IonList>
                     <IonItem>
                       <IonSelect
+                        disabled={disableRegen}
                         aria-label="Fruit"
                         interface="popover"
                         value={currSet}
@@ -462,7 +464,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                     disabled={
                       quiz.question_type === "essay"
                         ? quizSets.length === 3
-                        : quizSets.length === 10
+                        : quizSets.length === 10 || disableRegen
                     }
                   >
                     Regenerate Quiz
@@ -548,10 +550,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
         slot="fixed"
         horizontal="end"
       >
-        <IonFabButton
-          className="take-quiz-btn-container animated-button"
-          // disabled={}
-        >
+        <IonFabButton className="take-quiz-btn-container animated-button">
           Start Quiz
         </IonFabButton>
         {!isSelectQuestion ? (
@@ -585,7 +584,11 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               <IonFabButton
                 style={{ zIndex: 1000 }}
                 className="mini-btn animated-button"
-                onClick={() => setIsSelectQuestion(!isSelectQuestion)}
+                onClick={() => {
+                  setDisableRegen(true);
+
+                  setIsSelectQuestion(!isSelectQuestion);
+                }}
               >
                 <div
                   style={{
@@ -613,6 +616,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               onClick={() => {
                 setIsSelectQuestion(false);
                 setSelectedQuestions([]);
+                setDisableRegen(false);
               }}
             >
               <div
@@ -660,6 +664,12 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
           </IonFabList>
         )}
       </IonFab>
+      <IonAlert
+        isOpen={isError}
+        header={errMsg}
+        buttons={[{ text: "Okay", role: "cancel" }]}
+        onDidDismiss={() => setIsError(false)}
+      ></IonAlert>
     </IonPage>
   );
 };

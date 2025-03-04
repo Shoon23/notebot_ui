@@ -3,7 +3,7 @@ export interface iMessage {
   message_id?: number; // Unique identifier for the message
   conversation_id: number; // The ID of the conversation the message belongs to
   sender_type: "PERSON" | "BOT"; // Type of sender (either 'PERSON' or 'BOT')
-  message_content: string; // The content of the message
+  message_content: string | null; // The content of the message
   created_at?: string; // Timestamp when the message was created (ISO 8601 format)
 }
 // Define the type for Conversation with Note Name and Timestamps
@@ -64,7 +64,7 @@ class ConversationRepository {
   async addMessage(
     conversationId: number,
     senderType: "PERSON" | "BOT",
-    messageText: string
+    messageText: string | null
   ): Promise<iMessage> {
     const sql = `INSERT INTO Message (conversation_id, sender_type, message_content) 
                  VALUES (?, ?, ?);`;
@@ -85,6 +85,21 @@ class ConversationRepository {
       throw new Error(`Error adding message: ${error}`);
     }
   }
+  async deleteMessage(messageId: number): Promise<void> {
+    const sql = `DELETE FROM Message WHERE message_id = ?;`;
+
+    try {
+      const res = await this.db.query(sql, [messageId]);
+
+      // Optionally check if any row was affected.
+      if (res.affectedRows === 0) {
+        throw new Error(`No message found with id ${messageId}`);
+      }
+    } catch (error) {
+      throw new Error(`Error deleting message: ${error}`);
+    }
+  }
+
   // Get messages for a specific conversation
   async getMessagesForConversation(
     conversationId: number,

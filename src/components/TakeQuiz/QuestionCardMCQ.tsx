@@ -99,6 +99,7 @@ const QuestionCardMCQ: React.FC<QuestionCardProps> = ({
                 <IonRadio
                   key={option.option_id}
                   labelPlacement="end"
+                  justify="start"
                   style={{
                     width: "100%",
                   }}

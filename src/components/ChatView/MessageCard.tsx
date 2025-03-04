@@ -15,6 +15,7 @@ import {
   iMessage,
 } from "@/repository/ConversationRepository";
 import { formatDate } from "@/utils/date-utils";
+import ReactMarkdown from "react-markdown";
 
 const colors = [
   "#ECC56A",
@@ -44,7 +45,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ data, shadowColors }) => {
     flex: "0 0 auto",
     width: "auto", // Allow the width to adjust to the content
     minWidth: "60%", // Minimum width for the cards
-    maxWidth: "70%", // Ensure it doesn't exceed the container width
+    maxWidth: "95%", // Ensure it doesn't exceed the container width
     height: "auto", // Allow the height to adjust based on content
     border: `2px solid black`,
     borderRadius: "1.5rem",
@@ -85,7 +86,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ data, shadowColors }) => {
               overflowWrap: "break-word", // Ensures the content breaks long words
             }}
           >
-            {data.message_content}
+            <ReactMarkdown>{data.message_content}</ReactMarkdown>
           </IonCardSubtitle>
         </div>
       </div>

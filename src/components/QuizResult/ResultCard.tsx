@@ -78,9 +78,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
             }}
             key={idx}
           >
-            {question_answer?.answer ||
-              String(question_answer.is_correct).charAt(0).toUpperCase() +
-                String(question_answer.is_correct).slice(1)}
+            {question_answer?.answer}
           </div>
           <br />
 
@@ -117,21 +115,6 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
               )}
             </>
           )}
-          {/* {option.explanation && (
-                    <>
-                      <p>Explanation:</p>
-                      <span
-                        style={{
-                          fontSize: ".9rem", // Scaled for mobile readability
-                          fontWeight: "bold",
-                          color: option.is_answer ? "green" : "black", // Highlight correct answer
-                          padding: option.is_answer ? "5px" : "0", // Add padding for better visibility
-                          borderRadius: option.is_answer ? "0.5rem" : "0", // Rounded corners for correct answer
-                        }}
-                      >
-                        {option.explanation}
-                      </span>
-                    </> */}
         </IonCardContent>
       </div>
     </IonCard>

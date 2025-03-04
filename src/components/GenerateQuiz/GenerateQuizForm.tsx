@@ -1,23 +1,10 @@
-import {
-  IonAlert,
-  IonButton,
-  IonIcon,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  useIonLoading,
-  useIonRouter,
-  useIonViewWillEnter,
-} from "@ionic/react";
+import { IonAlert, IonIcon, useIonLoading, useIonRouter } from "@ionic/react";
 import React, { useState } from "react";
 import "./generate-form.css";
 import SelectOption from "../SelectOption/SelectOption";
-import { fileTray, colorWand } from "ionicons/icons";
+import { colorWand } from "ionicons/icons";
 import ChooseNoteModal from "../ChooseNoteModal";
-import { Note } from "@/databases/models/note";
 import useStorageService from "@/hooks/useStorageService";
-import { CapacitorHttp, HttpResponse } from "@capacitor/core";
-import DescriptionInput from "./TextAreaInput";
 import Input from "./Input";
 import TextAreaInput from "./TextAreaInput";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -192,17 +179,14 @@ const GenerateQuizForm = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 400) {
-          setIsError(true);
-          const res = await response.json();
-          setErrMsg(res[0].message || "Something Went Wrong");
-        } else {
-          console.log(response);
-          setIsError(true);
-          setErrMsg("Something Went Wrong");
-        }
+        console.log(response);
         const res = await response.json();
+
         console.log(res);
+
+        setIsError(true);
+        res?.message || res[0].message || "Something Went Wrong";
+
         dismiss();
 
         return;

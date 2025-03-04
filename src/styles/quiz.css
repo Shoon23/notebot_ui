@@ -52,6 +52,11 @@ ion-checkbox::part(container) {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+.take-quiz-btn-container:active {
+  opacity: 1;
 }
 .take-quiz-btn-container:disabled {
   background-color: gray;

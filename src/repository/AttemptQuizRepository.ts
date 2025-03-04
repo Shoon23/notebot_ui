@@ -136,6 +136,7 @@ class AttemptQuizRepository {
     onlyNotArchived?: boolean; // New filter: fetch only non-archived records
   }): Promise<iAttemptQuiz[]> {
     const { is_recent, limit, onlyNotArchived } = filters;
+
     const sql = `
       SELECT 
         qa.quiz_attempt_id, 
@@ -227,7 +228,9 @@ WHERE
     switch (quiz_attempt.question_type) {
       case "true-or-false":
       case "mcq":
-        const user_answer_sql_mcq = `SELECT question_id,option_answer_id,is_correct,option_id FROM OptionAnswer WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
+        const user_answer_sql_mcq = `SELECT question_id, option_answer_id, is_correct, option_id 
+                                       FROM OptionAnswer 
+                                       WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
         const user_answer_mcq = (await this.db.query(user_answer_sql_mcq))
           .values as Array<{
           question_id: number;
@@ -235,28 +238,37 @@ WHERE
           is_correct: number;
           option_id: number;
         }>;
+
         const user_ans_promise = user_answer_mcq?.map(async (user__answer) => {
-          const question_sql_mcq = `SELECT question_id,content FROM Question WHERE question_id = ${user__answer.question_id}`;
-          const options_sql_mcq = `SELECT option_id, content,is_answer,explanation FROM Option WHERE option_id=${user__answer.option_id}`;
+          const question_sql_mcq = `SELECT question_id, content 
+                                      FROM Question 
+                                      WHERE question_id = ${user__answer.question_id}`;
+          const options_sql_mcq = `SELECT option_id, content, is_answer, explanation 
+                                     FROM Option 
+                                     WHERE option_id = ${user__answer.option_id}`;
 
           const question = (await this.db.query(question_sql_mcq)).values;
           let options = (await this.db.query(options_sql_mcq)).values;
           if (!question || question.length === 0 || !options) {
             throw new Error("Missing Question");
           }
+          const correct_answer_sql = `SELECT option_id, content, is_answer, explanation 
+          FROM Option 
+          WHERE question_id = ${user__answer.question_id} 
+            and is_answer = 1 
+          LIMIT 1`;
+          const correct_answer = (await this.db.query(correct_answer_sql))
+            .values;
+          if (!correct_answer) {
+            throw new Error("Missing Real Answer");
+          }
           if (!Boolean(user__answer.is_correct)) {
-            const correct_answer_sql = `SELECT option_id, content,is_answer,explanation FROM Option WHERE question_id = ${user__answer.question_id} and is_answer=1 LIMIT 1`;
-            const correct_answer = (await this.db.query(correct_answer_sql))
-              .values;
-
-            if (!correct_answer) {
-              throw new Error("Missing Real Answer");
-            }
-
+            const tf_user_ans =
+              correct_answer[0]?.content === "True" ? "False" : "True";
             return {
               option_answer_id: user__answer.option_answer_id,
               question: question[0].content,
-              answer: options[0]?.content,
+              answer: options[0]?.content ?? tf_user_ans,
               is_correct: Boolean(user__answer.is_correct),
               real_answer: {
                 content: correct_answer[0]?.content,
@@ -264,16 +276,19 @@ WHERE
               },
             };
           } else {
+            // In the correct answer case, we assume options[0] is the chosen (and correct) option.
+            const tf_real_ans = correct_answer[0]?.content;
             return {
               option_answer_id: user__answer.option_answer_id,
               question: question[0].content,
-              answer: options[0]?.content,
+              answer: options[0]?.content ?? tf_real_ans,
               is_correct: Boolean(user__answer.is_correct),
             };
           }
         });
         quiz_res = await Promise.all(user_ans_promise);
         break;
+
       case "short-answer":
         const user_answer_sql_short_ans = `SELECT identification_answer_id,question_id, answer,is_correct FROM IdentificationAnswer WHERE quiz_attempt_id = ${quiz_attempt.quiz_attempt_id}`;
         const user_answer_short_ans = (

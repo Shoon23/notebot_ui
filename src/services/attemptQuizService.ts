@@ -82,6 +82,9 @@ class AttemptQuizService {
   async processTrueFalseAnswers(answers: iAttemptQuiz) {
     const { checked_answers, score, quiz_id, max_score } =
       await this.check_answers(answers, "content");
+
+    console.log(answers);
+    console.log(checked_answers);
     try {
       // Save Quiz Atttempt
       const saved_quiz_attempt = await this.attemptQuizRepo.saveQuizAttempt({

@@ -8,6 +8,8 @@ import {
   IonIcon,
   useIonViewWillEnter,
   IonSpinner,
+  useIonLoading,
+  IonAlert,
 } from "@ionic/react";
 import { sendOutline } from "ionicons/icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -16,14 +18,11 @@ import { RouteComponentProps } from "react-router-dom";
 import MessageInput from "@/components/ChatView/MessageInput";
 import { getShadowColors } from "./Quiz";
 import { CapacitorHttp, HttpResponse } from "@capacitor/core";
-
-const greetings: string[] = [
-  "Good day! How can I assist you with your class notes today?",
-  "Hello! Feel free to upload your notes, and let me know what you’d like help with.",
-  "Hi there! I’m here to help you with any questions you have about your class materials.",
-  "Greetings! If you have any questions regarding your notes, I’m ready to assist.",
-  "Hello! Let’s dive into your notes—how can I help you today?",
-];
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
+import { getFileExtension } from "./NoteInput";
+import { Network } from "@capacitor/network";
+import { truncateText } from "@/utils/text-utils";
 
 interface ChatViewProp
   extends RouteComponentProps<{
@@ -39,16 +38,34 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
   const [botColor, setBotColor] = useState("");
   const [conversationId, setConversationId] = useState(0);
   const [noteData, setNoteData] = useState({
-    note: "",
+    content_text: "",
     note_name: "",
+    content_pdf_url: "",
   });
 
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [limit] = useState(5);
   const [offset, setOffset] = useState(0);
+  const [present, dismiss] = useIonLoading();
+
+  const [isError, setIsError] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
   useIonViewWillEnter(() => {
     const fetchMessages = async () => {
+      const networkStatus = await Network.getStatus();
+      if (!networkStatus.connected) {
+        setIsError(true);
+        setErrMsg(
+          "No internet connection. Please check your network settings."
+        );
+        setIsSending(false);
+
+        return;
+      }
+
+      await present({ message: "Analyzing Notes..." });
+
       const conversationId = Number(match.params.id);
 
       setConversationId(conversationId);
@@ -56,12 +73,12 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       const note = await storageServ.noteRepo.getNoteByConversationId(
         conversationId
       );
-
       setBotColor(getShadowColors());
       setPersonColor(getShadowColors());
       setNoteData({
-        note: note.content_text,
+        content_text: note.content_text,
         note_name: note.note_name,
+        content_pdf_url: note.content_pdf_url,
       });
 
       const messages =
@@ -70,18 +87,91 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         );
 
       if (messages.length === 0) {
-        const randomIndex = Math.floor(Math.random() * greetings.length);
-        const greeting = greetings[randomIndex];
+        // Create a FormData object and append necessary fields
+        try {
+          let fileBlob: Blob | null = null;
+          let filename: string | null = null;
 
-        const save_ms = await storageServ.conversationRepo.addMessage(
-          conversationId,
-          "BOT",
-          greeting
-        );
-        messages.push(save_ms);
+          if (note.content_pdf_url) {
+            let filePath = note.content_pdf_url;
+            const fileResult = await Filesystem.readFile({
+              path: note.content_pdf_url, // Relative path (e.g., folderName/file.name)
+              directory: Directory.Data,
+            });
+            const base64Data = fileResult.data as any; // Base64 encoded string
+
+            // Determine the file extension and MIME type
+            const fileExtension = getFileExtension(
+              note.note_name
+            ).toLowerCase();
+            const mimeType =
+              fileExtension === "pdf"
+                ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+            // Convert the Base64 string to a Blob.
+            fileBlob = b64toBlob(base64Data, mimeType);
+            filename = filePath.split("/").pop() || "uploadfile";
+          }
+
+          const formData = new FormData();
+          if (fileBlob && filename) {
+            formData.append("file", fileBlob, filename);
+          }
+          formData.append("message", note.content_text || "");
+          formData.append("messageHistory", JSON.stringify([]));
+
+          // If you have a file to send, append it like so:
+          // formData.append("file", selectedFile);
+
+          // Make the HTTP request
+
+          const res = await fetch(
+            "https://test-backend-9dqr.onrender.com/chat",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!res.ok) {
+            await storageServ.conversationRepo.deleteConversation(
+              conversationId
+            );
+            setIsError(true);
+            setErrMsg("Chat Operation Error");
+            dismiss();
+
+            return;
+          }
+          console.log(res);
+          const data = await res.json();
+
+          const user_msg = await storageServ.conversationRepo.addMessage(
+            conversationId,
+            "PERSON",
+            null
+          );
+          const bot_msg = await storageServ.conversationRepo.addMessage(
+            conversationId,
+            "BOT",
+            data.response
+          );
+          messages.push(bot_msg);
+
+          setMessages(messages);
+        } catch (error) {
+          console.log(error);
+          setIsError(true);
+          setErrMsg("Chat Operation Error");
+        } finally {
+          dismiss();
+        }
+        dismiss();
+      } else {
+        setMessages(messages.slice(1));
+        dismiss();
       }
-
-      setMessages(messages);
     };
     fetchMessages();
   }, []);
@@ -123,13 +213,19 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       }
     };
   }, [offset, isLoading]);
-
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSending(true);
+    const networkStatus = await Network.getStatus();
+    if (!networkStatus.connected) {
+      setIsError(true);
+      setErrMsg("No internet connection. Please check your network settings.");
+      setIsSending(false);
+
+      return;
+    }
     try {
       // Immediately add the user message to the messages array
-
       const user_msg = await storageServ.conversationRepo.addMessage(
         conversationId,
         "PERSON",
@@ -137,36 +233,77 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       );
       setMessages([...messages, user_msg]);
       setMessage("");
+      let fileBlob: Blob | null = null;
+      let filename: string | null = null;
+      let messageHistory = messages;
+      // If a file path exists, read the file using Capacitor Filesystem.
+      if (noteData.content_pdf_url) {
+        // Remove any "file://" prefix if present.
+        let filePath = noteData.content_pdf_url;
+        if (filePath.startsWith("file://")) {
+          filePath = filePath.replace("file://", "");
+        }
+        // Read the file from Directory.Documents (adjust if needed)
+        const fileResult = await Filesystem.readFile({
+          path: filePath, // Relative path (e.g., folderName/file.name)
+          directory: Directory.Data,
+        });
+        const base64Data = fileResult.data as any; // Base64 encoded string
 
-      // Prepare the request options
-      const options = {
-        url: "https://test-backend-9dqr.onrender.com/chat",
-        headers: {
-          "Content-Type": "application/json", // Set the content type to JSON
-        },
-        data: {
-          message: message, // Send the user message
-          messageHistory: messages.slice(1), // Send all messages
-          note: noteData.note, // Additional data like note if needed
-        },
-      };
+        // Determine MIME type based on file extension
+        let mimeType = "application/octet-stream";
+        if (filePath.toLowerCase().endsWith(".pdf")) {
+          mimeType = "application/pdf";
+        } else if (filePath.toLowerCase().endsWith(".docx")) {
+          mimeType =
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        }
 
-      // Make the HTTP request
-      const response: HttpResponse = await CapacitorHttp.post(options);
-      const data = response.data;
+        // Convert the Base64 string to a Blob.
+        fileBlob = b64toBlob(base64Data, mimeType);
+        filename = filePath.split("/").pop() || "uploadfile";
+      } else {
+        messageHistory.unshift({
+          conversation_id: conversationId,
+          message_content: noteData.content_text,
+          sender_type: "PERSON",
+        });
+      }
 
-      const bot_msq = await storageServ.conversationRepo.addMessage(
+      // Create a FormData object and append necessary fields
+      const formData = new FormData();
+      if (fileBlob && filename) {
+        formData.append("note", fileBlob, filename);
+      }
+      formData.append("message", message);
+      formData.append("messageHistory", JSON.stringify(messageHistory));
+
+      const res = await fetch("https://test-backend-9dqr.onrender.com/chat", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        setIsError(true);
+        setErrMsg("Send Failed");
+        setIsSending(false);
+
+        return;
+      }
+      const data = await res.json();
+
+      const bot_msg = await storageServ.conversationRepo.addMessage(
         conversationId,
         "BOT",
         data.response
       );
-
-      setTimeout(() => {
-        setMessages((prevMessages) => [...prevMessages, bot_msq]);
-      }, 1000); // Simulate a 1-second delay per chunk
+      setMessages((prevMessages) => [...prevMessages, bot_msg]);
       setIsSending(false);
     } catch (error) {
+      setIsError(true);
+      setErrMsg("Send Failed");
       console.log("Error sending message:", error);
+      setIsSending(false);
     }
   };
 
@@ -197,17 +334,20 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         <Header
           backRoute={"/chats"}
           nameComponent={
-            <h1
-              style={{
-                alignSelf: "center",
-                marginTop: "60px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {}
-            </h1>
+            <>
+              <h1
+                style={{
+                  alignSelf: "center",
+                  marginTop: "60px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textDecoration: "underline",
+                }}
+              >
+                {truncateText(noteData.note_name, 15, 15)}
+              </h1>
+            </>
           }
         />
 
@@ -273,6 +413,12 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
           </button>
         </form>
       </IonContent>
+      <IonAlert
+        isOpen={isError}
+        header={errMsg}
+        buttons={[{ text: "Okay", role: "cancel" }]}
+        onDidDismiss={() => setIsError(false)}
+      ></IonAlert>
     </IonPage>
   );
 };

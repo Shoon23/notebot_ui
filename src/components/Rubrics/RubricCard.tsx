@@ -22,6 +22,7 @@ import useStorageService from "@/hooks/useStorageService";
 import { pdfjs, Document, Page } from "react-pdf";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { base64ToArrayBuffer } from "@/pages/NoteInput";
+import { truncateText } from "@/utils/text-utils";
 
 interface RubricCardProps {
   usedRubrics: Rubric | null;
@@ -146,9 +147,7 @@ const RubricCard: React.FC<RubricCardProps> = ({
             justifyContent: "start",
           }}
         >
-          {(rubric?.file_name?.length as number) > 15
-            ? rubric?.file_name?.slice(0, 20) + "..." // Truncate to 30 characters and add ellipsis
-            : rubric?.file_name}
+          {rubric?.file_name && truncateText(rubric?.file_name, 15, 20)}
         </div>
         <div
           style={{

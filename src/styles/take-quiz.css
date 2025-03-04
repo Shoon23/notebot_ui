@@ -1,0 +1,30 @@
+/* View Note Button */
+.submit-quiz-btn {
+  border: none; /* Remove border */
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center text horizontally */
+  padding: 5px;
+  border-radius: 1rem;
+  box-shadow: 2px 8px 0px #7044ff;
+  border: 2px solid black;
+  height: 50px;
+  transition: border 0.3s ease, box-shadow 0.3s ease; /* Add smooth transition */
+  font-size: 1.2rem;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.submit-quiz-btn:active {
+  transform: translateY(5px);
+  box-shadow: none;
+}
+.submit-quiz-btn:disabled {
+  box-shadow: none;
+  transition: none;
+  transform: none;
+  color: gray;
+  border: 2px solid gray;
+}

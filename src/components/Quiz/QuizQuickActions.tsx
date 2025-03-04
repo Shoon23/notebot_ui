@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   IonButton,
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonModal,
   IonTitle,
   IonToolbar,
@@ -14,12 +15,23 @@ import TextAreaInput from "../GenerateQuiz/TextAreaInput";
 import useStorageService from "@/hooks/useStorageService";
 import { iMCQQuestion, QuestionWithOptions } from "@/repository/QuizRepository";
 import SelectOption from "../SelectOption/SelectOption";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { base64ToArrayBuffer, getFileExtension } from "@/pages/NoteInput";
+import mammoth from "mammoth";
+import { remove, scale, add } from "ionicons/icons";
+import { pdfjs, Document, Page } from "react-pdf";
 
 interface QuizQuickActionsProps {
   question_type: string;
   setQuiz: React.Dispatch<React.SetStateAction<iMCQQuestion>>;
   quiz_id: number;
   isSelectQuestion: boolean;
+  note: {
+    content_text: string | null;
+    content_pdf_url: string | null;
+    note_name: string;
+    note_id: number;
+  };
 }
 
 const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
@@ -27,10 +39,74 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
   quiz_id,
   setQuiz,
   isSelectQuestion,
+  note,
 }) => {
   const [isAdd, setIsdAdd] = useState(false);
   const [questionData, setQuestionData] = useState(initQuestion);
   const storageServ = useStorageService();
+  const [fileData, setFileData] = useState<{
+    blob: Blob | null;
+    type: "pdf" | "docx" | null;
+  }>({ blob: null, type: null });
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+
+  const [numPages, setNumPages] = useState(0);
+  const docxContainerRef = useRef<HTMLDivElement>(null);
+  const [isViewNote, setIsViewNote] = useState(false);
+
+  // Pinch-to-zoom handling on the viewer container
+  const initialPinchDistance = useRef<number | null>(null);
+  const getDistance = (touch1: Touch, touch2: Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+  useEffect(() => {
+    const container = viewerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        initialPinchDistance.current = getDistance(e.touches[0], e.touches[1]);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && initialPinchDistance.current !== null) {
+        const newDistance = getDistance(e.touches[0], e.touches[1]);
+        const scaleChange = newDistance / initialPinchDistance.current;
+        setScale((prev) => Math.max(prev * scaleChange, 0.1));
+        initialPinchDistance.current = newDistance;
+        e.preventDefault(); // Prevent default pinch-zoom behavior
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        initialPinchDistance.current = null;
+      }
+    };
+
+    container.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    container.addEventListener("touchmove", handleTouchMove, {
+      passive: false,
+    });
+    container.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
+  // Zoom control buttons for non-touch adjustments
+  const handleZoomIn = () => setScale((prev) => prev + 0.1);
+  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.1));
+
   // Handle changes for the main question content
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuestionData((prev) => ({
@@ -133,6 +209,7 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
     // Register with a high priority so it overrides default behavior
     event.detail.register(100, (processNextHandler: any) => {
       setIsdAdd(false);
+      setIsViewNote(false);
       setQuestionData(initQuestion);
       processNextHandler();
     });
@@ -147,6 +224,91 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
   useIonViewWillLeave(() => {
     document.removeEventListener("ionBackButton", backButtonHandler);
   });
+  const handleViewNote = async () => {
+    try {
+      setIsViewNote(true);
+      // Fetch the note and update the last viewed time.
+
+      if (note.content_pdf_url) {
+        // Read file data from the filesystem
+        const readResult = await Filesystem.readFile({
+          path: note.content_pdf_url,
+          directory: Directory.Data,
+        });
+
+        // Determine the file extension and MIME type
+        const fileExtension = getFileExtension(note.note_name).toLowerCase();
+        const mimeType =
+          fileExtension === "pdf"
+            ? "application/pdf"
+            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        // Create a Blob from the base64 data
+        const blob = new Blob(
+          [base64ToArrayBuffer(readResult.data as string)],
+          {
+            type: mimeType,
+          }
+        );
+
+        // Update file data state
+        setFileData({
+          blob,
+          type:
+            fileExtension === "pdf"
+              ? "pdf"
+              : fileExtension === "docx"
+              ? "docx"
+              : null,
+        });
+
+        // If the file is a DOCX, convert it to HTML using Mammoth
+        if (fileExtension === "docx") {
+          try {
+            const arrayBuffer = await new Response(blob).arrayBuffer();
+            const result = await mammoth.convertToHtml(
+              { arrayBuffer },
+              {
+                includeDefaultStyleMap: true,
+                styleMap: [
+                  "p[style-name='Heading1'] => h1:fresh",
+                  "p[style-name='Heading2'] => h2:fresh",
+                  "p[style-name='Heading3'] => h3:fresh",
+                  "p[style-name='Normal'] => p",
+                  "table => div.table-container > table",
+                  "p[style-name='List Paragraph'] => li",
+                ],
+              }
+            );
+
+            if (docxContainerRef.current) {
+              // Set the converted HTML content
+              docxContainerRef.current.innerHTML = result.value;
+              // Optionally add extra styling to tables
+              docxContainerRef.current
+                .querySelectorAll("table")
+                .forEach((table) => {
+                  table.classList.add("table", "table-bordered");
+                });
+            }
+
+            // Log conversion warnings, if any.
+            result.messages.forEach((message) => {
+              console.warn(message);
+            });
+          } catch (conversionError) {
+            console.error("Error converting DOCX:", conversionError);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching note:", error);
+    }
+  };
+
+  const onLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
 
   return (
     <>
@@ -160,7 +322,9 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
           marginBottom: "10px",
         }}
       >
-        <button className="view-note-btn">View Note</button>
+        <button className="view-note-btn" onClick={handleViewNote}>
+          View Note
+        </button>
         <button
           className="add-question-btn"
           disabled={question_type === "essay" || isSelectQuestion}
@@ -169,7 +333,7 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
           Add Questions
         </button>
       </div>
-
+      {/* Add Question Modal */}
       <IonModal isOpen={isAdd}>
         <IonHeader className="ion-no-border">
           <IonToolbar>
@@ -269,6 +433,79 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
               Add
             </button>
           </form>
+        </IonContent>
+      </IonModal>
+
+      {/* View Note Modal */}
+      <IonModal isOpen={isViewNote}>
+        <IonHeader className="ion-no-border">
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton
+                color="danger"
+                onClick={() => {
+                  setIsViewNote(false);
+                }}
+              >
+                Cancel
+              </IonButton>
+            </IonButtons>
+            <IonTitle slot="end">Notes</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding" style={{ borderRadius: "1rem" }}>
+          {note.content_pdf_url ? (
+            <>
+              {/* Zoom Controls */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <IonButton onClick={handleZoomOut}>
+                  <IonIcon icon={remove} />
+                </IonButton>
+                <IonButton onClick={handleZoomIn}>
+                  <IonIcon icon={add} />
+                </IonButton>
+              </div>
+              {/* Viewer Container with pinch-to-zoom support */}
+              <div ref={viewerRef}>
+                {/* PDF Renderer */}
+                {fileData.type === "pdf" && fileData.blob && (
+                  <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
+                    {[...Array(numPages)].map((_, index) => (
+                      <Page key={index} pageNumber={index + 1} scale={scale} />
+                    ))}
+                  </Document>
+                )}
+
+                {/* DOCX Renderer */}
+                {fileData.type === "docx" && (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div
+                      className="docx-container"
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: "top center",
+                      }}
+                    >
+                      <div ref={docxContainerRef} className="docx-content" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <textarea
+              className="note-input"
+              placeholder="Enter Here...."
+              value={note.content_text as string}
+              disabled={true}
+            />
+          )}
         </IonContent>
       </IonModal>
     </>

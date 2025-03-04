@@ -46,10 +46,11 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
     borderRadius: "1.5rem",
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,
   };
+
+  console.log(usedRubric);
   return (
     <>
       <Rubrics usedRubric={usedRubric} setUsedRubric={setUsedRubric} />
-
       <IonCard style={cardsStyles}>
         <div
           style={{
@@ -101,6 +102,20 @@ const QuestionCardEssay: React.FC<QuestionCardEssayProps> = ({
             <div className="">
               Total Word: <span>{totalWord}</span>
             </div>
+            {!usedRubric && (
+              <>
+                <br />
+                <div
+                  style={{
+                    color: "red",
+                    fontSize: "1.3rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  No Rubric Selected
+                </div>
+              </>
+            )}
             <TextAreaInput
               value={answer}
               handleOnChangeDescription={handleOnChangeEssayAnswer}

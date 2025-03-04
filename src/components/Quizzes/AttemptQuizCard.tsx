@@ -15,6 +15,7 @@ import { caretForwardOutline } from "ionicons/icons";
 import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import { formatDate } from "@/utils/date-utils";
 import { capitlizedFirstLetter } from "@/utils";
+import { truncateText } from "@/utils/text-utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -76,7 +77,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ data }) => {
                 marginTop: 3,
               }}
             >
-              {data.quiz_name}
+              {truncateText(data.quiz_name, 20, 20)}
             </IonCardTitle>
             <IonCardSubtitle
               style={{

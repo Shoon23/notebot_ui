@@ -25,7 +25,7 @@ import {
   fileTray,
   archiveOutline,
 } from "ionicons/icons";
-import { SetStateAction, useContext, useEffect, useState } from "react";
+import { SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import NoteList from "@/components/Note/NoteList/NoteList";
 import { StorageServiceContext } from "@/App";
 import { Note } from "@/databases/models/note";
@@ -36,6 +36,7 @@ const Notes = () => {
   const [archives, setArchives] = useState<Note[]>([]);
   const storageServ = useContext(StorageServiceContext);
   const [notes, setNotes] = useState<Note[]>([]);
+  const isInitComplete = useRef(false);
 
   const [selectedNotes, setSelectedNotes] = useState<Note[]>([]);
   const fetchArchive = async () => {
@@ -44,18 +45,27 @@ const Notes = () => {
     });
     setArchives(archiveList);
   };
+
   useIonViewWillEnter(() => {
-    const fetchNote = async () => {
-      const noteList = await storageServ.noteRepo.getListOfNotes({
-        onlyNotArchived: true,
-      });
-      setNotes(noteList);
+    const initSubscription = storageServ.isInitCompleted.subscribe((value) => {
+      isInitComplete.current = value;
+      if (isInitComplete.current === true) {
+        const fetchNote = async () => {
+          const noteList = await storageServ.noteRepo.getListOfNotes({
+            onlyNotArchived: true,
+          });
+          setNotes(noteList);
+        };
+
+        fetchNote();
+        fetchArchive();
+      }
+    });
+
+    return () => {
+      initSubscription.unsubscribe();
     };
-
-    fetchNote();
-    fetchArchive();
-  }, []);
-
+  }, [storageServ]);
   const handleSelectNote = async (note_data: {
     note_id: number;
     note_name: string;

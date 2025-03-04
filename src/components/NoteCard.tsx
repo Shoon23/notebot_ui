@@ -14,6 +14,7 @@ import {
 import { caretForwardOutline } from "ionicons/icons";
 import { Note } from "@/databases/models/note";
 import { formatDate } from "@/utils/date-utils";
+import { truncateText } from "@/utils/text-utils";
 const colors = [
   "gray",
   "#47926B",
@@ -107,9 +108,7 @@ const NoteCard: React.FC<QuizCardProps> = ({
                 width: "80%",
               }}
             >
-              {(data.note_name?.length as number) > 20
-                ? data.note_name?.slice(0, 15) + "..." // Truncate to 30 characters and add ellipsis
-                : data.note_name}
+              {truncateText(data.note_name, 20, 15)}
             </IonCardTitle>
             <IonCardSubtitle
               style={{
@@ -137,9 +136,7 @@ const NoteCard: React.FC<QuizCardProps> = ({
                 lineBreak: "anywhere", // Allows breaking at any point for long words
               }}
             >
-              {(data.content_text?.length as number) > 119
-                ? data.content_text?.slice(0, 119) + "..." // Truncate to 30 characters and add ellipsis
-                : data.content_text}
+              {data.content_text && truncateText(data.content_text, 119, 119)}
             </p>
           </IonCardContent>
         </div>
