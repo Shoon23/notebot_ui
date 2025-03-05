@@ -14,6 +14,7 @@ import "./style.css";
 import { iConversationWithNote } from "@/repository/ConversationRepository";
 import { formatDate } from "@/utils/date-utils";
 import useStorageService from "@/hooks/useStorageService";
+import { truncateText } from "@/utils/text-utils";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -79,37 +80,41 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
         >
           <IonCardHeader
             style={{
-              width: "365px",
+              height: "100%",
             }}
           >
+            <div
+              style={{
+                flex: 1,
+                whiteSpace: "nowrap", // Prevents wrapping
+                textOverflow: "ellipsis", // Adds ellipsis if the text overflows
+                fontSize: "0.9rem",
+                height: "10%",
+              }}
+            >
+              {formatDate(data.last_viewed_at)}
+            </div>
             <IonCardTitle
               style={{
                 fontSize: "1.25rem", // Scaled for mobile readability
                 fontWeight: "bold",
+                height: "90%",
+                display: "flex",
+                alignItems: "center",
               }}
             >
-              {data.note_name}
+              {truncateText(data.note_name, 45, 45)}
             </IonCardTitle>
-            <IonCardSubtitle
+            {/* <IonCardSubtitle
               style={{
                 fontSize: "0.9rem",
                 color: "gray",
                 marginBottom: 5,
               }}
             >
-              {/* <div style={{}}>*last message</div> */}
-            </IonCardSubtitle>
+              <div style={{}}>*last message</div>
+            </IonCardSubtitle> */}
           </IonCardHeader>
-          <div
-            style={{
-              flex: 1,
-              whiteSpace: "nowrap", // Prevents wrapping
-              textOverflow: "ellipsis", // Adds ellipsis if the text overflows
-              fontSize: "0.9rem",
-            }}
-          >
-            {formatDate(data.last_viewed_at)}
-          </div>
         </div>
       </div>
     </div>

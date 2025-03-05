@@ -156,6 +156,27 @@ class ConversationRepository {
       throw new Error(`Error updating last_viewed_at: ${error}`);
     }
   }
+  // In ConversationRepository class
+  async deleteMessagesExceptFirstTwo(conversationId: number): Promise<void> {
+    const sql = `
+    DELETE FROM Message
+    WHERE conversation_id = ?
+      AND message_id NOT IN (
+        SELECT message_id FROM (
+          SELECT message_id 
+          FROM Message
+          WHERE conversation_id = ?
+          ORDER BY created_at ASC
+          LIMIT 2
+        ) AS keepMessages
+      );
+  `;
+    try {
+      await this.db.query(sql, [conversationId, conversationId]);
+    } catch (error) {
+      throw new Error(`Error deleting messages except the first two: ${error}`);
+    }
+  }
 }
 
 export default ConversationRepository;

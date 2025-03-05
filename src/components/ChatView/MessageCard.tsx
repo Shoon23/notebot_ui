@@ -16,7 +16,7 @@ import {
 } from "@/repository/ConversationRepository";
 import { formatDate } from "@/utils/date-utils";
 import ReactMarkdown from "react-markdown";
-
+import "./msg-card.css";
 const colors = [
   "#ECC56A",
   "#47926B",
@@ -83,10 +83,15 @@ const MessageCard: React.FC<MessageCardProps> = ({ data, shadowColors }) => {
               fontSize: "0.9rem",
               color: "gray",
               marginBottom: 5,
-              overflowWrap: "break-word", // Ensures the content breaks long words
+              wordWrap: "break-word",
+              overflowWrap: "break-word",
+              wordBreak: "break-all",
+              whiteSpace: "pre-wrap", // Important for wrapping long lines
             }}
           >
-            <ReactMarkdown>{data.message_content}</ReactMarkdown>
+            <div className="markdown-container">
+              <ReactMarkdown children={data.message_content} />
+            </div>
           </IonCardSubtitle>
         </div>
       </div>

@@ -11,7 +11,7 @@ import {
   useIonLoading,
   IonAlert,
 } from "@ionic/react";
-import { sendOutline } from "ionicons/icons";
+import { refresh, sendOutline } from "ionicons/icons";
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/chat-view.css";
 import { RouteComponentProps } from "react-router-dom";
@@ -48,7 +48,7 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
   const [limit] = useState(5);
   const [offset, setOffset] = useState(0);
   const [present, dismiss] = useIonLoading();
-
+  const [isRefresh, setIsRefresh] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   useIonViewWillEnter(() => {
@@ -335,6 +335,14 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
           backRoute={"/chats"}
           nameComponent={
             <>
+              <button
+                className="refresh-chat-btn"
+                onClick={() => {
+                  setIsRefresh(true);
+                }}
+              >
+                <IonIcon icon={refresh}></IonIcon>
+              </button>
               <h1
                 style={{
                   alignSelf: "center",
@@ -345,12 +353,32 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
                   textDecoration: "underline",
                 }}
               >
-                {truncateText(noteData.note_name, 15, 15)}
+                {truncateText(noteData.note_name, 15, 10)}
               </h1>
             </>
           }
         />
-
+        <IonAlert
+          isOpen={isRefresh}
+          header="Do you want to RESET this chat?"
+          buttons={[
+            { text: "No", role: "cancel" },
+            {
+              cssClass: "alert-button-confirm",
+              text: "Yes",
+              role: "confirm",
+              handler: async () => {
+                await storageServ.conversationRepo.deleteMessagesExceptFirstTwo(
+                  conversationId
+                );
+                setMessages((prevMessages) => prevMessages.slice(0, 1));
+              },
+            },
+          ]}
+          onDidDismiss={() => {
+            setIsRefresh(false);
+          }}
+        ></IonAlert>
         <section
           ref={contentRef}
           style={{

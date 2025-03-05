@@ -43,7 +43,7 @@ const ChatLists = () => {
       <IonContent>
         <IonHeader className="ion-no-border">
           <IonToolbar>
-            <IonTitle>Chat</IonTitle>
+            <IonTitle style={{ fontSize: "1.6rem" }}>Chat</IonTitle>
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">

@@ -8,6 +8,7 @@ import useStorageService from "@/hooks/useStorageService";
 import Input from "./Input";
 import TextAreaInput from "./TextAreaInput";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Network } from "@capacitor/network";
 
 export const b64toBlob = (
   b64Data: string,
@@ -125,6 +126,15 @@ const GenerateQuizForm = () => {
   const handleSubmit = async () => {
     try {
       await present({ message: "Generating Quiz..." });
+      const networkStatus = await Network.getStatus();
+      if (!networkStatus.connected) {
+        setIsError(true);
+        setErrMsg(
+          "No internet connection. Please check your network settings."
+        );
+        dismiss();
+        return;
+      }
       const apiUrl =
         "https://test-backend-9dqr.onrender.com/generate-questions";
       let fileBlob: Blob | null = null;

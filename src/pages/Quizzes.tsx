@@ -82,7 +82,7 @@ const Quizzes: React.FC<QuizzesProps> = ({ match }) => {
       <IonContent>
         <IonHeader className="ion-no-border">
           <IonToolbar>
-            <IonTitle>Quiz</IonTitle>
+            <IonTitle style={{ fontSize: "1.6rem" }}>Quiz</IonTitle>
           </IonToolbar>
         </IonHeader>
         <section className="ion-padding">

@@ -96,7 +96,7 @@ const NoteCard: React.FC<QuizCardProps> = ({
           >
             <span>
               {!data.is_archived
-                ? ` Last Viewed:
+                ? `Last Viewed:
               ${formatDate(data.last_viewed_at as string)}`
                 : `Archived At: ${formatDate(data.archived_at as string)}`}
             </span>
