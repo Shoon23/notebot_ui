@@ -34,14 +34,6 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
   const [errorMsg, setErrorMsg] = useState("");
   const storageServ = useStorageService();
 
-  useEffect(() => {
-    const getRub = async () => {
-      const rubric = await storageServ.essayRepo.getUsedRubrics();
-      setUsedRubric(rubric);
-    };
-    getRub();
-  }, []);
-
   const pickAndSaveFile = async () => {
     try {
       const { files: pickedFiles } = await FilePicker.pickFiles({
@@ -85,6 +77,8 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
     try {
       const rubrics = await storageServ.essayRepo.getRubrics();
       setRubrics(rubrics);
+      const rubric = await storageServ.essayRepo.getUsedRubrics();
+      setUsedRubric(rubric);
 
       setisOpenRubric(true);
     } catch (error) {

@@ -81,6 +81,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
           <IonCardHeader
             style={{
               height: "100%",
+              width: "100%",
             }}
           >
             <div

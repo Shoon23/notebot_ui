@@ -74,19 +74,16 @@ const GenerateQuizForm = () => {
     { value: "applying", label: "Applying" },
     { value: "analyzing", label: "Analyzing" },
   ];
-  const difficultyLevels = [
-    { value: "easy", label: "Easy" },
-    { value: "medium", label: "Medium" },
-    { value: "hard", label: "Hard" },
-  ];
 
   const numbers = [
     { value: "5", label: "5" },
     { value: "10", label: "10" },
     { value: "15", label: "15" },
     { value: "20", label: "20" },
+    { value: "25", label: "25" },
+    { value: "30", label: "30" },
   ];
-
+  console.log(genQuizForm);
   const essayNumbers = [{ value: "1", label: "1" }];
   const updateForm = (key: string, value: string | number) => {
     setGenQuizForm((prev) => ({
@@ -112,6 +109,12 @@ const GenerateQuizForm = () => {
 
   const handleSelectQuizType = (selectedValue: string) => {
     updateForm("question_type", selectedValue);
+
+    if (selectedValue === "essay") {
+      updateForm("num_questions", 1);
+    } else {
+      updateForm("num_questions", 5);
+    }
   };
 
   const handleSelectBloomLevel = (selectedValue: string) => {
@@ -189,14 +192,10 @@ const GenerateQuizForm = () => {
       });
 
       if (!response.ok) {
-        console.log(response);
         const res = await response.json();
 
-        console.log(res);
-
         setIsError(true);
-        res?.message || res[0].message || "Something Went Wrong";
-
+        setErrMsg(res?.message || res[0].message || "Something Went Wrong");
         dismiss();
 
         return;
@@ -270,6 +269,7 @@ const GenerateQuizForm = () => {
         />
 
         <SelectOption
+          isDisable={genQuizForm.question_type === "essay"}
           selectHandler={handleSelectNumQuestions}
           label="Number Of Question"
           options={

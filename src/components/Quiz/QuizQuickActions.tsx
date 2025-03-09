@@ -20,6 +20,7 @@ import { base64ToArrayBuffer, getFileExtension } from "@/pages/NoteInput";
 import mammoth from "mammoth";
 import { remove, scale, add } from "ionicons/icons";
 import { pdfjs, Document, Page } from "react-pdf";
+import LazyPage from "../LazyPage";
 
 interface QuizQuickActionsProps {
   question_type: string;
@@ -50,10 +51,12 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
   }>({ blob: null, type: null });
   const viewerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
+  const [defaultScale, setDefaultScale] = useState(1.0);
 
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [isViewNote, setIsViewNote] = useState(false);
+  const [pdfDocument, setPdfDocument] = useState<any>(null); // PDFDocumentProxy type
 
   // Pinch-to-zoom handling on the viewer container
   const initialPinchDistance = useRef<number | null>(null);
@@ -104,9 +107,13 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
   }, []);
 
   // Zoom control buttons for non-touch adjustments
-  const handleZoomIn = () => setScale((prev) => prev + 0.1);
-  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.1));
+  const handleZoomIn = () =>
+    setScale((prev) => parseFloat((prev + 0.1).toFixed(4)));
 
+  const handleZoomOut = () =>
+    setScale((prev) =>
+      parseFloat(Math.max(prev - 0.1, defaultScale).toFixed(4))
+    );
   // Handle changes for the main question content
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuestionData((prev) => ({
@@ -306,10 +313,30 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
     }
   };
 
-  const onLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
+  const onLoadSuccess = (pdf: any) => {
+    setPdfDocument(pdf);
+    setNumPages(pdf.numPages);
+    pdf.getPage(1).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1 }); // natural dimensions
+      if (viewerRef.current) {
+        const containerWidth = viewerRef.current.clientWidth;
+        const newScale = containerWidth / viewport.width;
+        const roundedScale = parseFloat(newScale.toFixed(4));
+        setDefaultScale(roundedScale);
+        setScale(roundedScale);
+      }
+    });
   };
-
+  // Clean up the PDF document when the modal is closed
+  useEffect(() => {
+    if (!isViewNote && pdfDocument) {
+      // Destroy the PDF document proxy to properly terminate the worker.
+      pdfDocument.destroy();
+      setPdfDocument(null);
+      // Optionally reset fileData if you want to reload the PDF on modal open.
+      setFileData({ blob: null, type: null });
+    }
+  }, [isViewNote, pdfDocument]);
   return (
     <>
       <div
@@ -464,7 +491,10 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
                   marginBottom: "10px",
                 }}
               >
-                <IonButton onClick={handleZoomOut}>
+                <IonButton
+                  onClick={handleZoomOut}
+                  disabled={scale <= defaultScale}
+                >
                   <IonIcon icon={remove} />
                 </IonButton>
                 <IonButton onClick={handleZoomIn}>
@@ -472,12 +502,21 @@ const QuizQuickActions: React.FC<QuizQuickActionsProps> = ({
                 </IonButton>
               </div>
               {/* Viewer Container with pinch-to-zoom support */}
-              <div ref={viewerRef}>
+              <div
+                ref={viewerRef}
+                style={{
+                  overflowX: "scroll",
+                }}
+              >
                 {/* PDF Renderer */}
                 {fileData.type === "pdf" && fileData.blob && (
                   <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
                     {[...Array(numPages)].map((_, index) => (
-                      <Page key={index} pageNumber={index + 1} scale={scale} />
+                      <LazyPage
+                        key={index}
+                        pageNumber={index + 1}
+                        scale={scale}
+                      />
                     ))}
                   </Document>
                 )}

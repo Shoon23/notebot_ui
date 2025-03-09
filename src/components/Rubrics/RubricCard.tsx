@@ -10,12 +10,15 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import {
+  add,
   checkmark,
   eyeOutline,
+  remove,
+  scale,
   trashBin,
   trashBinOutline,
 } from "ionicons/icons";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./rubric-card.css";
 import { Rubric } from "@/repository/EssayRepository";
 import useStorageService from "@/hooks/useStorageService";
@@ -23,6 +26,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { base64ToArrayBuffer } from "@/pages/NoteInput";
 import { truncateText } from "@/utils/text-utils";
+import LazyPage from "../LazyPage";
 
 interface RubricCardProps {
   usedRubrics: Rubric | null;
@@ -46,8 +50,21 @@ const RubricCard: React.FC<RubricCardProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const storageServ = useStorageService();
-
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
   const [fileData, setFileData] = useState<Blob | null>(null);
+  const [scale, setScale] = useState(0.5);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [defaultScale, setDefaultScale] = useState(1);
+
+  // Clean up PDF document when modal closes
+  useEffect(() => {
+    if (!isOpen && pdfDocument) {
+      pdfDocument.destroy();
+      setPdfDocument(null);
+      setFileData(null);
+      setNumPages(0);
+    }
+  }, [isOpen, pdfDocument]);
   const handleUseRubric = async (e: any) => {
     e.stopPropagation();
 
@@ -116,9 +133,24 @@ const RubricCard: React.FC<RubricCardProps> = ({
 
     setFileData(blob);
   };
-  const onLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
+
+  const onLoadSuccess = (pdf: any) => {
+    setPdfDocument(pdf);
+    setNumPages(pdf.numPages);
+    pdf.getPage(1).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1 }); // natural dimensions
+      if (viewerRef.current) {
+        const containerWidth = viewerRef.current.clientWidth;
+        const newScale = containerWidth / viewport.width;
+        setDefaultScale(newScale);
+        setScale(newScale);
+      }
+    });
   };
+  // Zoom control buttons for non-touch adjustments
+  const handleZoomIn = () => setScale((prev) => prev + 0.1);
+  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.1));
+
   return (
     <>
       <button
@@ -216,13 +248,36 @@ const RubricCard: React.FC<RubricCardProps> = ({
               <IonTitle slot="end">Rubrics</IonTitle>
             </IonToolbar>
           </IonHeader>
-
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <IonButton
+              onClick={handleZoomOut}
+              disabled={defaultScale === scale}
+            >
+              <IonIcon icon={remove} />
+            </IonButton>
+            <IonButton onClick={handleZoomIn}>
+              <IonIcon icon={add} />
+            </IonButton>
+          </div>
           {isOpen && (
-            <Document file={fileData} onLoadSuccess={onLoadSuccess}>
-              {[...Array(numPages)].map((_, index) => (
-                <Page key={index} pageNumber={index + 1} scale={0.45} />
-              ))}
-            </Document>
+            <div
+              ref={viewerRef}
+              style={{
+                overflowX: "scroll",
+              }}
+            >
+              <Document file={fileData} onLoadSuccess={onLoadSuccess}>
+                {[...Array(numPages)].map((_, index) => (
+                  <LazyPage key={index} pageNumber={index + 1} scale={scale} />
+                ))}
+              </Document>
+            </div>
           )}
         </IonContent>
       </IonModal>

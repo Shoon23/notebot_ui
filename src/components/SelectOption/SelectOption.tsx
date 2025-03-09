@@ -3,6 +3,7 @@ import "./style.css";
 
 interface SelectOptionProps {
   label: string;
+  isDisable?: boolean;
   options: {
     value: string;
     label: string;
@@ -16,6 +17,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
   options,
   selectHandler,
   initialValue = "", // Default to empty string if not provided
+  isDisable = false,
 }) => {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     selectHandler(e.target.value); // Call the handler with the selected value
@@ -36,6 +38,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({
         {label}
       </div>
       <select
+        disabled={isDisable}
         className="select-box"
         defaultValue={initialValue}
         onChange={handleSelectChange}

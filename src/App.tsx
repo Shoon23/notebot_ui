@@ -42,11 +42,6 @@ export const StorageServiceContext = React.createContext(
 
 // In your index.tsx or App.tsx (run this once at startup)
 setupIonicReact();
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
 
 const App: React.FC = () => {
   return (

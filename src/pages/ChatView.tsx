@@ -14,7 +14,7 @@ import {
 import { refresh, sendOutline } from "ionicons/icons";
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/chat-view.css";
-import { RouteComponentProps } from "react-router-dom";
+import { Link, RouteComponentProps } from "react-router-dom";
 import MessageInput from "@/components/ChatView/MessageInput";
 import { getShadowColors } from "./Quiz";
 import { CapacitorHttp, HttpResponse } from "@capacitor/core";
@@ -41,6 +41,7 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
     content_text: "",
     note_name: "",
     content_pdf_url: "",
+    note_id: 0,
   });
 
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -53,17 +54,6 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
   const [errMsg, setErrMsg] = useState("");
   useIonViewWillEnter(() => {
     const fetchMessages = async () => {
-      const networkStatus = await Network.getStatus();
-      if (!networkStatus.connected) {
-        setIsError(true);
-        setErrMsg(
-          "No internet connection. Please check your network settings."
-        );
-        setIsSending(false);
-
-        return;
-      }
-
       await present({ message: "Analyzing Notes..." });
 
       const conversationId = Number(match.params.id);
@@ -79,6 +69,7 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         content_text: note.content_text,
         note_name: note.note_name,
         content_pdf_url: note.content_pdf_url,
+        note_id: note.note_id,
       });
 
       const messages =
@@ -89,6 +80,18 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       if (messages.length === 0) {
         // Create a FormData object and append necessary fields
         try {
+          const networkStatus = await Network.getStatus();
+          if (!networkStatus.connected) {
+            await storageServ.conversationRepo.deleteConversation(
+              conversationId
+            );
+            dismiss();
+            setIsError(true);
+            setErrMsg(
+              "No internet connection. Please check your network settings."
+            );
+            return;
+          }
           let fileBlob: Blob | null = null;
           let filename: string | null = null;
 
@@ -138,9 +141,10 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
             await storageServ.conversationRepo.deleteConversation(
               conversationId
             );
+            dismiss();
+
             setIsError(true);
             setErrMsg("Chat Operation Error");
-            dismiss();
 
             return;
           }
@@ -284,6 +288,9 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       });
 
       if (!res.ok) {
+        await storageServ.conversationRepo.deleteMessage(
+          user_msg.message_id as number
+        );
         setIsError(true);
         setErrMsg("Send Failed");
         setIsSending(false);
@@ -334,7 +341,15 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         <Header
           backRoute={"/chats"}
           nameComponent={
-            <>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: "20px",
+                gap: 5,
+              }}
+            >
               <button
                 className="refresh-chat-btn"
                 onClick={() => {
@@ -343,19 +358,20 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
               >
                 <IonIcon icon={refresh}></IonIcon>
               </button>
-              <h1
+              <Link
+                to={`/note/${noteData.note_id}`}
                 style={{
                   alignSelf: "center",
-                  marginTop: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   textDecoration: "underline",
+                  color: "black",
                 }}
               >
-                {truncateText(noteData.note_name, 15, 10)}
-              </h1>
-            </>
+                {truncateText(noteData.note_name, 15, 15)}
+              </Link>
+            </div>
           }
         />
         <IonAlert

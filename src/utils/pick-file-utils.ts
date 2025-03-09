@@ -45,13 +45,15 @@ export function validateAndGetFileNote(pickedFiles: PickedFile[]): PickedFile {
     throw new Error("You can only select 1 file");
   }
   const file = pickedFiles[0];
-
   const maxSizeBytes = 5 * 1024 * 1024;
-
-  // Use the provided size or calculate from file.data if missing.
-  const fileSize =
-    file.size ?? (file.data ? getFileSizeFromBase64(file.data) : 0);
-  console.log("File size:", fileSize);
+  let fileSize = 0;
+  try {
+    fileSize = file.size ?? (file.data ? getFileSizeFromBase64(file.data) : 0);
+  } catch (error) {
+    console.error("Error reading file size, forcing error message", error);
+    // Forcefully throw the error if file size cannot be read
+    throw new Error("File size exceeds 5 MB");
+  }
 
   if (fileSize > maxSizeBytes) {
     throw new Error("File size exceeds 5 MB");

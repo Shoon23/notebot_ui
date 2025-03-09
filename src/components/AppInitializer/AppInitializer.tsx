@@ -4,6 +4,7 @@ import "./AppInitializer.css";
 import InitializeAppService from "../../services/initializeService";
 import { SqliteServiceContext, StorageServiceContext } from "../../App";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { pdfjs } from "react-pdf";
 async function ensureDirectoryExists(
   folderName: string,
   baseDirectory: Directory = Directory.Data // defaults to Directory.Data
@@ -31,6 +32,11 @@ async function ensureDirectoryExists(
 interface AppInitializerProps {
   children: any;
 }
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 const AppInitializer: FC<AppInitializerProps> = ({ children }) => {
   const ref = useRef(false);

@@ -48,7 +48,6 @@ const NoteList: React.FC<NoteListProps> = ({
   const router = useIonRouter();
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  // Updated function to create a folder in the application’s data directory
   const pickAndSaveFile = async () => {
     try {
       const { files: pickedFiles } = await FilePicker.pickFiles({
@@ -58,26 +57,23 @@ const NoteList: React.FC<NoteListProps> = ({
         ],
         readData: true,
       });
-
       console.log(pickedFiles);
+
       const file = validateAndGetFileNote(pickedFiles);
-      console.log(file);
-      // Define a subfolder name within the app's data directory
+      console.log("Validated file:", file);
+
+      // If validation passes, move the file to the final location.
       const folderName = "Notes";
-
-      // // Ensure the folder exists in Directory.Data
-      // await ensureDirectoryExists(folderName, Directory.Data);
-
-      // Create the target path using the folder name and file name.
       const targetPath = `${folderName}/${file.name}`;
 
-      // Save the file locally with proper base64 encoding
+      // Write the file to the final (persistent) location in Directory.Data
       await Filesystem.writeFile({
         path: targetPath,
-        data: file.data as string, // Ensure file.data is a valid Base64 string
+        data: file.data as string,
         directory: Directory.Data,
       });
 
+      // Save the note record
       const noteId = await storageServ.noteRepo.saveNote({
         content_text: null,
         note_name: file.name,
@@ -86,8 +82,10 @@ const NoteList: React.FC<NoteListProps> = ({
 
       router.push(`/note/${noteId}`);
     } catch (error) {
-      console.log(error);
-      setErrorMsg((error as any).message as string);
+      // If an error occurs, delete the temporary file (if it exists)
+
+      console.error(error);
+      setErrorMsg(((error as any).message as string) || "Something Went Wrong");
       setIsError(true);
     }
   };

@@ -76,17 +76,18 @@ const QuestionShortAnswer: React.FC<QuestionShortAnswerProps> = ({
           </IonCardHeader>
         </div>
         <IonInput
-          value={value as any}
+          value={value as string}
           onIonChange={(e) => {
+            const newValue = e.detail.value; // Use detail.value for IonInput
             lastShortAnswerRef.current = {
-              content: e.target.value,
+              content: newValue as string,
               question: question_answer.content,
               question_id: question_answer.question_id,
-            } as any;
+            };
 
             handleOnChangeAnswer(
               {
-                content: e.target.value,
+                content: newValue,
                 question: question_answer.content,
                 question_id: question_answer.question_id,
               },

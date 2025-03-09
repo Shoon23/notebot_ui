@@ -39,6 +39,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "../styles/test.css";
 import mammoth from "mammoth";
+import LazyPage from "@/components/LazyPage";
 
 // Utility: Convert a Base64 string to an ArrayBuffer
 export const base64ToArrayBuffer = (base64: string) => {
@@ -61,6 +62,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   const storageServ = useStorageService();
   const router = useIonRouter();
   const [scale, setScale] = useState(0.5);
+  const [defaultScale, setDefaultScale] = useState(1.0);
 
   const [note, setNote] = useState<iNote>({
     content_pdf_url: "",
@@ -80,7 +82,7 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
   // Ref for the container that will handle pinch gestures
   const [isShowDelete, setIsShowDelete] = useState(false);
 
-  // Utility: Extract file extension from a filename string
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
 
   useIonViewWillEnter(() => {
     const id = Number(match.params.id);
@@ -177,58 +179,14 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     fetchNote();
   });
 
-  // Pinch-to-zoom handling on the viewer container
-  const initialPinchDistance = useRef<number | null>(null);
-  const getDistance = (touch1: Touch, touch2: Touch) => {
-    const dx = touch1.clientX - touch2.clientX;
-    const dy = touch1.clientY - touch2.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
-
-  useEffect(() => {
-    const container = viewerRef.current;
-    if (!container) return;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        initialPinchDistance.current = getDistance(e.touches[0], e.touches[1]);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2 && initialPinchDistance.current !== null) {
-        const newDistance = getDistance(e.touches[0], e.touches[1]);
-        const scaleChange = newDistance / initialPinchDistance.current;
-        setScale((prev) => Math.max(prev * scaleChange, 0.1));
-        initialPinchDistance.current = newDistance;
-        e.preventDefault(); // Prevent default pinch-zoom behavior
-      }
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) {
-        initialPinchDistance.current = null;
-      }
-    };
-
-    container.addEventListener("touchstart", handleTouchStart, {
-      passive: false,
-    });
-    container.addEventListener("touchmove", handleTouchMove, {
-      passive: false,
-    });
-    container.addEventListener("touchend", handleTouchEnd);
-
-    return () => {
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchmove", handleTouchMove);
-      container.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, []);
-
   // Zoom control buttons for non-touch adjustments
-  const handleZoomIn = () => setScale((prev) => prev + 0.1);
-  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.1));
+  const handleZoomIn = () =>
+    setScale((prev) => parseFloat((prev + 0.1).toFixed(4)));
+
+  const handleZoomOut = () =>
+    setScale((prev) =>
+      parseFloat(Math.max(prev - 0.1, defaultScale).toFixed(4))
+    );
 
   const handleOnChangeName = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -268,9 +226,32 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     }
   };
 
-  const onLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
+  // Updated onLoadSuccess to capture the PDF document instance
+  const onLoadSuccess = (pdf: any) => {
+    setPdfDocument(pdf);
+    setNumPages(pdf.numPages);
+    pdf.getPage(1).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1 }); // natural dimensions
+      if (viewerRef.current) {
+        const containerWidth = viewerRef.current.clientWidth;
+        const newScale = containerWidth / viewport.width;
+        const roundedScale = parseFloat(newScale.toFixed(4));
+        setDefaultScale(roundedScale);
+        setScale(roundedScale);
+      }
+    });
   };
+
+  console.log(scale);
+  // Cleanup the PDF document when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (pdfDocument) {
+        pdfDocument.destroy();
+        setPdfDocument(null);
+      }
+    };
+  }, [pdfDocument]);
 
   return (
     <IonPage>
@@ -335,7 +316,10 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
                   marginBottom: "10px",
                 }}
               >
-                <IonButton onClick={handleZoomOut}>
+                <IonButton
+                  onClick={handleZoomOut}
+                  disabled={scale <= defaultScale}
+                >
                   <IonIcon icon={remove} />
                 </IonButton>
                 <IonButton onClick={handleZoomIn}>
@@ -343,12 +327,21 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
                 </IonButton>
               </div>
               {/* Viewer Container with pinch-to-zoom support */}
-              <div ref={viewerRef}>
+              <div
+                ref={viewerRef}
+                style={{
+                  overflowX: "scroll",
+                }}
+              >
                 {/* PDF Renderer */}
                 {fileData.type === "pdf" && fileData.blob && (
                   <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
                     {[...Array(numPages)].map((_, index) => (
-                      <Page key={index} pageNumber={index + 1} scale={scale} />
+                      <LazyPage
+                        key={index}
+                        pageNumber={index + 1}
+                        scale={scale}
+                      />
                     ))}
                   </Document>
                 )}

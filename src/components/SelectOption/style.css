@@ -18,3 +18,11 @@
   border: 2px solid #87ceeb;
   box-shadow: none;
 }
+.select-box:disabled {
+  background-color: #f2f2f2;
+  border: 2px solid #ccc;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}

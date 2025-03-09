@@ -40,6 +40,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
 import Rubrics from "@/components/Rubrics/Rubrics";
 import { Rubric } from "@/repository/EssayRepository";
+import { Network } from "@capacitor/network";
 
 interface QuizProp
   extends RouteComponentProps<{
@@ -179,7 +180,15 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
   const handleRegenerateQuiz = async () => {
     try {
       await present({ message: "Generating Quiz..." });
-
+      const networkStatus = await Network.getStatus();
+      if (!networkStatus.connected) {
+        setIsError(true);
+        setErrMsg(
+          "No internet connection. Please check your network settings."
+        );
+        dismiss();
+        return;
+      }
       const quizHistory = await storageServ.quizRepo.getQuizzesByChainRawText(
         quiz.chain_id as string
       );

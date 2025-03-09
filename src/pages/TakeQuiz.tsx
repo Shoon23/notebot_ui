@@ -23,6 +23,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
 import "../styles/take-quiz.css";
+import { Network } from "@capacitor/network";
 interface TakeQuizProp
   extends RouteComponentProps<{
     id: string;
@@ -130,6 +131,15 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
           );
           break;
         case "essay":
+          const networkStatus = await Network.getStatus();
+          if (!networkStatus.connected) {
+            setIsError(true);
+            setErrorMsg(
+              "No internet connection. Please check your network settings."
+            );
+            dismiss();
+            return;
+          }
           let fileBlob: Blob | null = null;
           let filename: string | null = null;
           let filePath = usedRubric?.file_path as string;
