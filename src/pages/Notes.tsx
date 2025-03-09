@@ -1,7 +1,3 @@
-import NoteCard from "@/components/NoteCard";
-import AttemptQuizCard from "@/components/Quizzes/AttemptQuizCard";
-import QuizCard from "@/components/Quizzes/AttemptQuizCard";
-import SearchInput from "@/components/SearchInput/SearchInput";
 import {
   IonAlert,
   IonButton,
@@ -25,7 +21,7 @@ import {
   fileTray,
   archiveOutline,
 } from "ionicons/icons";
-import { SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import NoteList from "@/components/Note/NoteList/NoteList";
 import { StorageServiceContext } from "@/App";
 import { Note } from "@/databases/models/note";

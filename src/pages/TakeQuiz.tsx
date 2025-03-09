@@ -202,9 +202,14 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             quiz_id: quiz.quiz_id,
             rubric_id: usedRubric?.rubric_id as number,
           });
+          setTotalWorld(0);
+          setUsedRubric(null);
           break;
       }
-
+      setAttemptQuiz({
+        quiz_id: 0,
+        attempted_answers: [],
+      });
       router.push(`/quiz-result/${result?.quiz_attempt_id}`);
     } catch (error) {
       setIsError(true);
@@ -291,47 +296,40 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
         break;
     }
   };
-  const handleOnChangeAnswer = (answer: any, question_type: string) => {
-    switch (question_type) {
-      case "short-answer":
-        setAttemptQuiz((prev) => {
-          const existingAnswerIndex = prev.attempted_answers.findIndex(
-            (attempt) => attempt.question === answer.question
-          );
+  const handleOnChangeAnswer = (answer: any) => {
+    setAttemptQuiz((prev) => {
+      const existingAnswerIndex = prev.attempted_answers.findIndex(
+        (attempt) => attempt.question === answer.question
+      );
 
-          // Create a copy of the attempted answers
-          const updatedAnswers = [...prev.attempted_answers];
+      // Create a copy of the attempted answers
+      const updatedAnswers = [...prev.attempted_answers];
 
-          if (existingAnswerIndex !== -1) {
-            // Update the existing answer
-            updatedAnswers[existingAnswerIndex] = {
-              question_id: answer.question_id,
-              question: answer.question,
-              answer: {
-                content: answer.content,
-              },
-            };
-          } else {
-            // Add a new answer if not found
-            updatedAnswers.push({
-              question_id: answer.question_id,
-              question: answer.question,
-              answer: {
-                content: answer.content,
-              },
-            });
-          }
-
-          return {
-            ...prev,
-            attempted_answers: updatedAnswers,
-          };
+      if (existingAnswerIndex !== -1) {
+        // Update the existing answer
+        updatedAnswers[existingAnswerIndex] = {
+          question_id: answer.question_id,
+          question: answer.question,
+          answer: {
+            content: answer.content,
+          },
+        };
+      } else {
+        // Add a new answer if not found
+        updatedAnswers.push({
+          question_id: answer.question_id,
+          question: answer.question,
+          answer: {
+            content: answer.content,
+          },
         });
-        break;
+      }
 
-      default:
-        console.warn(`Unhandled question type: ${question_type}`);
-    }
+      return {
+        ...prev,
+        attempted_answers: updatedAnswers,
+      };
+    });
   };
   const countWords = (text: string): number =>
     text.trim().split(/\s+/).filter(Boolean).length;

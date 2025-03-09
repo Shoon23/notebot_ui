@@ -19,7 +19,7 @@ import "./style.css";
 interface QuestionShortAnswerProps {
   question_answer: QuestionWithOptions;
   idx: number;
-  handleOnChangeAnswer: (answer: any, question_type: string) => void;
+  handleOnChangeAnswer: (answer: any) => void;
   lastShortAnswerRef: React.MutableRefObject<{
     content: string;
     question: string;
@@ -85,14 +85,11 @@ const QuestionShortAnswer: React.FC<QuestionShortAnswerProps> = ({
               question_id: question_answer.question_id,
             };
 
-            handleOnChangeAnswer(
-              {
-                content: newValue,
-                question: question_answer.content,
-                question_id: question_answer.question_id,
-              },
-              "short-answer"
-            );
+            handleOnChangeAnswer({
+              content: newValue,
+              question: question_answer.content,
+              question_id: question_answer.question_id,
+            });
           }}
           color={"tertiary"}
           style={{
