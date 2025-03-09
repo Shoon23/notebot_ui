@@ -1,7 +1,7 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "ionic.notebot",
+  appId: "app.notebot",
   appName: "Notebot",
   webDir: "dist",
   server: {

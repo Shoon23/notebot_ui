@@ -1,4 +1,4 @@
-package ionic.notebot;
+package app.notebot;
 
 import com.getcapacitor.BridgeActivity;
 

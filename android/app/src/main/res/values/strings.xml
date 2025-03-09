@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Notebot</string>
     <string name="title_activity_main">Notebot</string>
-    <string name="package_name">ionic.notebot</string>
-    <string name="custom_url_scheme">ionic.notebot</string>
+    <string name="package_name">app.notebot</string>
+    <string name="custom_url_scheme">app.notebot</string>
 </resources>
