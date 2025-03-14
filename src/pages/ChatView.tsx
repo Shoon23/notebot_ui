@@ -332,7 +332,92 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
   };
+  const handleRefreshChat = async () => {
+    // Create a FormData object and append necessary fields
+    try {
+      await present({ message: "Analyzing Notes..." });
 
+      const networkStatus = await Network.getStatus();
+      if (!networkStatus.connected) {
+        await storageServ.conversationRepo.deleteConversation(conversationId);
+        await dismiss();
+        setIsError(true);
+        setErrMsg(
+          "No internet connection. Please check your network settings."
+        );
+        return;
+      }
+      let fileBlob: Blob | null = null;
+      let filename: string | null = null;
+
+      if (noteData.content_pdf_url) {
+        let filePath = noteData.content_pdf_url;
+        const fileResult = await Filesystem.readFile({
+          path: noteData.content_pdf_url, // Relative path (e.g., folderName/file.name)
+          directory: Directory.Data,
+        });
+        const base64Data = fileResult.data as any; // Base64 encoded string
+
+        // Determine the file extension and MIME type
+        const fileExtension = getFileExtension(
+          noteData.note_name
+        ).toLowerCase();
+        const mimeType =
+          fileExtension === "pdf"
+            ? "application/pdf"
+            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        // Convert the Base64 string to a Blob.
+        fileBlob = b64toBlob(base64Data, mimeType);
+        filename = filePath.split("/").pop() || "uploadfile";
+      }
+
+      const formData = new FormData();
+      if (fileBlob && filename) {
+        formData.append("file", fileBlob, filename);
+      }
+      formData.append("message", noteData.content_text || "");
+      formData.append("messageHistory", JSON.stringify([]));
+
+      // If you have a file to send, append it like so:
+      // formData.append("file", selectedFile);
+
+      // Make the HTTP request
+
+      const res = await fetch("https://test-backend-9dqr.onrender.com/chat", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        await storageServ.conversationRepo.deleteConversation(conversationId);
+        await dismiss();
+        const data = await res.json();
+        setIsInitError(true);
+        setIsError(true);
+        setErrMsg(data?.message || data[0].message || "Refresh Failed");
+        return;
+      }
+      console.log(res);
+      const data = await res.json();
+
+      await storageServ.conversationRepo.deleteMessagesExceptFirstTwo(
+        conversationId
+      );
+      const bot_msg = await storageServ.conversationRepo.addMessage(
+        conversationId,
+        "BOT",
+        data.response
+      );
+      setMessages(() => [bot_msg]);
+    } catch (error) {
+      console.log(error);
+      setIsError(true);
+      setErrMsg("Refresh Failed");
+    } finally {
+      await dismiss();
+    }
+  };
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
@@ -398,12 +483,7 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
               cssClass: "alert-button-confirm",
               text: "Yes",
               role: "confirm",
-              handler: async () => {
-                await storageServ.conversationRepo.deleteMessagesExceptFirstTwo(
-                  conversationId
-                );
-                setMessages((prevMessages) => prevMessages.slice(0, 1));
-              },
+              handler: handleRefreshChat,
             },
           ]}
           onDidDismiss={() => {

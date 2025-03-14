@@ -174,7 +174,7 @@ class ConversationRepository {
           FROM Message
           WHERE conversation_id = ?
           ORDER BY created_at ASC
-          LIMIT 2
+          LIMIT 1
         ) AS keepMessages
       );
   `;
