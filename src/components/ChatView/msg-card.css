@@ -23,6 +23,6 @@
 .markdown-container * {
   word-wrap: break-word;
   overflow-wrap: break-word;
-  word-break: break-all;
+  word-break: normal;
   white-space: pre-wrap;
 }

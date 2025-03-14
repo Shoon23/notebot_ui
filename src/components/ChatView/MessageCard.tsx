@@ -83,10 +83,6 @@ const MessageCard: React.FC<MessageCardProps> = ({ data, shadowColors }) => {
               fontSize: "0.9rem",
               color: "gray",
               marginBottom: 5,
-              wordWrap: "break-word",
-              overflowWrap: "break-word",
-              wordBreak: "break-all",
-              whiteSpace: "pre-wrap", // Important for wrapping long lines
             }}
           >
             <div className="markdown-container">
