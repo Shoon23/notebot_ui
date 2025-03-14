@@ -60,31 +60,38 @@ class ConversationRepository {
         `Error deleting conversation for note_id ${noteId}: ${error}`
       );
     }
-  } // Add a new message to a conversation
+  }
+
+  // Add a new message to a conversation
   async addMessage(
     conversationId: number,
     senderType: "PERSON" | "BOT",
     messageText: string | null
   ): Promise<iMessage> {
-    const sql = `INSERT INTO Message (conversation_id, sender_type, message_content) 
+    const sql = `INSERT INTO Message (conversation_id, sender_type, message_content)
                  VALUES (?, ?, ?);`;
 
     try {
-      const res = await this.db.query(sql, [
+      const res = await this.db.run(sql, [
         conversationId,
         senderType,
         messageText,
       ]);
 
-      return {
-        message_content: messageText,
-        conversation_id: conversationId,
-        sender_type: senderType,
-      };
+      if (res.changes?.lastId) {
+        return {
+          message_id: res.changes.lastId,
+          conversation_id: conversationId,
+          sender_type: senderType,
+          message_content: messageText,
+        };
+      }
+      throw new Error("MessageRepository.addMessage: lastId not returned");
     } catch (error) {
       throw new Error(`Error adding message: ${error}`);
     }
   }
+
   async deleteMessage(messageId: number): Promise<void> {
     const sql = `DELETE FROM Message WHERE message_id = ?;`;
 
