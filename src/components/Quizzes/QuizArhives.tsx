@@ -3,21 +3,27 @@ import NoteCard from "@/components/NoteCard";
 import React from "react";
 import { Note } from "@/databases/models/note";
 import useStorageService from "@/hooks/useStorageService";
+import { iQuiz } from "@/repository/QuizRepository";
+import QuizCard from "../QuizCard";
+import { useHistory } from "react-router-dom";
 
-interface NoteListProps {
-  notes: Note[];
-  handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
+interface QuizArhivesProps {
+  quizzes: iQuiz[];
 }
 
-const ArchiveList: React.FC<NoteListProps> = ({ notes, handleSelectNote }) => {
+const QuizArhives: React.FC<QuizArhivesProps> = ({ quizzes }) => {
   // Create a reference for the file input
   const storageServ = useStorageService();
+  const history = useHistory();
 
+  const redirectQuiz = async (quiz_id: number) => {
+    history.push(`/quiz-archive/${quiz_id}`, {});
+  };
   return (
     <>
       {/* <SearchInput /> */}
 
-      {notes.length !== 0 ? (
+      {quizzes.length !== 0 ? (
         <div
           style={{
             height: "650px",
@@ -30,20 +36,18 @@ const ArchiveList: React.FC<NoteListProps> = ({ notes, handleSelectNote }) => {
             alignItems: "center",
           }}
         >
-          {notes.map((data, index) => {
+          {quizzes.map((data, index) => {
             return (
-              <NoteCard
+              <QuizCard
                 key={index}
                 data={data}
-                handleSelectNote={handleSelectNote}
-                isCheckBox={false}
+                redirectQuiz={redirectQuiz}
                 handleSelectArchive={function (
-                  question: Note,
+                  quiz: iQuiz,
                   isChecked: boolean
                 ): void {
                   throw new Error("Function not implemented.");
                 }}
-                isSelected={false}
               />
             );
           })}
@@ -71,4 +75,4 @@ const ArchiveList: React.FC<NoteListProps> = ({ notes, handleSelectNote }) => {
   );
 };
 
-export default ArchiveList;
+export default QuizArhives;

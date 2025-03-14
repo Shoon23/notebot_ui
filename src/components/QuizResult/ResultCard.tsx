@@ -25,7 +25,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ question_answer, idx }) => {
   const cardsStyles = {
     flex: "0 0 auto",
     marginBottom: "10px",
-    width: "98%", // Minimum width for the cards,
+    width: "93%", // Minimum width for the cards,
     minHeight: "150px", // Optional: Set a minimum height if needed
     borderRadius: "1.5rem",
     boxShadow: `${shadowColors[0]} 0px 0px 0px 4px, ${shadowColors[1]} 0px 4px 6px -2px, ${shadowColors[2]} 0px 1px 0px inset`,

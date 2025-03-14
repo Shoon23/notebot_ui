@@ -9,7 +9,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { caretForwardOutline } from "ionicons/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./style.css";
 import { iConversationWithNote } from "@/repository/ConversationRepository";
 import { formatDate } from "@/utils/date-utils";
@@ -33,8 +33,12 @@ interface ConversationCardProps {
 }
 
 const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+  const [shadowColor, setShadowColor] = useState("");
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    const shadowColor = colors[randomIndex];
+    setShadowColor(shadowColor);
+  }, []);
   const router = useIonRouter();
   const storageServ = useStorageService();
   const cardsStyles = {

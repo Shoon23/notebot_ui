@@ -45,7 +45,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ data, shadowColors }) => {
     flex: "0 0 auto",
     width: "auto", // Allow the width to adjust to the content
     minWidth: "60%", // Minimum width for the cards
-    maxWidth: "95%", // Ensure it doesn't exceed the container width
+    maxWidth: "100%", // Ensure it doesn't exceed the container width
     height: "auto", // Allow the height to adjust based on content
     border: `2px solid black`,
     borderRadius: "1.5rem",

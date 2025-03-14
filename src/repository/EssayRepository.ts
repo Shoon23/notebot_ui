@@ -13,6 +13,7 @@ export interface Rubric {
   rubric_id: number;
   file_path: string;
   file_name: string;
+  is_used: boolean;
 }
 interface EssayStrength {
   essay_fb_id: number;
@@ -57,7 +58,7 @@ class EssayRepository {
        essay_answer_id,
        rubric_id
       ) VALUES (?,?);`;
-    const res = await this.db.run(sql, [essay_answer_id]);
+    const res = await this.db.run(sql, [essay_answer_id, rubric_id]);
     if (res.changes?.lastId) {
       return res.changes.lastId;
     }
@@ -178,7 +179,7 @@ class EssayRepository {
   }
   async getRubric(rubricId: number): Promise<Rubric> {
     try {
-      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE id = ?;`;
+      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE rubric_id = ?;`;
       const res = await this.db.query(sql, [rubricId]);
       if (res.values && res.values.length > 0) {
         return res.values[0];
@@ -191,7 +192,7 @@ class EssayRepository {
 
   async getRubrics(): Promise<Rubric[]> {
     try {
-      const sql = `SELECT rubric_id,file_path,file_name FROM Rubric WHERE is_used = 0 ORDER BY created_at DESC;`;
+      const sql = `SELECT rubric_id, file_path, file_name, is_used FROM Rubric ORDER BY created_at DESC;`;
       const res = await this.db.query(sql);
       if (res.values) {
         return res.values;

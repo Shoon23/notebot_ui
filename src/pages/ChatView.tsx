@@ -10,6 +10,9 @@ import {
   IonSpinner,
   useIonLoading,
   IonAlert,
+  IonItem,
+  IonLabel,
+  useIonRouter,
 } from "@ionic/react";
 import { refresh, sendOutline } from "ionicons/icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -44,6 +47,8 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
     note_id: 0,
   });
 
+  const [isInitError, setIsInitError] = useState(false);
+
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [limit] = useState(5);
@@ -52,6 +57,8 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
   const [isRefresh, setIsRefresh] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+
+  const router = useIonRouter();
   useIonViewWillEnter(() => {
     const fetchMessages = async () => {
       await present({ message: "Analyzing Notes..." });
@@ -85,7 +92,7 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
             await storageServ.conversationRepo.deleteConversation(
               conversationId
             );
-            dismiss();
+            await dismiss();
             setIsError(true);
             setErrMsg(
               "No internet connection. Please check your network settings."
@@ -141,11 +148,13 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
             await storageServ.conversationRepo.deleteConversation(
               conversationId
             );
-            dismiss();
-
+            await dismiss();
+            const data = await res.json();
+            setIsInitError(true);
             setIsError(true);
-            setErrMsg("Chat Operation Error");
-
+            setErrMsg(
+              data?.message || data[0].message || "Chat Operation Error"
+            );
             return;
           }
           console.log(res);
@@ -169,12 +178,12 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
           setIsError(true);
           setErrMsg("Chat Operation Error");
         } finally {
-          dismiss();
+          await dismiss();
         }
-        dismiss();
+        await dismiss();
       } else {
         setMessages(messages.slice(1));
-        dismiss();
+        await dismiss();
       }
     };
     fetchMessages();
@@ -228,9 +237,11 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
 
       return;
     }
+    let user_msg: iMessage;
+
     try {
       // Immediately add the user message to the messages array
-      const user_msg = await storageServ.conversationRepo.addMessage(
+      user_msg = await storageServ.conversationRepo.addMessage(
         conversationId,
         "PERSON",
         message
@@ -291,6 +302,10 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         await storageServ.conversationRepo.deleteMessage(
           user_msg.message_id as number
         );
+        // Also remove it from the UI state
+        setMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg.message_id !== user_msg.message_id)
+        );
         setIsError(true);
         setErrMsg("Send Failed");
         setIsSending(false);
@@ -327,14 +342,14 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
     <IonPage
       style={{
         overflow: "hidden",
-        height: "100vh",
+        // height: "100vh",
       }}
     >
       <IonContent
         style={{
           display: "flex",
           flexDirection: "column",
-          height: "100vh",
+          // height: "100vh",
           overflow: "hidden",
         }}
       >
@@ -398,24 +413,13 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
         <section
           ref={contentRef}
           style={{
-            height: "80%",
+            height: isSending ? "70%" : "78%",
             display: "flex",
             flexDirection: "column", // Allow for child elements to stack vertically
             padding: "10px",
             overflowY: "scroll",
           }}
         >
-          {isLoading && (
-            <div
-              style={{
-                alignSelf: "center",
-                marginBottom: "10px",
-              }}
-            >
-              <IonSpinner></IonSpinner>
-            </div>
-          )}
-
           {messages.map((msg, index) => {
             return (
               <MessageCard
@@ -429,6 +433,12 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
             );
           })}
         </section>
+
+        {isSending && (
+          <IonItem>
+            <IonSpinner name="dots" />
+          </IonItem>
+        )}
 
         <form
           onSubmit={handleSendMessage}
@@ -460,7 +470,18 @@ const ChatView: React.FC<ChatViewProp> = ({ match }) => {
       <IonAlert
         isOpen={isError}
         header={errMsg}
-        buttons={[{ text: "Okay", role: "cancel" }]}
+        buttons={[
+          {
+            text: "Okay",
+            role: "cancel",
+            handler: () => {
+              if (isInitError) {
+                router.goBack();
+                setIsInitError(false);
+              }
+            },
+          },
+        ]}
         onDidDismiss={() => setIsError(false)}
       ></IonAlert>
     </IonPage>

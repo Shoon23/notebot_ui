@@ -1,22 +1,4 @@
 // Define the expected type for the patched function
-interface PromiseWithResolvers<T> {
-  promise: Promise<T>;
-  resolve: (value: T | PromiseLike<T>) => void;
-  reject: (reason?: any) => void;
-}
-
-// Patch Promise.withResolvers if it's not already defined
-if (typeof Promise.withResolvers !== "function") {
-  Promise.withResolvers = function <T>(): PromiseWithResolvers<T> {
-    let _resolve!: (value: T | PromiseLike<T>) => void;
-    let _reject!: (reason?: any) => void;
-    const promise: Promise<T> = new Promise<T>((resolve, reject) => {
-      _resolve = resolve;
-      _reject = reject;
-    });
-    return { promise, resolve: _resolve, reject: _reject };
-  };
-}
 
 import {
   IonAlert,
@@ -76,13 +58,12 @@ const NoteInput: React.FC<NoteInputProp> = ({ match }) => {
     type: "pdf" | "docx" | null;
   }>({ blob: null, type: null });
   const viewerRef = useRef<HTMLDivElement>(null);
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
 
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   // Ref for the container that will handle pinch gestures
   const [isShowDelete, setIsShowDelete] = useState(false);
-
-  const [pdfDocument, setPdfDocument] = useState<any>(null);
 
   useIonViewWillEnter(() => {
     const id = Number(match.params.id);

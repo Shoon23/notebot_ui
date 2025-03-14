@@ -1,23 +1,3 @@
-// Define the expected type for the patched function
-interface PromiseWithResolvers<T> {
-  promise: Promise<T>;
-  resolve: (value: T | PromiseLike<T>) => void;
-  reject: (reason?: any) => void;
-}
-
-// Patch Promise.withResolvers if it's not already defined
-if (typeof Promise.withResolvers !== "function") {
-  Promise.withResolvers = function <T>(): PromiseWithResolvers<T> {
-    let _resolve!: (value: T | PromiseLike<T>) => void;
-    let _reject!: (reason?: any) => void;
-    const promise: Promise<T> = new Promise<T>((resolve, reject) => {
-      _resolve = resolve;
-      _reject = reject;
-    });
-    return { promise, resolve: _resolve, reject: _reject };
-  };
-}
-
 import {
   IonAlert,
   IonBackButton,
@@ -36,12 +16,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/note-input.css";
 import {
+  add,
   archive,
   chevronBack,
   colorWand,
   refresh,
   refreshCircle,
   refreshCircleOutline,
+  remove,
   text,
   trashBin,
 } from "ionicons/icons";
@@ -53,6 +35,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "../styles/test.css";
 import mammoth from "mammoth";
+import LazyPage from "@/components/LazyPage";
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -65,7 +48,8 @@ interface NoteArchivedProp extends RouteComponentProps<{ id: string }> {}
 const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
   const storageServ = useStorageService();
   const router = useIonRouter();
-
+  const [scale, setScale] = useState(0.5);
+  const [defaultScale, setDefaultScale] = useState(1.0);
   const [note, setNote] = useState<iNote>({
     content_pdf_url: "",
     content_text: "",
@@ -77,6 +61,8 @@ const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
     blob: Blob | null;
     type: "pdf" | "docx" | null;
   }>({ blob: null, type: null });
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
 
   const [numPages, setNumPages] = useState(0);
   const docxContainerRef = useRef<HTMLDivElement>(null);
@@ -190,9 +176,28 @@ const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
 
     fetchNote();
   });
+  // Zoom control buttons for non-touch adjustments
+  const handleZoomIn = () =>
+    setScale((prev) => parseFloat((prev + 0.1).toFixed(4)));
 
-  const onLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
+  const handleZoomOut = () =>
+    setScale((prev) =>
+      parseFloat(Math.max(prev - 0.1, defaultScale).toFixed(4))
+    );
+  // Updated onLoadSuccess to capture the PDF document instance
+  const onLoadSuccess = (pdf: any) => {
+    setPdfDocument(pdf);
+    setNumPages(pdf.numPages);
+    pdf.getPage(1).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1 }); // natural dimensions
+      if (viewerRef.current) {
+        const containerWidth = viewerRef.current.clientWidth;
+        const newScale = containerWidth / viewport.width;
+        const roundedScale = parseFloat(newScale.toFixed(4));
+        setDefaultScale(roundedScale);
+        setScale(roundedScale);
+      }
+    });
   };
 
   return (
@@ -262,29 +267,59 @@ const NoteArchived: React.FC<NoteArchivedProp> = ({ match }) => {
           </div>
           {note.content_pdf_url ? (
             <>
-              {/* PDF Renderer */}
-              {fileData.type === "pdf" && fileData.blob && (
-                <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
-                  {[...Array(numPages)].map((_, index) => (
-                    <Page key={index} pageNumber={index + 1} scale={0.75} />
-                  ))}
-                </Document>
-              )}
+              {/* Zoom Controls */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <IonButton
+                  onClick={handleZoomOut}
+                  disabled={scale <= defaultScale}
+                >
+                  <IonIcon icon={remove} />
+                </IonButton>
+                <IonButton onClick={handleZoomIn}>
+                  <IonIcon icon={add} />
+                </IonButton>
+              </div>
+              {/* Viewer Container with pinch-to-zoom support */}
+              <div
+                ref={viewerRef}
+                style={{
+                  overflowX: "scroll",
+                }}
+              >
+                {/* PDF Renderer */}
+                {fileData.type === "pdf" && fileData.blob && (
+                  <Document file={fileData.blob} onLoadSuccess={onLoadSuccess}>
+                    {[...Array(numPages)].map((_, index) => (
+                      <LazyPage
+                        key={index}
+                        pageNumber={index + 1}
+                        scale={scale}
+                      />
+                    ))}
+                  </Document>
+                )}
 
-              {/* DOCX Renderer */}
-              {fileData.type === "docx" && (
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <div
-                    className="docx-container"
-                    style={{
-                      transform: "scale(0.5)",
-                      transformOrigin: "top center",
-                    }}
-                  >
-                    <div ref={docxContainerRef} className="docx-content" />
+                {/* DOCX Renderer */}
+                {fileData.type === "docx" && (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div
+                      className="docx-container"
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: "top center",
+                      }}
+                    >
+                      <div ref={docxContainerRef} className="docx-content" />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </>
           ) : (
             <textarea

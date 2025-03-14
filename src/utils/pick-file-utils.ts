@@ -16,7 +16,7 @@ export function validateAndGetFileRubrics(
   console.log("Picked file:", file);
   console.log("File size property:", file.size);
   console.log("Data length:", file.data ? file.data.length : "No data");
-  const maxSizeBytes = 5 * 1024 * 1024;
+  const maxSizeBytes = 10 * 1024 * 1024;
 
   // Use the provided size or calculate from file.data if missing.
   const fileSize =
@@ -45,7 +45,7 @@ export function validateAndGetFileNote(pickedFiles: PickedFile[]): PickedFile {
     throw new Error("You can only select 1 file");
   }
   const file = pickedFiles[0];
-  const maxSizeBytes = 5 * 1024 * 1024;
+  const maxSizeBytes = 10 * 1024 * 1024;
   let fileSize = 0;
   try {
     fileSize = file.size ?? (file.data ? getFileSizeFromBase64(file.data) : 0);

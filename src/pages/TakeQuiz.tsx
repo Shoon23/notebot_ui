@@ -24,6 +24,8 @@ import { useLocation } from "react-router-dom";
 import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
 import "../styles/take-quiz.css";
 import { Network } from "@capacitor/network";
+import { log } from "console";
+import { cloudyNight } from "ionicons/icons";
 interface TakeQuizProp
   extends RouteComponentProps<{
     id: string;
@@ -65,7 +67,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
   const [present, dismiss] = useIonLoading();
   const location = useLocation<{ quiz: any }>();
   // Check the state passed via history.push
-
+  console.log(attemptQuiz);
   useIonViewWillEnter(() => {
     // storageServ.isInitCompleted.subscribe((isComplete) => {
     //   if (isComplete) {
@@ -137,7 +139,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             setErrorMsg(
               "No internet connection. Please check your network settings."
             );
-            dismiss();
+            await dismiss();
             return;
           }
           let fileBlob: Blob | null = null;
@@ -180,7 +182,6 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             }
           );
           // const response: HttpResponse = await CapacitorHttp.post(options);
-          console.log(response);
           if (!response.ok) {
             const res = await response.json();
             console.log(res);
@@ -188,7 +189,7 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             setErrorMsg(
               res?.message || res[0].message || "Something Went Wrong"
             );
-            dismiss();
+            await dismiss();
 
             return;
           }
@@ -202,20 +203,36 @@ const TakeQuiz: React.FC<TakeQuizProp> = ({ match }) => {
             quiz_id: quiz.quiz_id,
             rubric_id: usedRubric?.rubric_id as number,
           });
+
           setTotalWorld(0);
           setUsedRubric(null);
           break;
       }
-      setAttemptQuiz({
-        quiz_id: 0,
-        attempted_answers: [],
-      });
+      if (quiz.question_type === "essay") {
+        setAttemptQuiz({
+          quiz_id: 0,
+          attempted_answers: [
+            {
+              answer: {
+                content: "",
+              },
+              question: "",
+              question_id: 0,
+            },
+          ],
+        });
+      } else {
+        setAttemptQuiz({
+          quiz_id: 0,
+          attempted_answers: [],
+        });
+      }
       router.push(`/quiz-result/${result?.quiz_attempt_id}`);
     } catch (error) {
       setIsError(true);
       setErrorMsg("Something Went Wrong");
     } finally {
-      dismiss();
+      await dismiss();
     }
   };
   const handleSelectAnswer = (answer: any, question_type: string) => {

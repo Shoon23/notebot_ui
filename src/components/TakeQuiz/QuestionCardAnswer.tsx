@@ -75,7 +75,7 @@ const QuestionCardAnswer: React.FC<QuestionCardProps> = ({
                   fontWeight: "bold",
                   //   color: option.is_answer ? "green" : "black", // Highlight correct answer
                   //   backgroundColor: option.is_answer ? "#e8f5e9" : "transparent", // Light green background for correct answer
-                  //   padding: option.is_answer ? "5px" : "0", // Add padding for better visibility
+                  // P  padding: option.is_answer ? "5px" : "0", // Add padding for better visibility
                   //   borderRadius: option.is_answer ? "0.5rem" : "0", // Rounded corners for correct answer
                 }}
                 key={idx}

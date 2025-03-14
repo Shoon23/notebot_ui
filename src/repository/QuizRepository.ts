@@ -168,9 +168,11 @@ class QuizRepository {
   async getManyQuiz(filters: {
     is_recent: boolean;
     search_key_word: string | null;
-    onlyNotArchived?: boolean; // Optional filter for archived quizzes
+    onlyNotArchived?: boolean; // Optional filter to fetch non-archived quizzes.
+    onlyArchived?: boolean; // Optional filter to fetch archived quizzes.
   }): Promise<iQuiz[]> {
-    const { is_recent, search_key_word, onlyNotArchived } = filters;
+    const { is_recent, search_key_word, onlyNotArchived, onlyArchived } =
+      filters;
     let sql = `SELECT quiz_id, quiz_name, question_type, blooms_taxonomy_level, created_at, num_questions
                FROM Quiz`;
     const conditions: string[] = [];
@@ -182,12 +184,14 @@ class QuizRepository {
       params.push(`%${search_key_word}%`);
     }
 
-    // Add archive filter if requested.
-    if (onlyNotArchived) {
+    // Add archived or non-archived filter.
+    if (onlyArchived) {
+      conditions.push(`is_archived = 1`);
+    } else if (onlyNotArchived) {
       conditions.push(`is_archived = 0`);
     }
 
-    // Add condition to only select the oldest quiz for each chain_id.
+    // Add condition to select only the oldest quiz for each chain_id.
     conditions.push(
       `created_at = (SELECT MIN(q2.created_at) FROM Quiz q2 WHERE q2.chain_id = Quiz.chain_id)`
     );
@@ -589,6 +593,67 @@ class QuizRepository {
       await this.db.run(query, [quizId, noteId, chainId, quizName]);
     } catch (error) {
       throw new Error("Unable to Saved Chained Quiz");
+    }
+  }
+
+  async archiveQuizAndAttempts(quiz_id: number): Promise<void> {
+    try {
+      // Archive the quiz by setting is_archived to 1
+      const quizSql = `UPDATE Quiz SET is_archived = 1 WHERE quiz_id = ?;`;
+      const quizRes = await this.db.run(quizSql, [quiz_id]);
+      console.log(`Quiz ${quiz_id} archived:`, quizRes);
+
+      // Archive all quiz attempts for the given quiz
+      const attemptSql = `UPDATE QuizAttempt SET is_archived = 1 WHERE quiz_id = ?;`;
+      const attemptRes = await this.db.run(attemptSql, [quiz_id]);
+      console.log(`Quiz attempts for quiz ${quiz_id} archived:`, attemptRes);
+    } catch (error) {
+      console.error("Error archiving quiz and attempts:", error);
+      throw new Error("Unable to archive quiz and attempts");
+    }
+  }
+  async archiveMultipleQuizzesAndAttempts(quizzes: iQuiz[]): Promise<void> {
+    try {
+      if (quizzes.length === 0) return; // Nothing to archive
+
+      // Extract the quiz IDs from the iQuiz objects
+      const quizIdArray = quizzes.map((quiz) => quiz.quiz_id);
+
+      // Create placeholders for the SQL IN clause
+      const placeholders = quizIdArray.map(() => "?").join(", ");
+
+      // Archive the quizzes by setting is_archived to 1
+      const quizSql = `UPDATE Quiz SET is_archived = 1 WHERE quiz_id IN (${placeholders});`;
+      const quizRes = await this.db.run(quizSql, quizIdArray);
+      console.log(`Quizzes [${quizIdArray.join(", ")}] archived:`, quizRes);
+
+      // Archive all quiz attempts associated with these quizzes
+      const attemptSql = `UPDATE QuizAttempt SET is_archived = 1 WHERE quiz_id IN (${placeholders});`;
+      const attemptRes = await this.db.run(attemptSql, quizIdArray);
+      console.log(
+        `Quiz attempts for quizzes [${quizIdArray.join(", ")}] archived:`,
+        attemptRes
+      );
+    } catch (error) {
+      console.error("Error archiving quizzes and attempts:", error);
+      throw new Error("Unable to archive quizzes and attempts");
+    }
+  }
+
+  async restoreQuizAndAttempts(quiz_id: number): Promise<void> {
+    try {
+      // Restore the quiz by setting is_archived to 0
+      const quizSql = `UPDATE Quiz SET is_archived = 0 WHERE quiz_id = ?;`;
+      const quizRes = await this.db.run(quizSql, [quiz_id]);
+      console.log(`Quiz ${quiz_id} restored:`, quizRes);
+
+      // Restore all quiz attempts for the given quiz
+      const attemptSql = `UPDATE QuizAttempt SET is_archived = 0 WHERE quiz_id = ?;`;
+      const attemptRes = await this.db.run(attemptSql, [quiz_id]);
+      console.log(`Quiz attempts for quiz ${quiz_id} restored:`, attemptRes);
+    } catch (error) {
+      console.error("Error restoring quiz and attempts:", error);
+      throw new Error("Unable to restore quiz and attempts");
     }
   }
 }

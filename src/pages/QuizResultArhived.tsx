@@ -12,6 +12,7 @@ import {
   IonContent,
   useIonViewWillEnter,
   useIonRouter,
+  IonIcon,
 } from "@ionic/react";
 import React, { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -21,11 +22,12 @@ import EssayAnswerCard from "@/components/QuizResult/EssayAnswerCard";
 import FeedBackCard from "@/components/QuizResult/FeedBackCard";
 import { Rubric } from "@/repository/EssayRepository";
 import RubricFile from "@/components/QuizResult/RubricFile";
-interface QuizResultProp
+import { archive } from "ionicons/icons";
+interface QuizResultArhivedProp
   extends RouteComponentProps<{
     id: string;
   }> {}
-const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
+const QuizResultArhived: React.FC<QuizResultArhivedProp> = ({ match }) => {
   const storageServ = useStorageService();
   const router = useIonRouter();
   const [rubric, setRubric] = useState<Rubric>({
@@ -75,9 +77,23 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
   return (
     <IonPage>
       <IonContent>
+        <div
+          style={{
+            backgroundColor: "#ac4830",
+            color: "white",
+            padding: "10px",
+            fontSize: "1.3rem",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          Archive
+          <IonIcon icon={archive} style={{}}></IonIcon>
+        </div>
         <Header
-          // backRoute={`/quiz/${quizResult.quiz_id}`}
-          backRoute={`/quizzes/attempted_quiz`}
+          backRoute={`/quiz-archive/${quizResult.quiz_id}`}
           nameComponent={
             <h1
               style={{
@@ -109,7 +125,11 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
             <button
               className="add-question-btn"
               onClick={() => {
-                router.push(`/quiz/${quizResult.quiz_id}`, "back", "pop");
+                router.push(
+                  `/quiz-archive/${quizResult.quiz_id}`,
+                  "back",
+                  "pop"
+                );
               }}
             >
               View Quiz
@@ -172,4 +192,4 @@ const QuizResult: React.FC<QuizResultProp> = ({ match }) => {
   );
 };
 
-export default QuizResult;
+export default QuizResultArhived;

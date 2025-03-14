@@ -27,6 +27,49 @@ import { StorageServiceContext } from "@/App";
 import { Note } from "@/databases/models/note";
 import ArchiveList from "@/components/Note/ArchiveList";
 import "../styles/note.css";
+import StorageService from "@/services/storageService";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import pdfUrl from "../assets/default-rubrics.pdf";
+async function saveDefaultRubricFile(storageServ: StorageService) {
+  try {
+    const rubrics = await storageServ.essayRepo.getRubrics();
+
+    if (rubrics.length === 0) {
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch PDF file");
+      }
+      const blob = await response.blob();
+      const fileName = "DefaultRubric.pdf";
+      const base64Data = (await convertBlobToBase64(blob)) as string;
+      const folderName = "Rubrics";
+      const targetPath = `${folderName}/${fileName}`;
+      await Filesystem.writeFile({
+        path: targetPath,
+        data: base64Data,
+        directory: Directory.Data, // You can change this as needed
+      });
+      const rubricId = await storageServ.essayRepo.saveRubric(
+        targetPath,
+        fileName
+      );
+      await storageServ.essayRepo.updateRubricIsUsed(rubricId, true);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+const convertBlobToBase64 = (
+  blob: Blob
+): Promise<string | ArrayBuffer | null> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
 const Notes = () => {
   const router = useIonRouter();
   const [archives, setArchives] = useState<Note[]>([]);
@@ -47,6 +90,7 @@ const Notes = () => {
       isInitComplete.current = value;
       if (isInitComplete.current === true) {
         const fetchNote = async () => {
+          saveDefaultRubricFile(storageServ);
           const noteList = await storageServ.noteRepo.getListOfNotes({
             onlyNotArchived: true,
           });

@@ -33,7 +33,13 @@ import { iAttemptQuiz } from "@/repository/AttemptQuizRepository";
 import Header from "@/components/Header";
 import QuizDetailCard from "@/components/Quiz/QuizDetailCard";
 import QuizDescriptionCard from "@/components/Quiz/QuizDescriptionCard";
-import { archive, closeOutline, createOutline, shuffle } from "ionicons/icons";
+import {
+  archive,
+  closeOutline,
+  createOutline,
+  refresh,
+  shuffle,
+} from "ionicons/icons";
 import "../styles/quiz.css";
 import EditQuizModal from "@/components/Quiz/EditQuizModal";
 import QuizQuickActions from "@/components/Quiz/QuizQuickActions";
@@ -42,14 +48,13 @@ import { b64toBlob } from "@/components/GenerateQuiz/GenerateQuizForm";
 import Rubrics from "@/components/Rubrics/Rubrics";
 import { Rubric } from "@/repository/EssayRepository";
 import { Network } from "@capacitor/network";
-import { shuffleArray } from "@/utils/text-utils";
 
 interface QuizProp
   extends RouteComponentProps<{
     id: string;
   }> {}
 
-const Quiz: React.FC<QuizProp> = ({ match }) => {
+const QuizArhived: React.FC<QuizProp> = ({ match }) => {
   const [quiz, setQuiz] = useState<iMCQQuestion>({
     quiz_name: "",
     question_type: "",
@@ -88,13 +93,13 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     note_name: "",
     note_id: -1,
   });
-  const [isShowDelete, setIsShowDelete] = useState(false);
-  const router = useIonRouter();
+
   const [quizSets, setQuizSets] = useState<Array<iQuizSet>>([]);
   const [present, dismiss] = useIonLoading();
   const [isError, setIsError] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-
+  const [isShowDelete, setIsShowDelete] = useState(false);
+  const router = useIonRouter();
   const [disableRegen, setDisableRegen] = useState(false);
   // Hardware back button handler that resets edit mode
   const backButtonHandler = (event: any) => {
@@ -344,106 +349,73 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
     }
   };
 
-  const startQuiz = (isShuffle: boolean) => {
-    let questionsToUse =
-      selectedQuestions.length > 0 ? selectedQuestions : quiz.questions;
-
-    if (isShuffle) {
-      questionsToUse = shuffleArray(questionsToUse);
-    }
-
-    const quizToTake = {
-      ...quiz,
-      questions: questionsToUse,
-    };
-
-    history.push(`/take-quiz/${quiz.quiz_id}`, {
-      quiz: quizToTake,
-    });
-  };
   const redirectQuizResult = (id: number) => {
-    router.push(`/quiz-result/${id}`);
+    router.push(`/quiz-result-archive/${id}`);
   };
   return (
     <IonPage style={{ overflow: "hidden" }}>
       <IonContent>
+        <div
+          style={{
+            backgroundColor: "#ac4830",
+            color: "white",
+            padding: "10px",
+            fontSize: "1.3rem",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          Archive
+          <IonIcon icon={archive} style={{}}></IonIcon>
+        </div>
         {/* backBtnText */}
         <Header
           backRoute={"/quizzes/generated_quiz"}
           nameComponent={
             <>
-              <h3
+              <h1
                 style={{
                   alignSelf: "center",
                   marginTop: "60px",
                   display: "flex",
-                  justifySelf: "center",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 Quiz Details
-              </h3>
+              </h1>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 5,
+              <button
+                className="refresh-note-btn"
+                onClick={() => {
+                  setIsShowDelete(true);
                 }}
               >
-                <button
-                  className="edit-btn"
-                  style={{
-                    marginLeft: "10px",
-                  }}
-                  onClick={() => {
-                    setIsEdit(true);
-                  }}
-                >
-                  <IonIcon
-                    slot="icon-only"
-                    icon={createOutline}
-                    style={{
-                      fontSize: "30px",
-                    }}
-                  />
-                </button>
-                <button
-                  className="del-note-btn"
-                  onClick={() => {
-                    setIsShowDelete(true);
-                  }}
-                >
-                  <IonIcon icon={archive} style={{ fontSize: "30px" }} />
-                </button>
-                <IonAlert
-                  isOpen={isShowDelete}
-                  header="Do you want to ARCHIVE this quiz?"
-                  buttons={[
-                    { text: "Cancel", role: "cancel" },
-                    {
-                      cssClass: "alert-button-confirm",
-                      text: "Yes",
-                      role: "confirm",
-                      handler: async () => {
-                        await storageServ.quizRepo.archiveQuizAndAttempts(
-                          quiz.quiz_id
-                        );
-                        router.push("/quizzes/generated_quiz");
-                      },
+                <IonIcon icon={refresh} style={{ fontSize: "30px" }} />
+              </button>
+              <IonAlert
+                isOpen={isShowDelete}
+                header="Do you want to RESTORE this quiz?"
+                buttons={[
+                  { text: "Cancel", role: "cancel" },
+                  {
+                    cssClass: "alert-button-confirm",
+                    text: "Yes",
+                    role: "confirm",
+                    handler: async () => {
+                      await storageServ.quizRepo.restoreQuizAndAttempts(
+                        quiz.quiz_id
+                      );
+                      router.push("/quizzes/generated_quiz");
                     },
-                  ]}
-                  onDidDismiss={() => setIsShowDelete(false)}
-                ></IonAlert>
-              </div>
+                  },
+                ]}
+                onDidDismiss={() => setIsShowDelete(false)}
+              ></IonAlert>
             </>
           }
-        />
-        <EditQuizModal
-          isEdit={isEdit}
-          setIsEdit={setIsEdit}
-          quiz_name={quiz.quiz_name}
-          description={quiz.description}
-          setQuiz={setQuiz}
-          quiz_id={quiz.quiz_id}
         />
         <section className="ion-padding">
           <QuizDetailCard data={quiz} shadowColor={shadowColorDetail} />
@@ -453,16 +425,7 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
               description={quiz.description}
             />
           )}
-          <QuizQuickActions
-            note={note}
-            isSelectQuestion={isSelectQuestion}
-            setQuiz={setQuiz}
-            quiz_id={quiz.quiz_id}
-            question_type={quiz.question_type}
-          />
-          {quiz.question_type === "essay" && (
-            <Rubrics usedRubric={usedRubric} setUsedRubric={setUsedRubric} />
-          )}
+
           <IonSegment
             mode="ios"
             style={{
@@ -494,67 +457,6 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                   alignItems: "center",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 5,
-                  }}
-                >
-                  <IonList>
-                    <IonItem>
-                      <IonSelect
-                        disabled={disableRegen}
-                        aria-label="Fruit"
-                        interface="popover"
-                        value={currSet}
-                        onIonChange={(e) => {
-                          const selectedQuizId = e.detail.value;
-                          setCurrSet(selectedQuizId);
-                          handleSwitchSet(selectedQuizId);
-                        }}
-                      >
-                        {quizSets.map((qs, idx) => {
-                          return (
-                            <IonSelectOption
-                              value={qs.quiz_id}
-                              key={qs.quiz_id}
-                            >
-                              Set {idx + 1}
-                            </IonSelectOption>
-                          );
-                        })}
-                      </IonSelect>
-                    </IonItem>
-                  </IonList>
-                  <button
-                    className="regen-btn"
-                    id="present-alert"
-                    disabled={
-                      quiz.question_type === "essay"
-                        ? quizSets.length === 3
-                        : quizSets.length === 10 || disableRegen
-                    }
-                  >
-                    Regenerate Quiz
-                  </button>
-
-                  <IonAlert
-                    trigger="present-alert"
-                    header="Do you want to Generate Another Quiz Set?"
-                    buttons={[
-                      { text: "Cancel", role: "cancel" },
-                      {
-                        cssClass: "alert-button-confirm",
-                        text: "Yes",
-                        role: "confirm",
-                        handler: handleRegenerateQuiz,
-                      },
-                    ]}
-                  ></IonAlert>
-                </div>
-
                 {quiz.questions.map((question_answer, index) => {
                   const isSelected = selectedQuestions.some(
                     (q) => q.question_id === question_answer.question_id
@@ -568,10 +470,10 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
                       isCheckBox={
                         quiz.question_type !== "essay" && isSelectQuestion
                       }
-                      isSelectQuestion={isSelectQuestion}
+                      isSelectQuestion={false}
                       setQuiz={setQuiz}
                       onSelectionChange={handleSelectionChange}
-                      isSelected={isSelected}
+                      isSelected={false}
                     />
                   );
                 })}
@@ -614,158 +516,12 @@ const Quiz: React.FC<QuizProp> = ({ match }) => {
           </div>
         </section>
       </IonContent>
-      <IonFab
-        style={{
-          position: "fixed",
-          bottom: "60px",
-          right: "20px",
-          zIndex: "5",
-        }}
-        slot="fixed"
-        horizontal="end"
-      >
-        <IonFabButton className="take-quiz-btn-container animated-button">
-          Start Quiz
-        </IonFabButton>
-        {!isSelectQuestion ? (
-          <IonFabList
-            side="top"
-            style={{
-              width: "100%",
-            }}
-          >
-            <IonFabButton
-              style={{ zIndex: 1000 }}
-              className="mini-btn animated-button"
-              onClick={() => {
-                if (quiz.question_type === "essay") {
-                  startQuiz(false);
-                } else {
-                  setIsStart(true);
-                }
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div>All</div>
-              </div>
-            </IonFabButton>
-            {quiz.question_type !== "essay" && (
-              <IonFabButton
-                style={{ zIndex: 1000 }}
-                className="mini-btn animated-button"
-                onClick={() => {
-                  setDisableRegen(true);
 
-                  setIsSelectQuestion(!isSelectQuestion);
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <div>Select</div>
-                </div>
-              </IonFabButton>
-            )}
-          </IonFabList>
-        ) : (
-          <IonFabList
-            side="top"
-            style={{
-              width: "100%",
-            }}
-          >
-            <IonFabButton
-              style={{ zIndex: 1000 }}
-              className="cancel-mini-btn animated-button"
-              onClick={() => {
-                setIsSelectQuestion(false);
-                setSelectedQuestions([]);
-                setDisableRegen(false);
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <IonIcon
-                  icon={closeOutline}
-                  style={{
-                    fontSize: "24px",
-                    color: "#ac4830",
-                  }}
-                />
-                <div>Cancel</div>
-              </div>
-            </IonFabButton>
-            <IonFabButton
-              disabled={selectedQuestions.length === 0}
-              style={{
-                zIndex: 1000,
-                opacity: selectedQuestions.length === 0 ? 0.5 : 1,
-              }}
-              className="mini-btn animated-button"
-              onClick={() => {
-                if (quiz.question_type === "essay") {
-                  startQuiz(false);
-                } else {
-                  setIsStart(true);
-                }
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div>Start</div>
-              </div>
-            </IonFabButton>
-          </IonFabList>
-        )}
-      </IonFab>
       <IonAlert
         isOpen={isError}
         header={errMsg}
         buttons={[{ text: "Okay", role: "cancel" }]}
         onDidDismiss={() => setIsError(false)}
-      ></IonAlert>
-      <IonAlert
-        isOpen={isStart}
-        header={"Shuffle Questions?"}
-        buttons={[
-          {
-            text: "No",
-            handler: () => {
-              startQuiz(false);
-            },
-          },
-          {
-            text: "Yes",
-            handler: () => {
-              startQuiz(true);
-            },
-          },
-        ]}
-        onDidDismiss={() => setIsStart(false)}
       ></IonAlert>
     </IonPage>
   );
@@ -788,4 +544,4 @@ export const getShadowColors = () => {
   return colors[randomIndex];
 };
 
-export default Quiz;
+export default QuizArhived;

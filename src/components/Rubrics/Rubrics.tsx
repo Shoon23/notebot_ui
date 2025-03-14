@@ -11,6 +11,7 @@ import {
   IonLabel,
   IonList,
   IonAlert,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import { fileTray, archive } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
@@ -33,7 +34,17 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const storageServ = useStorageService();
+  useEffect(() => {
+    const getUsedRubrics = async () => {
+      const rubrics = await storageServ.essayRepo.getRubrics();
+      const usedRubricItem = rubrics.find((rubric) => rubric.is_used);
+      const availableRubrics = rubrics.filter((rubric) => !rubric.is_used);
 
+      setUsedRubric(usedRubricItem || null);
+      setRubrics(availableRubrics);
+    };
+    getUsedRubrics();
+  }, [usedRubric]);
   const pickAndSaveFile = async () => {
     try {
       const { files: pickedFiles } = await FilePicker.pickFiles({
@@ -64,6 +75,7 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
           file_name: file.name,
           file_path: targetPath,
           rubric_id: rubricId,
+          is_used: false,
         },
         ...prev,
       ]);
@@ -75,11 +87,6 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
 
   const handleOpenRurbic = async () => {
     try {
-      const rubrics = await storageServ.essayRepo.getRubrics();
-      setRubrics(rubrics);
-      const rubric = await storageServ.essayRepo.getUsedRubrics();
-      setUsedRubric(rubric);
-
       setisOpenRubric(true);
     } catch (error) {
       console.log(error);
@@ -159,7 +166,7 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
             <div
               className=""
               style={{
-                height: "65%",
+                height: "60%",
                 overflowY: "scroll",
               }}
             >
@@ -181,12 +188,12 @@ const Rubrics: React.FC<RubricsProps> = ({ setUsedRubric, usedRubric }) => {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                height: "70%",
+                height: "60%",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              No Attempted Quiz
+              No Rubrics
             </div>
           )}
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonCard,
@@ -45,8 +45,12 @@ interface FeedBackCardProps {
 }
 
 const FeedBackCard: React.FC<FeedBackCardProps> = ({ name, feedbacks }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+  const [shadowColor, setShadowColor] = useState("");
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    const shadowColor = colors[randomIndex];
+    setShadowColor(shadowColor);
+  }, []);
   const cardsStyles = {
     flex: "0 0 auto",
     width: "95%", // Minimum width for the cards,

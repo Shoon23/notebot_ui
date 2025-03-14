@@ -7,7 +7,9 @@ import NoteArchived from "@/pages/NoteArchived";
 import NoteInput from "@/pages/NoteInput";
 import Notes from "@/pages/Notes";
 import Quiz from "@/pages/Quiz";
+import QuizArchived from "@/pages/QuizArchived";
 import QuizResult from "@/pages/QuizResult";
+import QuizResultArhived from "@/pages/QuizResultArhived";
 import Quizzes from "@/pages/Quizzes";
 import TakeQuiz from "@/pages/TakeQuiz";
 import Test from "@/pages/Test";
@@ -81,6 +83,11 @@ const HomePageLayout = () => {
           path={"/note-archive/:id"}
           render={(props) => <NoteArchived {...props} />}
         />
+
+        <Route
+          path={"/quiz-archive/:id"}
+          render={(props) => <QuizArchived {...props} />}
+        />
         <Route path={"/quiz/:id"} render={(props) => <Quiz {...props} />} />
         <Route path={"/generate-quiz"} render={(props) => <GenerateQuiz />} />
 
@@ -91,6 +98,10 @@ const HomePageLayout = () => {
         <Route
           path={"/quiz-result/:id"}
           render={(props) => <QuizResult {...props} />}
+        />
+        <Route
+          path={"/quiz-result-archive/:id"}
+          render={(props) => <QuizResultArhived {...props} />}
         />
       </IonRouterOutlet>
 

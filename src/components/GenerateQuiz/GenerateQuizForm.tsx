@@ -81,7 +81,7 @@ const GenerateQuizForm = () => {
     { value: "15", label: "15" },
     { value: "20", label: "20" },
     { value: "25", label: "25" },
-    { value: "30", label: "30" },
+    // { value: "30", label: "30" },
   ];
   console.log(genQuizForm);
   const essayNumbers = [{ value: "1", label: "1" }];
@@ -135,7 +135,7 @@ const GenerateQuizForm = () => {
         setErrMsg(
           "No internet connection. Please check your network settings."
         );
-        dismiss();
+        await dismiss();
         return;
       }
       const apiUrl =
@@ -196,7 +196,7 @@ const GenerateQuizForm = () => {
 
         setIsError(true);
         setErrMsg(res?.message || res[0].message || "Something Went Wrong");
-        dismiss();
+        await dismiss();
 
         return;
       }
@@ -238,7 +238,7 @@ const GenerateQuizForm = () => {
       setErrMsg("Something Went Wrong");
       console.error(error);
     } finally {
-      dismiss();
+      await dismiss();
     }
   };
   return (

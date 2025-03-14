@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonCard,
@@ -28,7 +28,7 @@ const colors = [
   "#9E7C5E",
 ];
 
-interface QuizCardProps {
+interface NoteCardProps {
   width?: string;
   data: Note;
   isCheckBox: boolean;
@@ -37,15 +37,20 @@ interface QuizCardProps {
   handleSelectNote: (note_data: { note_id: number; note_name: string }) => void;
 }
 
-const NoteCard: React.FC<QuizCardProps> = ({
+const NoteCard: React.FC<NoteCardProps> = ({
   data,
   handleSelectNote,
   isCheckBox,
   isSelected,
   handleSelectArchive,
 }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+  const [shadowColor, setShadowColor] = useState("");
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    const shadowColor = colors[randomIndex];
+    setShadowColor(shadowColor);
+  }, []);
+
   const cardsStyles = {
     flex: "0 0 auto",
     width: "90%",

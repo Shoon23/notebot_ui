@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonCard,
@@ -6,6 +6,7 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonCheckbox,
   IonIcon,
   useIonRouter,
 } from "@ionic/react";
@@ -31,6 +32,10 @@ const colors = [
 interface QuizCardProps {
   width?: string;
   data: iQuiz;
+  redirectQuiz: (quiz_id: number) => Promise<void>;
+  isCheckBox?: boolean;
+  isSelected?: boolean;
+  handleSelectArchive: (quiz: iQuiz, isChecked: boolean) => void;
 }
 const questionTypes = {
   mcq: "Multiple Choice",
@@ -38,10 +43,20 @@ const questionTypes = {
   "true-or-false": "True or False",
   essay: "Essay",
 };
-const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
-  const history = useHistory();
+const QuizCard: React.FC<QuizCardProps> = ({
+  isCheckBox,
+  width,
+  data,
+  redirectQuiz,
+  isSelected,
+  handleSelectArchive,
+}) => {
+  const [shadowColor, setShadowColor] = useState("");
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    const shadowColor = colors[randomIndex];
+    setShadowColor(shadowColor);
+  }, []);
 
   const cardsStyles = {
     flex: "0 0 auto",
@@ -50,10 +65,27 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
     border: "2px solid black",
     borderRadius: "1.5rem",
     boxShadow: `10px 10px 0px ${shadowColor}`, // Dynamic shadow color,
+    display: "flex",
   };
 
+  const handleCardClick = () => {
+    if (!isCheckBox && isSelected === undefined) return;
+    handleSelectArchive(data, !isSelected);
+  };
   return (
-    <IonCard style={cardsStyles}>
+    <IonCard style={cardsStyles} type="button" onClick={handleCardClick}>
+      {isCheckBox && (
+        <IonCheckbox
+          style={{
+            alignSelf: "center",
+            margin: "5px",
+          }}
+          checked={isSelected}
+          onIonChange={(e) => handleSelectArchive(data, e.detail.checked)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+
       <div
         style={{
           display: "flex",
@@ -125,7 +157,7 @@ const QuizCard: React.FC<QuizCardProps> = ({ width, data }) => {
             fill="clear"
             color={"dark"}
             onClick={() => {
-              history.push(`/quiz/${data.quiz_id}`, {});
+              redirectQuiz(data.quiz_id);
             }}
           >
             <IonIcon

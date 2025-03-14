@@ -345,7 +345,7 @@ WHERE
               ea.question_id,
               ea.answer,
               ev.essay_eval_id,
-              ev.rubric_id,
+              ev.rubric_id AS eval_rubric_id,
               fb.feedback,
               fb.essay_fb_id
             FROM 
@@ -408,7 +408,7 @@ WHERE
         }
 
         quiz_res = {
-          rubric_id: essay_eval[0].rubric_id,
+          rubric_id: essay_eval[0].eval_rubric_id,
           answer: essay_eval[0].answer,
           question: question[0].content,
           feedback: essay_eval[0].feedback,

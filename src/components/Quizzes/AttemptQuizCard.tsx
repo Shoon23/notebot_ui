@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonCard,
@@ -31,11 +31,19 @@ const colors = [
 
 interface AttemptQuizCardProps {
   data: iAttemptQuiz;
+  redirectQuizResult: (id: number) => void;
 }
 
-const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ data }) => {
-  const randomIndex = Math.floor(Math.random() * colors.length);
-  const shadowColor = colors[randomIndex];
+const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({
+  data,
+  redirectQuizResult,
+}) => {
+  const [shadowColor, setShadowColor] = useState("");
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    const shadowColor = colors[randomIndex];
+    setShadowColor(shadowColor);
+  }, []);
   const router = useIonRouter();
   const cardsStyles = {
     flex: "0 0 auto",
@@ -117,8 +125,7 @@ const AttemptQuizCard: React.FC<AttemptQuizCardProps> = ({ data }) => {
         >
           <IonButton
             onClick={() => {
-              console.log(data.quiz_attempt_id);
-              router.push(`/quiz-result/${data.quiz_attempt_id}`);
+              redirectQuizResult(data.quiz_attempt_id);
             }}
             style={{
               height: "100%",
